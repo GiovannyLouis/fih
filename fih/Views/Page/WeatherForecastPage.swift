@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct WeatherForecastPage: View {
-    let controller: WeatherController
-
     
+    @State private var controller: WeatherController = WeatherController()
+
     var body: some View {
         VStack {
             if let forecast = controller.todayForecast{

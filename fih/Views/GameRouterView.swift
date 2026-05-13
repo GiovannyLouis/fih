@@ -25,7 +25,7 @@ struct GameRouterView: View {
                 MainMenuPage()
             
             case .weatherForecastPage:
-                WeatherForecastPage(controller: appState.weatherController)
+                WeatherForecastPage()
             
             case .selectShipPage:
                 SelectShipPage()

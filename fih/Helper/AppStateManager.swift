@@ -11,6 +11,6 @@ import SwiftUI
 class AppStateManager {
     
     // enum currentScreen untuk mengatur screen apa yang muncul berdasarkan statenya, state awal diset di SelectShipPage
-    var currentScreen: GameScreen = .selectShipPage
+    var currentScreen: GameScreen = .weatherForecastPage
     
 }
