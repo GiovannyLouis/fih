@@ -1,0 +1,21 @@
+//
+//  AppStateManager.swift
+//  PilihKapal
+//
+//  Created by Satriya Handha Wibowo on 12/05/26.
+//
+
+import SwiftUI
+
+@Observable
+class AppStateManager {
+    
+    // enum currentScreen untuk mengatur screen apa yang muncul berdasarkan statenya, state awal diset di SelectShipPage
+    var currentScreen: GameScreen = .selectShipPage
+    
+    // buat controller shipcontroller bisa diakses secara global
+    var shipController = ShipController()
+    var equipmentController: EquipmentController?
+    var inGameController: InGameController?
+    
+}
