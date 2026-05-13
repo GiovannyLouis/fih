@@ -8,11 +8,23 @@
 import SwiftUI
 
 struct WeatherForecastPage: View {
+    let controller: WeatherController
+
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            if let forecast = controller.todayForecast{
+                Text(forecast.predictedWeather.displayName)
+            }
+        }
+        .onAppear {
+            if controller.todayForecast == nil {
+                controller.generateTomorrowWeather()
+            }
+        }
     }
 }
-
-#Preview {
-    WeatherForecastPage()
-}
+//
+//#Preview {
+//    WeatherForecastPage(controller: WeatherController())
+//}
