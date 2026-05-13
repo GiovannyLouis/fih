@@ -9,7 +9,11 @@ import SwiftUI
 
 struct InGamePage: View {
     
-    let controller: InGameController
+    @State private var controller: InGameController
+    
+    init(ship: Ship, equippedItems: [Equipment]) {
+        self._controller = State(initialValue: InGameController(ship: ship, equippedItems: equippedItems))
+    }
     
     @Environment(AppStateManager.self) private var appState
         

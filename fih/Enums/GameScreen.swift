@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 
 // 1. Define all the screens in your game
-enum GameScreen {
+enum GameScreen: Equatable {
     case fishAlbumPage
     case mainMenuPage
     case weatherForecastPage
     case selectShipPage
-    case selectEquipmentPage
-    case inGamePage
+    case selectEquipmentPage(ship: Ship)
+    case inGamePage(ship: Ship, equippedItems: [Equipment])
 }
