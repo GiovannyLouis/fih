@@ -10,6 +10,8 @@ import SwiftUI
 // MARK: - VIEW (Main Screen Updated)
 struct SelectShipPage: View {
     
+    @State private var shipController = ShipController()
+    
     @Environment(AppStateManager.self) private var appState
         
     var body: some View {
@@ -41,21 +43,18 @@ struct SelectShipPage: View {
                     
                     // Right Arrow (Next Step: Select Equipment)
                     Button(action: {
-                        if let selectedShip = appState.shipController.selectedShip {
-                            // ambil ship yang dipilih lalu pergi ke selectequipment page
-                            appState.equipmentController = EquipmentController(ship: selectedShip)
-                            
+                        if let selectedShip = shipController.selectedShip {
                             // ubah state appstate menjadi selectEquipmentPage
-                            appState.currentScreen = .selectEquipmentPage
+                            appState.currentScreen = .selectEquipmentPage(ship: selectedShip)
                         }
                     }) {
                         Image(systemName: "chevron.right.circle")
                             .resizable()
                             .frame(width: 40, height: 40)
                             // Turns gray if no ship is selected
-                            .foregroundColor(appState.shipController.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
+                            .foregroundColor(shipController.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
                     }
-                    .disabled(appState.shipController.selectedShip == nil)                }
+                    .disabled(shipController.selectedShip == nil)                }
                 .padding(.horizontal, 40) // Gives the buttons some breathing room from the screen edges
                 .padding(.top, 20)
                 
@@ -63,13 +62,13 @@ struct SelectShipPage: View {
                 
                 // 2. MIDDLE: SHIP SELECTION CARDS
                 HStack(spacing: 30) {
-                    ForEach(appState.shipController.availableShips) { ship in
+                    ForEach(shipController.availableShips) { ship in
                         ShipCardView(
                             ship: ship,
-                            isSelected: appState.shipController.selectedShip == ship,
+                            isSelected: shipController.selectedShip == ship,
                             action: {
                                 // Selects the ship (triggers the animation)
-                                appState.shipController.selectedShip = ship
+                                shipController.selectedShip = ship
                             }
                         )
                     }

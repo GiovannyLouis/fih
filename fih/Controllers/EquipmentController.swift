@@ -16,10 +16,13 @@ class EquipmentController {
     // terima object kapal yang dipilih dari page SelectShipPage
     let ship: Ship
     
+    
+    var maxEquipmentSlots: Int = 0
     var equippedItems: [Equipment] = []
     
     init(ship: Ship) {
         self.ship = ship
+        self.maxEquipmentSlots = ship.equipmentSlots
     }
     
     // Logic to equip or unequip an item when tapped
@@ -27,7 +30,7 @@ class EquipmentController {
         if let index = equippedItems.firstIndex(where: { $0.id == item.id }) {
             // If it's already equipped, unequip it
             equippedItems.remove(at: index)
-        } else if equippedItems.count < ship.equipmentSlots {
+        } else if equippedItems.count < maxEquipmentSlots {
             // If we have an empty slot, equip it
             equippedItems.append(item)
         } else {

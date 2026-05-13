@@ -30,15 +30,11 @@ struct GameRouterView: View {
             case .selectShipPage:
                 SelectShipPage()
                 
-            case .selectEquipmentPage:
-                if let eqController = appState.equipmentController {
-                    SelectEquipmentPage(controller: eqController)
-                }
+            case .selectEquipmentPage(let ship):
+                SelectEquipmentPage(ship: ship)
                 
-            case .inGamePage:
-                if let playingControler = appState.inGameController {
-                    InGamePage(controller: playingControler)
-                }
+            case .inGamePage(let ship, let equippedItems):
+                InGamePage(ship: ship, equippedItems: equippedItems)
                 
             }
         }

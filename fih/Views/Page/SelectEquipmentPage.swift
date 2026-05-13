@@ -9,7 +9,11 @@ import SwiftUI
 
 struct SelectEquipmentPage: View {
 
-    let controller: EquipmentController
+    @State private var controller: EquipmentController
+    
+    init(ship: Ship) {
+        self._controller = State(initialValue: EquipmentController(ship: ship))
+    }
     
     @Environment(AppStateManager.self) private var appState
     
@@ -72,7 +76,7 @@ struct SelectEquipmentPage: View {
                     Spacer()
                     
                     // Ship Image
-                    Image(controller.ship.imageName) // Or system name if placeholder
+                    Image(controller.ship.imageName) 
                         .resizable()
                         .scaledToFit()
                         .frame(height: 150)
@@ -80,7 +84,7 @@ struct SelectEquipmentPage: View {
                     // DYNAMIC EQUIPMENT SLOTS (No ForEach Approach!)
                     HStack(spacing: 15) {
                         
-                        let slotCount = Int("\(controller.ship.equipmentSlots)") ?? 0
+                        let slotCount = controller.ship.equipmentSlots
                         let equippedCount = controller.equippedItems.count
                         
                         // Slot 1
@@ -102,11 +106,7 @@ struct SelectEquipmentPage: View {
                     // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
                     // mengubah state currentScreen menjadi InGamePage
                     Button(action: {
-                        // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
-                        appState.inGameController = InGameController(ship: controller.ship, equippedItems: controller.equippedItems)
-                        
-                        // mengubah state currentScreen menjadi InGamePage
-                        appState.currentScreen = .inGamePage
+                        appState.currentScreen = .inGamePage(ship: controller.ship, equippedItems: controller.equippedItems)
                     }) {
                         Text("Start")
                             .font(.title2)
@@ -127,6 +127,6 @@ struct SelectEquipmentPage: View {
 #Preview {
     let dummyShip = Ship(name: "Cargo Ship", imageName: "ship_cargo", maxSpeed: 50, maxDurability: 800, equipmentSlots: 2, shipType: .cargoBoat)
     
-    SelectEquipmentPage(controller: EquipmentController(ship: dummyShip))
+    SelectEquipmentPage(ship: dummyShip)
         .environment(AppStateManager())
 }
