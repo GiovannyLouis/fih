@@ -18,6 +18,7 @@ struct WeatherForecastPage: View {
             VStack {
                 HStack {
                     Button(action: {
+                        appState.isMovingForward = false
                         appState.currentScreen = .mainMenuPage
                         print("Go back to main screen")
                     }) {
@@ -36,10 +37,8 @@ struct WeatherForecastPage: View {
                     Spacer()
                     
                     Button(action: {
-                        //print("data yang akan dirikim : \(controller.todayForecast?.actualWeather.displayName)")
-                        // print("data yang akan dirikim : \(actualWeather.actualWeather.displayName)")
+                        appState.isMovingForward = true
                         appState.currentScreen = .selectShipPage
-                        print("Go to select ship screen")
                     }) {
                         Image(systemName: "chevron.right.circle")
                             .resizable()
@@ -76,7 +75,7 @@ struct WeatherForecastPage: View {
             }
             .onAppear {
                 if appState.currentForecast == nil {
-                   controller.generateTomorrowWeather()
+                    controller.generateTomorrowWeather()
                     appState.currentForecast = controller.todayForecast
                 }
             }

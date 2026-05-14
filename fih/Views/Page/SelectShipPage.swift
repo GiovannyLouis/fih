@@ -24,6 +24,7 @@ struct SelectShipPage: View {
                 HStack {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
+                        appState.isMovingForward = false
                         appState.currentScreen = .weatherForecastPage
                     }) {
                         Image(systemName: "chevron.left.circle")
@@ -36,13 +37,14 @@ struct SelectShipPage: View {
                     
                     // Title
                     Text("Select Your Ship")
-                        .font(.custom("Cause-Bold", size: 38))
+                        .font(.custom("Cause-Bold", size: 32))
                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     
                     Spacer() // Pushes the next button to the far right
                     
                     // Right Arrow (Next Step: Select Equipment)
                     Button(action: {
+                        appState.isMovingForward = true
                         appState.currentScreen = .selectEquipmentPage
                     }) {
                         Image(systemName: "chevron.right.circle")
@@ -52,7 +54,7 @@ struct SelectShipPage: View {
                             .foregroundColor(appState.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
                     }
                     .disabled(appState.selectedShip == nil)                }
-                .padding(.top, 32)
+                    .padding(.top, 32)
                 
                 Spacer() // Pushes the ship cards down to the middle
                 

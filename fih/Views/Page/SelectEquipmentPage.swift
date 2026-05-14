@@ -24,6 +24,7 @@ struct SelectEquipmentPage: View {
                     HStack {
                         // 2. FIXED: Use appState to go back, not dismiss() or onBack
                         Button(action: {
+                            appState.isMovingForward = false
                             appState.currentScreen = .selectShipPage
                         }) {
                             Image(systemName: "chevron.left.circle.fill")
@@ -104,6 +105,7 @@ struct SelectEquipmentPage: View {
                         // mengubah state currentScreen menjadi InGamePage
                         Button(action: {
                             appState.equippedItems = controller.equippedItems
+                            appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {
                             Text("Start")
