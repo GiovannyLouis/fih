@@ -52,7 +52,7 @@ struct SelectShipPage: View {
                             .foregroundColor(appState.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
                     }
                     .disabled(appState.selectedShip == nil)                }
-                .padding(.top, 32)
+                    .padding(.top, 32)
                 
                 Spacer() // Pushes the ship cards down to the middle
                 

@@ -29,6 +29,10 @@ struct InGamePage: View {
                     Text(item.name)
                 }
                 
+                if let currentForecast = appState.currentForecast {
+                    Text("Reality: \(currentForecast.actualWeather.displayName)")
+                }
+                
                 // pasang spritekit gamescene disini
             }
             .padding()
