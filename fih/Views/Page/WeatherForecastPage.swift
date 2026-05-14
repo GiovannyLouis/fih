@@ -18,6 +18,7 @@ struct WeatherForecastPage: View {
             VStack {
                 HStack {
                     Button(action: {
+                        appState.isMovingForward = false
                         appState.currentScreen = .mainMenuPage
                         print("Go back to main screen")
                     }) {
@@ -36,6 +37,7 @@ struct WeatherForecastPage: View {
                     Spacer()
                     
                     Button(action: {
+                        appState.isMovingForward = true
                         appState.currentScreen = .selectShipPage
                     }) {
                         Image(systemName: "chevron.right.circle")

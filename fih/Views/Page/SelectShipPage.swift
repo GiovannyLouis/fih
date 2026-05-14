@@ -24,6 +24,7 @@ struct SelectShipPage: View {
                 HStack {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
+                        appState.isMovingForward = false
                         appState.currentScreen = .weatherForecastPage
                     }) {
                         Image(systemName: "chevron.left.circle")
@@ -43,6 +44,7 @@ struct SelectShipPage: View {
                     
                     // Right Arrow (Next Step: Select Equipment)
                     Button(action: {
+                        appState.isMovingForward = true
                         appState.currentScreen = .selectEquipmentPage
                     }) {
                         Image(systemName: "chevron.right.circle")
