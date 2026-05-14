@@ -16,4 +16,18 @@ class AppStateManager {
     var selectedShip: Ship?
     
     var equippedItems: [Equipment] = []
+    
+    // variable menyimpan weather prediction
+    var currentForecast: DailyForecast? = nil
+    
+    func resetForecast() {
+        currentForecast = nil
+    }
+    
+    // function sementara untuk reset forecast kalau fishing selesai
+    func endExpedition() {
+        resetForecast()
+        currentScreen = .mainMenuPage
+    }
+    
 }

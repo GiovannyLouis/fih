@@ -19,6 +19,7 @@ struct WeatherForecastPage: View {
                 HStack {
                     Button(action: {
                         appState.currentScreen = .mainMenuPage
+                        print("Go back to main screen")
                     }) {
                         Image(systemName: "chevron.left.circle")
                             .resizable()
@@ -38,6 +39,7 @@ struct WeatherForecastPage: View {
                         //print("data yang akan dirikim : \(controller.todayForecast?.actualWeather.displayName)")
                         // print("data yang akan dirikim : \(actualWeather.actualWeather.displayName)")
                         appState.currentScreen = .selectShipPage
+                        print("Go to select ship screen")
                     }) {
                         Image(systemName: "chevron.right.circle")
                             .resizable()
@@ -49,16 +51,14 @@ struct WeatherForecastPage: View {
                 
                 Spacer()
                 
-                if let forecastImage = controller.todayForecast {
-                    Image(forecastImage.predictedWeather.iconName)
+                if let forecast = appState.currentForecast {
+                    Image(forecast.predictedWeather.iconName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxHeight: 200)
-                }
-                
-                Spacer()
-                
-                if let forecast = controller.todayForecast{
+                    
+                    Spacer()
+                    
                     HStack {
                         Text("\(forecast.confidence)%")
                             .font(.custom("patrickhand-regular", size: 32))
@@ -68,12 +68,16 @@ struct WeatherForecastPage: View {
                             .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.6))
                     }
                     .padding(.bottom, 28)
+                } else {
+                    ProgressView("Calibrating Forecast...")
                 }
+                
                 
             }
             .onAppear {
-                if controller.todayForecast == nil {
+                if appState.currentForecast == nil {
                    controller.generateTomorrowWeather()
+                    appState.currentForecast = controller.todayForecast
                 }
             }
         }
