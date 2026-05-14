@@ -24,7 +24,7 @@ struct SelectShipPage: View {
                 HStack {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
-                        print("Go back to Main Menu")
+                        appState.currentScreen = .weatherForecastPage
                     }) {
                         Image(systemName: "chevron.left.circle")
                             .resizable()
