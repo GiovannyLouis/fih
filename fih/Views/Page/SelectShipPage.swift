@@ -25,7 +25,6 @@ struct SelectShipPage: View {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
                         appState.currentScreen = .weatherForecastPage
-                        print("Go back to Weather Forecast")
                     }) {
                         Image(systemName: "chevron.left.circle")
                             .resizable()
@@ -56,8 +55,7 @@ struct SelectShipPage: View {
                             .foregroundColor(shipController.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
                     }
                     .disabled(shipController.selectedShip == nil)                }
-                .padding(.horizontal, 40) // Gives the buttons some breathing room from the screen edges
-                .padding(.top, 20)
+                .padding(.top, 32)
                 
                 Spacer() // Pushes the ship cards down to the middle
                 
