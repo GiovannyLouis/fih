@@ -9,19 +9,23 @@ import SwiftUI
 
 struct InGamePage: View {
     
-    @State private var controller: InGameController
+    @State private var controller: InGameController = InGameController()
     
-    init(ship: Ship, equippedItems: [Equipment]) {
-        self._controller = State(initialValue: InGameController(ship: ship, equippedItems: equippedItems))
-    }
+//    init(ship: Ship, equippedItems: [Equipment]) {
+//        self._controller = State(initialValue: InGameController(ship: ship, equippedItems: equippedItems))
+//    }
     
     @Environment(AppStateManager.self) private var appState
         
     var body: some View {
         ZStack {
             VStack {
-                Text("Start Game with \(controller.selectedShip.name) and \(controller.equippedItems.count) items!")
-                ForEach(controller.equippedItems) { item in
+                if let selectedShip = appState.selectedShip {
+                    Text("Start Game with \(selectedShip.name) ")
+                }
+                
+                Text("Using \(appState.equippedItems.count) items!")
+                ForEach(appState.equippedItems) { item in
                     Text(item.name)
                 }
                 

@@ -40,7 +40,8 @@ enum WeatherType: CaseIterable {
     }
 }
 
-struct DailyForecast {
+struct DailyForecast: Identifiable, Equatable{
+    let id = UUID()
     let predictedWeather: WeatherType
     let actualWeather: WeatherType
     let confidence: Int

@@ -13,6 +13,4 @@ class ShipController {
     // inisiasi semua data kapal yang tersedia
     var availableShips: [Ship] = Ship.allShips
     
-    // melacak kapal apa yang dipilih
-    var selectedShip: Ship? = nil
 }

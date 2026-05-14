@@ -35,6 +35,8 @@ struct WeatherForecastPage: View {
                     Spacer()
                     
                     Button(action: {
+                        //print("data yang akan dirikim : \(controller.todayForecast?.actualWeather.displayName)")
+                        // print("data yang akan dirikim : \(actualWeather.actualWeather.displayName)")
                         appState.currentScreen = .selectShipPage
                     }) {
                         Image(systemName: "chevron.right.circle")

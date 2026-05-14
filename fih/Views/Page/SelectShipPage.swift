@@ -43,18 +43,15 @@ struct SelectShipPage: View {
                     
                     // Right Arrow (Next Step: Select Equipment)
                     Button(action: {
-                        if let selectedShip = shipController.selectedShip {
-                            // ubah state appstate menjadi selectEquipmentPage
-                            appState.currentScreen = .selectEquipmentPage(ship: selectedShip)
-                        }
+                        appState.currentScreen = .selectEquipmentPage
                     }) {
                         Image(systemName: "chevron.right.circle")
                             .resizable()
                             .frame(width: 40, height: 40)
                             // Turns gray if no ship is selected
-                            .foregroundColor(shipController.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
+                            .foregroundColor(appState.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
                     }
-                    .disabled(shipController.selectedShip == nil)                }
+                    .disabled(appState.selectedShip == nil)                }
                 .padding(.top, 32)
                 
                 Spacer() // Pushes the ship cards down to the middle
@@ -64,10 +61,11 @@ struct SelectShipPage: View {
                     ForEach(shipController.availableShips) { ship in
                         ShipCardView(
                             ship: ship,
-                            isSelected: shipController.selectedShip == ship,
+                            isSelected: appState.selectedShip == ship,
                             action: {
                                 // Selects the ship (triggers the animation)
-                                shipController.selectedShip = ship
+                                appState.selectedShip = ship
+                                //shipController.selectedShip = ship
                             }
                         )
                     }

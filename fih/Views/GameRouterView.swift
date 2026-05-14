@@ -30,11 +30,11 @@ struct GameRouterView: View {
             case .selectShipPage:
                 SelectShipPage()
                 
-            case .selectEquipmentPage(let ship):
-                SelectEquipmentPage(ship: ship)
+            case .selectEquipmentPage:
+                SelectEquipmentPage()
                 
-            case .inGamePage(let ship, let equippedItems):
-                InGamePage(ship: ship, equippedItems: equippedItems)
+            case .inGamePage:
+                InGamePage()
                 
             }
         }
