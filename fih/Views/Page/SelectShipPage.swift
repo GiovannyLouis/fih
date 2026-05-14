@@ -36,7 +36,7 @@ struct SelectShipPage: View {
                     
                     // Title
                     Text("Select Your Ship")
-                        .font(.custom("Cause-Bold", size: 38))
+                        .font(.custom("Cause-Bold", size: 32))
                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     
                     Spacer() // Pushes the next button to the far right
