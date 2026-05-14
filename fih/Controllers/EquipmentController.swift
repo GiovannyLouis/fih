@@ -14,10 +14,7 @@ class EquipmentController {
     var availableEquipment: [Equipment] = Equipment.allEquipment
     
     var equippedItems: [Equipment] = []
-    
-    
-
-    
+  
     // Logic to equip or unequip an item when tapped
     func toggleEquipment(_ item: Equipment) {
         if let index = equippedItems.firstIndex(where: { $0.id == item.id }) {
