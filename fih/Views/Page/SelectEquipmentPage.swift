@@ -9,11 +9,7 @@ import SwiftUI
 
 struct SelectEquipmentPage: View {
 
-    @State private var controller: EquipmentController
-    
-    init(ship: Ship) {
-        self._controller = State(initialValue: EquipmentController(ship: ship))
-    }
+    @State private var controller: EquipmentController = EquipmentController()
     
     @Environment(AppStateManager.self) private var appState
     
@@ -71,54 +67,56 @@ struct SelectEquipmentPage: View {
                 .frame(maxWidth: .infinity)
                 .background(Color(red: 1.0, green: 0.98, blue: 0.9)) // Light yellow background
                 
-                // RIGHT SIDE: Ship Preview & Slots
-                VStack {
-                    Spacer()
-                    
-                    // Ship Image
-                    Image(controller.ship.imageName) 
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 150)
-                    
-                    // DYNAMIC EQUIPMENT SLOTS (No ForEach Approach!)
-                    HStack(spacing: 15) {
+                if let selectedShip = appState.selectedShip {
+                    // RIGHT SIDE: Ship Preview & Slots
+                    VStack {
+                        Spacer()
                         
-                        let slotCount = controller.ship.equipmentSlots
-                        let equippedCount = controller.equippedItems.count
+                        // Ship Image
+                        Image(selectedShip.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 150)
                         
-                        // Slot 1
-                        if slotCount > 0 {
-                            EquipmentSlotView(iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil)
+                        // DYNAMIC EQUIPMENT SLOTS (No ForEach Approach!)
+                        HStack(spacing: 15) {
+                            
+                            let slotCount = selectedShip.equipmentSlots
+                            let equippedCount = controller.equippedItems.count
+                            
+                            // Slot 1
+                            if slotCount > 0 {
+                                EquipmentSlotView(iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil)
+                            }
+                            
+                            // Slot 2
+                            if slotCount > 1 {
+                                EquipmentSlotView(iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil)
+                            }
+                            
                         }
+                        .padding(.top, 20)
                         
-                        // Slot 2
-                        if slotCount > 1 {
-                            EquipmentSlotView(iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil)
+                        Spacer()
+                        
+                        // Start Button
+                        // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
+                        // mengubah state currentScreen menjadi InGamePage
+                        Button(action: {
+                            appState.currentScreen = .inGamePage
+                        }) {
+                            Text("Start")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .frame(width: 150, height: 50)
+                                .background(Color.green)
+                                .cornerRadius(25)
                         }
-                        
+                        .padding(.bottom, 30)
                     }
-                    .padding(.top, 20)
-                    
-                    Spacer()
-                    
-                    // Start Button
-                    // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
-                    // mengubah state currentScreen menjadi InGamePage
-                    Button(action: {
-                        appState.currentScreen = .inGamePage(ship: controller.ship, equippedItems: controller.equippedItems)
-                    }) {
-                        Text("Start")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .frame(width: 150, height: 50)
-                            .background(Color.green)
-                            .cornerRadius(25)
-                    }
-                    .padding(.bottom, 30)
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -127,6 +125,6 @@ struct SelectEquipmentPage: View {
 #Preview {
     let dummyShip = Ship(name: "Cargo Ship", imageName: "ship_cargo", maxSpeed: 50, maxDurability: 800, equipmentSlots: 2, shipType: .cargoBoat)
     
-    SelectEquipmentPage(ship: dummyShip)
+    SelectEquipmentPage()
         .environment(AppStateManager())
 }

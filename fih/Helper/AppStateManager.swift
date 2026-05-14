@@ -13,6 +13,10 @@ class AppStateManager {
     // enum currentScreen untuk mengatur screen apa yang muncul berdasarkan statenya, state awal diset di SelectShipPage
     var currentScreen: GameScreen = .weatherForecastPage
     
+    var selectedShip: Ship?
+    
+    var equippedItems: [Equipment] = []
+    
     // variable menyimpan weather prediction
     var currentForecast: DailyForecast? = nil
     

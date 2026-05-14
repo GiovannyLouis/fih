@@ -14,6 +14,6 @@ enum GameScreen: Equatable {
     case mainMenuPage
     case weatherForecastPage
     case selectShipPage
-    case selectEquipmentPage(ship: Ship)
-    case inGamePage(ship: Ship, equippedItems: [Equipment])
+    case selectEquipmentPage
+    case inGamePage
 }
