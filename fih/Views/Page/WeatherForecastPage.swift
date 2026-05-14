@@ -8,23 +8,77 @@
 import SwiftUI
 
 struct WeatherForecastPage: View {
-    
+    @Environment(AppStateManager.self) private var appState
     @State private var controller: WeatherController = WeatherController()
 
     var body: some View {
-        VStack {
-            if let forecast = controller.todayForecast{
-                Text(forecast.predictedWeather.displayName)
+        ZStack {
+            Color.white.ignoresSafeArea()
+            
+            VStack {
+                HStack {
+                    Button(action: {
+                        appState.currentScreen = .mainMenuPage
+                    }) {
+                        Image(systemName: "chevron.left.circle")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                    }
+                    
+                    Spacer()
+                    
+                    Text("Tomorrow's Weather Forecast")
+                        .font(.custom("cause-bold", size: 32))
+                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        appState.currentScreen = .selectShipPage
+                    }) {
+                        Image(systemName: "chevron.right.circle")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                    }
+                }
+                .padding(.top, 32)
+                
+                Spacer()
+                
+                if let forecastImage = controller.todayForecast {
+                    Image(forecastImage.predictedWeather.iconName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 200)
+                }
+                
+                Spacer()
+                
+                if let forecast = controller.todayForecast{
+                    HStack {
+                        Text("\(forecast.confidence)%")
+                            .font(.custom("patrickhand-regular", size: 32))
+                            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.6))
+                        Text("\(forecast.predictedWeather.displayName)")
+                            .font(.custom("patrickhand-regular", size: 32))
+                            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.6))
+                    }
+                    .padding(.bottom, 28)
+                }
+                
             }
-        }
-        .onAppear {
-            if controller.todayForecast == nil {
-                controller.generateTomorrowWeather()
+            .onAppear {
+                if controller.todayForecast == nil {
+                   controller.generateTomorrowWeather()
+                }
             }
         }
     }
 }
-//
-//#Preview {
-//    WeatherForecastPage(controller: WeatherController())
-//}
+
+#Preview {
+    WeatherForecastPage()
+        .environment(AppStateManager())
+}

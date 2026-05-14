@@ -83,4 +83,5 @@ struct SelectShipPage: View {
 
 #Preview {
     SelectShipPage()
+        .environment(AppStateManager())
 }
