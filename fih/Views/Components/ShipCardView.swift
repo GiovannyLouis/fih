@@ -23,7 +23,7 @@ struct ShipCardView: View {
                 
                 // Ship Image
                 // NOTE: Replace the systemName with Image(ship.imageName) when you add your real assets
-                Image(systemName: "sailboat.fill")
+                Image(ship.imageName)
                     .resizable()
                     .scaledToFit()
                     .frame(height: 70)
