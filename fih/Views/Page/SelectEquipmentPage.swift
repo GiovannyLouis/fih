@@ -103,6 +103,7 @@ struct SelectEquipmentPage: View {
                         // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
                         // mengubah state currentScreen menjadi InGamePage
                         Button(action: {
+                            appState.equippedItems = controller.equippedItems
                             appState.currentScreen = .inGamePage
                         }) {
                             Text("Start")
