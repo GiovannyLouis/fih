@@ -13,4 +13,17 @@ class AppStateManager {
     // enum currentScreen untuk mengatur screen apa yang muncul berdasarkan statenya, state awal diset di SelectShipPage
     var currentScreen: GameScreen = .weatherForecastPage
     
+    // variable menyimpan weather prediction
+    var currentForecast: DailyForecast? = nil
+    
+    func resetForecast() {
+        currentForecast = nil
+    }
+    
+    // function sementara untuk reset forecast kalau fishing selesai
+    func endExpedition() {
+        resetForecast()
+        currentScreen = .mainMenuPage
+    }
+    
 }
