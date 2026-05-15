@@ -21,6 +21,7 @@ class AppStateManager {
     
     // variable menyimpan weather prediction
     var currentForecast: DailyForecast? = nil
+    var inGameController: InGameController? = nil
     
     func resetForecast() {
         currentForecast = nil
