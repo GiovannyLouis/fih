@@ -50,3 +50,5 @@ fastlane/test_output/
 # --------------------------------------------------
 *.swp
 *.lock
+
+Developer.xcconfig

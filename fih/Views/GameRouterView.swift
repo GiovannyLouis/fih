@@ -17,34 +17,32 @@ struct GameRouterView: View {
     
     var body: some View {
         ZStack {
-            switch appState.currentScreen {
-            case .fishAlbumPage:
-                FishAlbumPage()
+            Group {
+                switch appState.currentScreen {
+                case .fishAlbumPage:
+                    FishAlbumPage()
+                    
+                case .mainMenuPage:
+                    MainMenuPage()
                 
-            case .mainMenuPage:
-                MainMenuPage()
-            
-            case .weatherForecastPage:
-                WeatherForecastPage()
-            
-            case .selectShipPage:
-                SelectShipPage()
+                case .weatherForecastPage:
+                    WeatherForecastPage()
                 
-            case .selectEquipmentPage:
-                if let eqController = appState.equipmentController {
-                    SelectEquipmentPage(controller: eqController)
+                case .selectShipPage:
+                    SelectShipPage()
+                    
+                case .selectEquipmentPage:
+                    SelectEquipmentPage()
+                    
+                case .inGamePage:
+                    InGamePage()
+                    
                 }
-                
-            case .inGamePage:
-                if let playingControler = appState.inGameController {
-                    InGamePage(controller: playingControler)
-                }
-                
             }
+            .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
         }
         // Adds a nice crossfade animation when switching screens
-        .animation(.easeInOut, value: appState.currentScreen)
-    }
+        .animation(.smooth(duration: 0.6), value: appState.currentScreen)    }
 }
 
 #Preview {

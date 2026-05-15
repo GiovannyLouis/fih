@@ -42,7 +42,7 @@ extension Ship {
         ),
         Ship(
             name: "Cargo Ship",
-            imageName: "ship_cargo",
+            imageName: "ship_cargoboat",
             maxSpeed: 100,
             maxDurability: 800,
             equipmentSlots: 2,
