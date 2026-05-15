@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct StatView: View {
+    let icon: String
+    let value: String
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+            Text(value)
+        }
     }
 }
 
 #Preview {
-    StatView()
+    StatView(icon: "heart.fill", value: "0")
 }
