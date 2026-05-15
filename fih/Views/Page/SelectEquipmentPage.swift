@@ -107,6 +107,12 @@ struct SelectEquipmentPage: View {
                         // mengubah state currentScreen menjadi InGamePage
                         Button(action: {
                             appState.equippedItems = controller.equippedItems
+                            if let ship = appState.selectedShip {
+                                   appState.inGameController = InGameController(
+                                       ship: ship,
+                                       equippedItems: controller.equippedItems
+                                   )
+                               }
                             appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {

@@ -8,13 +8,6 @@
 import SwiftUI
 
 struct InGamePage: View {
-    
-    @State private var controller: InGameController = InGameController()
-    
-//    init(ship: Ship, equippedItems: [Equipment]) {
-//        self._controller = State(initialValue: InGameController(ship: ship, equippedItems: equippedItems))
-//    }
-    
     @Environment(AppStateManager.self) private var appState
         
     var body: some View {
@@ -41,5 +34,6 @@ struct InGamePage: View {
 }
 
 #Preview {
-    //PlayingPage()
+    InGamePage()
+        .environment(AppStateManager())
 }

@@ -36,7 +36,6 @@ struct GameRouterView: View {
                     
                 case .inGamePage:
                     InGamePage()
-                    
                 }
             }
             .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
