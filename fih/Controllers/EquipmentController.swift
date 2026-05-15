@@ -16,11 +16,11 @@ class EquipmentController {
     var equippedItems: [Equipment] = []
   
     // Logic to equip or unequip an item when tapped
-    func toggleEquipment(_ item: Equipment) {
+    func toggleEquipment(_ item: Equipment, maxEquipmentSlots: Int) {
         if let index = equippedItems.firstIndex(where: { $0.id == item.id }) {
             // If it's already equipped, unequip it
             equippedItems.remove(at: index)
-        } else if equippedItems.count < 2 {
+        } else if equippedItems.count < maxEquipmentSlots {
             // If we have an empty slot, equip it
             equippedItems.append(item)
         } else {
