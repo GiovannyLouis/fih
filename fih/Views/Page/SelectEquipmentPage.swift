@@ -58,7 +58,9 @@ struct SelectEquipmentPage: View {
                                 let isSelected = controller.equippedItems.contains(where: { $0.id == item.id })
                                 
                                 EquipmentRowView(item: item, isSelected: isSelected) {
-                                    controller.toggleEquipment(item)
+                                    if let selectedShip = appState.selectedShip {
+                                        controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
+                                    }
                                 }
                             }
                         }
