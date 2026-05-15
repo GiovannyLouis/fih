@@ -27,7 +27,7 @@ struct SelectShipPage: View {
                         appState.isMovingForward = false
                         appState.currentScreen = .weatherForecastPage
                     }) {
-                        Image(systemName: "chevron.left.circle")
+                        Image("icon_back")
                             .resizable()
                             .frame(width: 40, height: 40)
                             .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
