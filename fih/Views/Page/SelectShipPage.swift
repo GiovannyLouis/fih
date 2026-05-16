@@ -16,16 +16,13 @@ struct SelectShipPage: View {
     @Environment(AppStateManager.self) private var appState
     
     var backgroundScene: SKScene {
-        // Load the visual .sks file instead of a blank class
+        // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
+        // loads your fish, and triggers the didMove(to:) movement code!
         if let scene = SKScene(fileNamed: "FishBackground") {
-            scene.scaleMode = .aspectFill // This ensures it fills the screen nicely
+            scene.scaleMode = .aspectFill
             return scene
         }
-        
-        // Fallback if the file isn't found
-        let fallback = SKScene(size: CGSize(width: 400, height: 800))
-        fallback.backgroundColor = .gray
-        return fallback
+        return SKScene()
     }
         
     var body: some View {
