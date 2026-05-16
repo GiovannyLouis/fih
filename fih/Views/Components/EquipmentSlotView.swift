@@ -7,24 +7,38 @@
 
 import SwiftUI
 
+import SwiftUI
+import SpriteKit
+
 struct EquipmentSlotView: View {
     let iconName: String? // Nil means the slot is empty
     
+    var bgScene: SKScene {
+        let scene = CardBackgroundScene()
+        // We ensure the scene matches the SwiftUI frame exactly
+        scene.size = CGSize(width: 60, height: 60)
+        scene.scaleMode = .fill
+        return scene
+    }
+    
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(red: 1.0, green: 0.98, blue: 0.9))
-                .frame(width: 60, height: 60)
-                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
+            // REMOVED: RoundedRectangle() that was painting the box black
             
-            if let _ = iconName { // When you have real images, use: let icon = iconName
-                Image(systemName: "shield.fill") // Replace with Image(icon)
+            if let _ = iconName {
+                Image(systemName: "shield.fill")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)
                     .foregroundColor(.yellow)
             }
         }
+        // Set the size directly on the container ZStack
+        .frame(width: 60, height: 60)
+        // Attach your 9-sliced SpriteKit view underneath
+        .background (
+            SpriteView(scene: bgScene, options: [.allowsTransparency])
+        )
     }
 }
 
