@@ -15,7 +15,7 @@ struct SelectShipPage: View {
     
     @Environment(AppStateManager.self) private var appState
     
-    var backgroundScene: SKScene {
+    var fishBackgroundScene: SKScene {
         // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
         // loads your fish, and triggers the didMove(to:) movement code!
         if let scene = SKScene(fileNamed: "FishBackground") {
@@ -28,7 +28,7 @@ struct SelectShipPage: View {
     var body: some View {
         ZStack {
             // Background Color
-            SpriteView(scene: backgroundScene)
+            SpriteView(scene: fishBackgroundScene)
                 .ignoresSafeArea() // Make sure the fish go behind the status bar
                 .opacity(0.075)
             
