@@ -96,6 +96,7 @@ struct SelectEquipmentPage: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 150)
+                                .frame(width: 200)
                             
                             // DYNAMIC EQUIPMENT SLOTS
                             HStack(spacing: 15) {
@@ -128,14 +129,14 @@ struct SelectEquipmentPage: View {
                                 ZStack {
                                     Image("green_button")
                                         .resizable()
-                                        .frame(width: 150, height: 50)
+                                        .frame(width: 180, height: 56)
                                     
                                     Text("Start")
                                         .font(.custom("Cause-Bold", size: 24))
                                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                                 }
                             }
-                            .padding(.bottom, 40)
+                            .padding(.bottom, 16)
                         }
                         .frame(maxWidth: .infinity)
                     } else {
