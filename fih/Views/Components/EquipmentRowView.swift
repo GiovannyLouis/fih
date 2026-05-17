@@ -16,7 +16,7 @@ struct EquipmentRowView: View {
         Button(action: action) {
             HStack {
                 // Temporary SF Symbol until you add your real icons
-                Image(systemName: item.imageName)
+                Image(item.imageName)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 32, height: 32)

@@ -14,7 +14,7 @@ struct EquipmentSlotView: View {
     let iconName: String? // Nil means the slot is empty
     
     var bgScene: SKScene {
-        let scene = CardBackgroundScene()
+        let scene = CreamBackgroundScene()
         // We ensure the scene matches the SwiftUI frame exactly
         scene.size = CGSize(width: 60, height: 60)
         scene.scaleMode = .fill
@@ -26,7 +26,7 @@ struct EquipmentSlotView: View {
             // REMOVED: RoundedRectangle() that was painting the box black
             
             if let icon = iconName {
-                Image(systemName: icon)
+                Image(icon)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)

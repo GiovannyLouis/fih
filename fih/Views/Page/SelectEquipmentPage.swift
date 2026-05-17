@@ -14,7 +14,7 @@ struct SelectEquipmentPage: View {
     @Environment(AppStateManager.self) private var appState
     
     var bgScene: SKScene {
-        let scene = CardBackgroundScene()
+        let scene = CreamBackgroundScene()
         scene.scaleMode = .resizeFill
         return scene
     }
