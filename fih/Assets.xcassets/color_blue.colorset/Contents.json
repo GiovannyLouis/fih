@@ -19,6 +19,7 @@
           "value" : "dark"
         }
       ],
+<<<<<<< HEAD
       "color" : {
         "color-space" : "srgb",
         "components" : {
@@ -28,6 +29,8 @@
           "red" : "0xFE"
         }
       },
+=======
+>>>>>>> de298fc (refactor: apply color set variables)
       "idiom" : "universal"
     }
   ],

@@ -22,28 +22,28 @@ struct WeatherForecastPage: View {
                         appState.currentScreen = .mainMenuPage
                         print("Go back to main screen")
                     }) {
-                        Image(systemName: "chevron.left.circle")
+                        Image("icon_back")
                             .resizable()
                             .frame(width: 40, height: 40)
-                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     }
                     
                     Spacer()
                     
                     Text("Tomorrow's Weather Forecast")
                         .font(.custom("cause-bold", size: 32))
-                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                        .foregroundColor(.colorDarkBlue)
                     
                     Spacer()
                     
                     Button(action: {
                         appState.isMovingForward = true
                         appState.currentScreen = .selectShipPage
+                        print("Go to select ship screen")
                     }) {
-                        Image(systemName: "chevron.right.circle")
+                        Image("icon_back")
                             .resizable()
                             .frame(width: 40, height: 40)
-                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                            .rotationEffect(Angle(degrees: 180))
                     }
                 }
                 .padding(.top, 32)
@@ -61,10 +61,10 @@ struct WeatherForecastPage: View {
                     HStack {
                         Text("\(forecast.confidence)%")
                             .font(.custom("patrickhand-regular", size: 32))
-                            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.6))
+                            .foregroundStyle(.colorDarkBlue)
                         Text("\(forecast.predictedWeather.displayName)")
                             .font(.custom("patrickhand-regular", size: 32))
-                            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.6))
+                            .foregroundStyle(.colorDarkBlue)
                     }
                     .padding(.bottom, 28)
                 } else {
