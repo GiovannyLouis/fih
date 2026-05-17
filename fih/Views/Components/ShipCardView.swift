@@ -18,32 +18,28 @@ struct ShipCardView: View {
     
     var bgScene: SKScene {
         let scene = CreamBackgroundScene()
-        // We ensure the scene matches the SwiftUI frame exactly
-        //scene.size = CGSize(width: 200, height: 180)
-        //scene.scaleMode = .fill
+        scene.scaleMode = .resizeFill
         return scene
     }
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) { // Reduced spacing from 15 to 8
+            VStack(spacing: 8) {
                 
-                // 1. Ship Name with protection
                 Text(ship.name)
                     .font(.custom("Cause-ExtraBold", size: 20))
                     .foregroundColor(Color("color_dark_blue"))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7) // Shrinks font if name is too long
+                    .minimumScaleFactor(0.7)
                 
-                // 2. Normalized Ship Image
-                // This "box" is now identical for every boat
+               
                 Image(ship.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 140, height: 60) // Fixed box for all ships
+                    .frame(width: 140, height: 60)
                     .padding(.vertical, 5)
                 
-                Spacer(minLength: 0) // Pushes stats to the bottom
+                Spacer(minLength: 0)
                 
                 // 3. Stats Row
                 HStack(spacing: 16) {
@@ -55,17 +51,15 @@ struct ShipCardView: View {
                 .foregroundColor(.black)
             }
             .padding(.horizontal, 15)
-            .padding(.vertical, 20) // Controlled vertical padding
+            .padding(.vertical, 20)
             .frame(width: 200, height: 180)
             .background(
                 SpriteView(scene: bgScene, options: [.allowsTransparency])
-                    //.clipShape(RoundedRectangle(cornerRadius: 9)) // Mengunci background di dalam radius 8
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    // strokeBorder memaksa seluruh ketebalan 6px masuk ke dalam frame kartu,
-                    // sehingga tidak ada garis yang meluber keluar dan terpotong oleh parent layout
-                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 6)
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 5)
+                    .padding(-1)
             )
             .offset(y: isFloating ? -2 : 2)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
