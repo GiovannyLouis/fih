@@ -59,9 +59,17 @@ struct ShipCardView: View {
             .frame(width: 200, height: 180)
             .background(
                 SpriteView(scene: bgScene, options: [.allowsTransparency])
+                    .clipShape(RoundedRectangle(cornerRadius: 9)) // Mengunci background di dalam radius 8
+            )
+
+            // 2. PERBAIKAN OVERLAY: Gunakan strokeBorder, bukan stroke
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    // strokeBorder memaksa seluruh ketebalan 6px masuk ke dalam frame kartu,
+                    // sehingga tidak ada garis yang meluber keluar dan terpotong oleh parent layout
+                    .strokeBorder(isSelected ? Color(red: 0.3, green: 0.8, blue: 0.6) : Color.clear, lineWidth: 6)
             )
             .offset(y: isFloating ? -2 : 2)
-            .scaleEffect(isSelected ? 1.05 : 1.0) // Slightly smaller scale for safety
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
             .onAppear {
                 withAnimation(Animation.easeInOut(duration: 1.25).repeatForever(autoreverses: true)) {
