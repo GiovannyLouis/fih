@@ -25,12 +25,12 @@ struct EquipmentSlotView: View {
         ZStack {
             // REMOVED: RoundedRectangle() that was painting the box black
             
-            if let _ = iconName {
-                Image(systemName: "shield.fill")
+            if let icon = iconName {
+                Image(systemName: icon)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)
-                    .foregroundColor(.yellow)
+                    .foregroundColor(Color("color_dark_blue"))
             }
         }
         // Set the size directly on the container ZStack
