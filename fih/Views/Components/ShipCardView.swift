@@ -14,6 +14,8 @@ struct ShipCardView: View {
     let isSelected: Bool
     let action: () -> Void
     
+    @State private var isFloating: Bool = false
+    
     var bgScene: SKScene {
         let scene = CardBackgroundScene()
         // We ensure the scene matches the SwiftUI frame exactly
@@ -58,8 +60,14 @@ struct ShipCardView: View {
             .background(
                 SpriteView(scene: bgScene, options: [.allowsTransparency])
             )
+            .offset(y: isFloating ? -2 : 2)
             .scaleEffect(isSelected ? 1.05 : 1.0) // Slightly smaller scale for safety
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+            .onAppear {
+                withAnimation(Animation.easeInOut(duration: 1.25).repeatForever(autoreverses: true)) {
+                    isFloating = true
+                }
+            }
         }
         .buttonStyle(PlainButtonStyle())
     }
