@@ -19,8 +19,8 @@ struct ShipCardView: View {
     var bgScene: SKScene {
         let scene = CreamBackgroundScene()
         // We ensure the scene matches the SwiftUI frame exactly
-        scene.size = CGSize(width: 200, height: 180)
-        scene.scaleMode = .fill
+        //scene.size = CGSize(width: 200, height: 180)
+        //scene.scaleMode = .fill
         return scene
     }
     
@@ -57,21 +57,15 @@ struct ShipCardView: View {
             .padding(.horizontal, 15)
             .padding(.vertical, 20) // Controlled vertical padding
             .frame(width: 200, height: 180)
-//            .background(
-//                SpriteView(scene: bgScene, options: [.allowsTransparency])
-//                    .clipShape(RoundedRectangle(cornerRadius: 9)) // Mengunci background di dalam radius 8
-//            )
-//
-//            // 2. PERBAIKAN OVERLAY: Gunakan strokeBorder, bukan stroke
-//            .overlay(
-//                RoundedRectangle(cornerRadius: 8)
-//                    // strokeBorder memaksa seluruh ketebalan 6px masuk ke dalam frame kartu,
-//                    // sehingga tidak ada garis yang meluber keluar dan terpotong oleh parent layout
-//                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 6)
-//            )
             .background(
-                Image(isSelected ? "card_background_cream_selected" : "card_background_cream")
-                    .resizable()
+                SpriteView(scene: bgScene, options: [.allowsTransparency])
+                    //.clipShape(RoundedRectangle(cornerRadius: 9)) // Mengunci background di dalam radius 8
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    // strokeBorder memaksa seluruh ketebalan 6px masuk ke dalam frame kartu,
+                    // sehingga tidak ada garis yang meluber keluar dan terpotong oleh parent layout
+                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 6)
             )
             .offset(y: isFloating ? -2 : 2)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
