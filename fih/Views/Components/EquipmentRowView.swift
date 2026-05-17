@@ -16,10 +16,10 @@ struct EquipmentRowView: View {
         Button(action: action) {
             HStack {
                 // Temporary SF Symbol until you add your real icons
-                Image(systemName: "shield.fill")
+                Image(systemName: item.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 32, height: 32)
                     .foregroundColor(isSelected ? .yellow : .gray)
                 
                 VStack(alignment: .leading) {

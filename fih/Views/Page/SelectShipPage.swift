@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 // MARK: - VIEW (Main Screen Updated)
 struct SelectShipPage: View {
@@ -13,11 +14,23 @@ struct SelectShipPage: View {
     @State private var shipController = ShipController()
     
     @Environment(AppStateManager.self) private var appState
+    
+    var fishBackgroundScene: SKScene {
+        // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
+        // loads your fish, and triggers the didMove(to:) movement code!
+        if let scene = SKScene(fileNamed: "FishBackground") {
+            scene.scaleMode = .aspectFill
+            return scene
+        }
+        return SKScene()
+    }
         
     var body: some View {
         ZStack {
             // Background Color
-            Color.white.ignoresSafeArea()
+            SpriteView(scene: fishBackgroundScene)
+                .ignoresSafeArea() // Make sure the fish go behind the status bar
+                .opacity(0.075)
             
             VStack {
                 // 1. TOP NAVIGATION BAR
@@ -38,23 +51,13 @@ struct SelectShipPage: View {
                     // Title
                     Text("Select Your Ship")
                         .font(.custom("Cause-Bold", size: 32))
-                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                        .foregroundColor(Color("color_dark_blue"))
                     
                     Spacer() // Pushes the next button to the far right
                     
-                    // Right Arrow (Next Step: Select Equipment)
-                    Button(action: {
-                        appState.isMovingForward = true
-                        appState.currentScreen = .selectEquipmentPage
-                    }) {
-                        Image(systemName: "chevron.right.circle")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            // Turns gray if no ship is selected
-                            .foregroundColor(appState.selectedShip != nil ? Color(red: 0.1, green: 0.1, blue: 0.6) : .gray)
-                    }
-                    .disabled(appState.selectedShip == nil)                }
-                    .padding(.top, 32)
+                    
+                }
+                .padding(.top, 32)
                 
                 Spacer() // Pushes the ship cards down to the middle
                 
@@ -75,6 +78,27 @@ struct SelectShipPage: View {
                 .padding(.horizontal, 20)
                 
                 Spacer() // Pushes the cards up to center them perfectly
+                
+              
+                // 3. Button next
+                // Right Arrow (Next Step: Select Equipment)
+                Button(action: {
+                    appState.isMovingForward = true
+                    appState.currentScreen = .selectEquipmentPage
+                }) {
+                    ZStack {
+                        Image("green_button")
+                            .resizable()
+                            .frame(width: 180, height: 56)
+                        
+                        Text("Next")
+                            .font(.custom("Cause-Bold", size: 32))
+                            .foregroundColor(Color("color_dark_blue"))
+                    }
+                   
+                }
+                .padding(.bottom, 16)
+                .disabled(appState.selectedShip == nil)
             }
         }
     }
