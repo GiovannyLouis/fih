@@ -67,7 +67,6 @@ struct InGamePage: View {
 
     var body: some View {
         ZStack {
-
             // MARK: - GAME SCENE (background penuh)
             if let scene = scene {
                 SpriteView(scene: scene, options: [.allowsTransparency])
@@ -76,6 +75,7 @@ struct InGamePage: View {
                     .animation(.easeInOut(duration: 0.25), value: showShipPanel)
             } else {
                 Color(red: 0.97, green: 0.97, blue: 0.97).ignoresSafeArea()
+            }
             }
 
             // MARK: - HUD (di atas game scene)
