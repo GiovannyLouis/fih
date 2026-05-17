@@ -19,18 +19,6 @@
           "value" : "dark"
         }
       ],
-<<<<<<< HEAD
-      "color" : {
-        "color-space" : "srgb",
-        "components" : {
-          "alpha" : "1.000",
-          "blue" : "0xFF",
-          "green" : "0xFF",
-          "red" : "0xFE"
-        }
-      },
-=======
->>>>>>> de298fc (refactor: apply color set variables)
       "idiom" : "universal"
     }
   ],
