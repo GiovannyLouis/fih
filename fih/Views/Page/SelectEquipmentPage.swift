@@ -58,7 +58,7 @@ struct SelectEquipmentPage: View {
                     VStack(spacing: 0) {
                         Text("Select Equipment")
                             .font(.custom("Cause-Bold", size: 32))
-                            .foregroundColor(Color("dark_blue"))
+                            .foregroundColor(Color("color_dark_blue"))
                             .padding(.top, 15) // Jarak teks dari atas kotak
                             .padding(.bottom, 20)
                         
@@ -133,7 +133,7 @@ struct SelectEquipmentPage: View {
                                     
                                     Text("Start")
                                         .font(.custom("Cause-Bold", size: 32))
-                                        .foregroundColor(Color("dark_blue"))
+                                        .foregroundColor(Color("color_dark_blue"))
                                 }
                             }
                             .padding(.bottom, 16)

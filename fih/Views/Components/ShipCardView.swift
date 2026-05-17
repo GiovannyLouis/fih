@@ -31,7 +31,7 @@ struct ShipCardView: View {
                 // 1. Ship Name with protection
                 Text(ship.name)
                     .font(.custom("Cause-ExtraBold", size: 20))
-                    .foregroundColor(Color("dark_blue"))
+                    .foregroundColor(Color("color_dark_blue"))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7) // Shrinks font if name is too long
                 
@@ -67,7 +67,7 @@ struct ShipCardView: View {
                 RoundedRectangle(cornerRadius: 8)
                     // strokeBorder memaksa seluruh ketebalan 6px masuk ke dalam frame kartu,
                     // sehingga tidak ada garis yang meluber keluar dan terpotong oleh parent layout
-                    .strokeBorder(isSelected ? Color("green") : Color.clear, lineWidth: 6)
+                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 6)
             )
             .offset(y: isFloating ? -2 : 2)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
