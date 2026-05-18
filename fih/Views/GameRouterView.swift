@@ -24,10 +24,10 @@ struct GameRouterView: View {
                     
                 case .mainMenuPage:
                     MainMenuPage()
-                
+                    
                 case .weatherForecastPage:
                     WeatherForecastPage()
-                
+                    
                 case .selectShipPage:
                     SelectShipPage()
                     
@@ -35,16 +35,15 @@ struct GameRouterView: View {
                     SelectEquipmentPage()
                     
                 case .inGamePage:
-                    InGamePage()
-                    
+                    if let controller = appState.inGameController {
+                        InGamePage(controller: controller)}
                 }
+//                    .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
             }
-            .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
-        }
-        // Adds a nice crossfade animation when switching screens
-        .animation(.smooth(duration: 0.6), value: appState.currentScreen)    }
+            // Adds a nice crossfade animation when switching screens
+            .animation(.smooth(duration: 0.6), value: appState.currentScreen)    }
+    }
 }
-
 #Preview {
     GameRouterView()
         .environment(AppStateManager())

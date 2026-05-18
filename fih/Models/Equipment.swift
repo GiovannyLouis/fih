@@ -21,12 +21,12 @@ struct Equipment: Identifiable, Equatable {
 
 extension Equipment {
     static let allEquipment: [Equipment] = [
-        Equipment(name: "Shield", imageName: "", description: "Minimize incoming damage by -30%", type: .shield),
-        Equipment(name: "Rocket Thrusters", imageName: "", description: "Increase speed, 25% (?)", type: .rocketThrusters),
-        Equipment(name: "Predator Bait", imageName: "", description: "Bait the predators away", type: .predatorBait),
-        Equipment(name: "Scarecrow", imageName: "", description: "Scare the albatros", type: .scarecrow),
-        Equipment(name: "Guardian Angel", imageName: "", description: "Block any first 3 hits, then breaks permanently", type: .guardianAngel),
-        Equipment(name: "Lucky Hat", imageName: "", description: "It seems like it boosts your luck (hell nah it doesn't)", type: .luckyHat),
-        Equipment(name: "Soul Eater", imageName: "", description: "For every fish caught, heals 3% max boat health", type: .soulEater)
+        Equipment(name: "Shield", imageName: "icon_shield", description: "Minimize incoming damage by -30%", type: .shield),
+        Equipment(name: "Rocket Thrusters", imageName: "icon_rocket_thruster", description: "Increase speed, 25% (?)", type: .rocketThrusters),
+        Equipment(name: "Predator Bait", imageName: "icon_predator_bait", description: "Bait the predators away", type: .predatorBait),
+        Equipment(name: "Scarecrow", imageName: "icon_scarecrow", description: "Scare the albatros", type: .scarecrow),
+        Equipment(name: "Guardian Angel", imageName: "icon_guardian_angel", description: "Block any first 3 hits, then breaks permanently", type: .guardianAngel),
+        Equipment(name: "Lucky Hat", imageName: "icon_lucky_hat", description: "It seems like it boosts your luck (hell nah it doesn't)", type: .luckyHat),
+        Equipment(name: "Soul Eater", imageName: "icon_soul_eater", description: "For every fish caught, heals 3% max boat health", type: .soulEater)
     ]
 }
