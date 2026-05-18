@@ -11,6 +11,14 @@ struct fishZoneInfo{
     let name : String
     let startKm: Double
     let endKm: Double
+    let fish: [String]
+}
+
+enum ExpeditionResult{
+    case inProgress
+    case timeUp
+    case safeReturn
+    case shipDestroyed
 }
 
 @Observable
@@ -18,6 +26,7 @@ class InGameController {
 
     let selectedShip: Ship
     let equippedItems: [Equipment]
+    weak var gameScene: GameScene?
     
     let timer = GameTimerServices()
     
@@ -39,13 +48,17 @@ class InGameController {
     private let eventInterval: TimeInterval = 3.0
     
     let zones: [fishZoneInfo] = [
-        fishZoneInfo(name: "Zone 1",startKm: 0,endKm: 5),
-        fishZoneInfo(name: "Zone 2",startKm: 5,endKm: 15),
-        fishZoneInfo(name: "Zone 3",startKm: 15,endKm: 30),
-        fishZoneInfo(name: "Zone 4",startKm: 30,endKm: 50),
+        fishZoneInfo(name: "Zone 1",startKm: 0,endKm: 5, fish: ["ikan"]),
+        fishZoneInfo(name: "Zone 2",startKm: 5,endKm: 15, fish: ["ikan"]),
+        fishZoneInfo(name: "Zone 3",startKm: 15,endKm: 30, fish: ["ikan"]),
+        fishZoneInfo(name: "Zone 4",startKm: 30,endKm: 50, fish: ["ikan"]),
     ]
     var currentZone: fishZoneInfo? {
         zones.first { distanceTravelledKm >= $0.startKm && distanceTravelledKm < $0.endKm }
+    }
+    
+    func randomFishForCurrentZone () -> String? {
+        currentZone? .fish.randomElement()
     }
     
     // MARK: - Equipment helpers
@@ -68,7 +81,7 @@ class InGameController {
         self.currentHealth = Double(ship.maxDurability)
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
-        self.currentSpeed = Double (ship.maxSpeed) + (hasThrusters ? 1.25 : 1.0)
+        self.currentSpeed = Double (ship.maxSpeed) * (hasThrusters ? 1.25 : 1.0)
     }
     
     func startExpedition() {
@@ -88,6 +101,21 @@ class InGameController {
         }
     }
     
+    func pauseExpedition () {
+        timer.pause()
+        movementTimer?.invalidate()
+        movementTimer = nil
+        eventTimer?.invalidate()
+        eventTimer = nil
+    }
+    
+    func resumeExpedition () {
+        guard !isExpeditionOver else { return }
+        timer.resume()
+        movementTimer = Timer.scheduledTimer(withTimeInterval: movementInterval, repeats: true) { [weak self] _ in self?.moveShip() }
+        eventTimer = Timer.scheduledTimer(withTimeInterval: eventInterval, repeats: true) { [weak self] _ in self?.spawnEvent() }
+    }
+    
     func abortExpedition () {
         endExpedition(result: .safeReturn)
     }
@@ -100,23 +128,26 @@ class InGameController {
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
         if roll < 0.6 {
-            catchFish()
+            spawnfish()
         } else {
             triggerObstacle()
         }
     }
-    private func catchFish() {
-        let fishNames = ["Sardine", "Mackerel", "Tuna", "Snapper", "Barracuda",
-                         "Swordfish", "Marlin", "Anglerfish", "Viperfish", "Kraken"]
-        guard let fish = fishNames.randomElement() else { return }
-        catchLog.append(fish)
-        
-        // Soul Eater: heal 3% max HP per ikan
+    
+    private func spawnfish() {
+        guard  let fishName = randomFishForCurrentZone() else { return }
+        gameScene? .spawnFishVisual(fishName)
+    }
+    
+    func catchFish(_ fishName: String) {
+        guard !isExpeditionOver else { return }
+        catchLog.append(fishName)
+ 
         if hasSoulEater {
             let heal = Double(selectedShip.maxDurability) * 0.03
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
         }
-        showEvent("Caught \(fish)!")
+        showEvent(" Caught \(fishName)!")
     }
     
     func triggerObstacle() {
@@ -132,7 +163,9 @@ class InGameController {
             guardianAngelHitsRemaining -= 1
             
             if guardianAngelHitsRemaining == 0 {
-                
+                showEvent("Guardian Angel destroyed!")
+            } else {
+                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
             }
             return
         }
@@ -147,14 +180,14 @@ class InGameController {
     private func showEvent(_ message: String) {
         latestEventMessage = message
         showEventPopup = true
-        // Auto-hide popup setelah 2 detik
+        // AutoHide popup 2 detik
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
             self?.showEventPopup = false
         }
     }
     
     private func endExpedition(result: ExpeditionResult) {
-        @Environment(AppStateManager.self) var appState
+//        @Environment(AppStateManager.self) var appState
 
         guard !isExpeditionOver else { return }
         
@@ -169,23 +202,11 @@ class InGameController {
         }
         expeditionResults = result
         isExpeditionOver = true
-        appState.resetForecast()
+//        appState.resetForecast()
     }
     
     var healthPercentage: Double {
         guard selectedShip.maxDurability > 0 else { return 0 }
         return currentHealth / Double(selectedShip.maxDurability)
     }
-    
-    var healthColor: String {
-        if healthPercentage > 0.5 { return "healthGreen" }
-        if healthPercentage > 0.25 { return "healthOrange" }
-        return "healthRed"
-    }
-}
-enum ExpeditionResult {
-    case inProgress
-    case timeUp
-    case safeReturn
-    case shipDestroyed
 }
