@@ -16,6 +16,7 @@ class Fish {
     var name: String
     var info: String // Hindari menggunakan nama variabel 'description' karena sering bentrok dengan bawaan Swift
     var iconName: String
+    var totalCollected: Int = 0
     var isUnlocked: Bool
     
     init(id: UUID = UUID(), zone: Int, name: String, info: String, iconName: String, isUnlocked: Bool = false) {
