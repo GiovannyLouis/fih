@@ -26,6 +26,7 @@ class InGameController {
 
     let selectedShip: Ship
     let equippedItems: [Equipment]
+    let actualWeather: WeatherType
     weak var gameScene: GameScene?
     
     let timer = GameTimerServices()
@@ -33,6 +34,7 @@ class InGameController {
     var currentHealth : Double
     var currentSpeed : Double
     var isAlive : Bool {currentHealth > 0}
+    var isEngineFailing: Bool = false
     
     var distanceTravelledKm : Double = 0
     var catchLog : [String] = []
@@ -75,13 +77,22 @@ class InGameController {
     
     var damageMultiplier: Double { hasShield ? 0.7 : 1.0 }
     
-    init (ship : Ship, equippedItems : [Equipment]) {
+    init (ship : Ship, equippedItems : [Equipment], actualWeather: WeatherType) {
         self.selectedShip = ship
         self.equippedItems = equippedItems
+        self.actualWeather = actualWeather
         self.currentHealth = Double(ship.maxDurability)
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
         self.currentSpeed = Double (ship.maxSpeed) * (hasThrusters ? 1.25 : 1.0)
+        
+        print("In Game Ship: \(self.selectedShip.name)")
+        print("In Game Equipped items:")
+        for item in self.equippedItems {
+            print("  - \(item.name)")
+        }
+        print("In Game Actual Weather: \(self.actualWeather.displayName)")
+        
     }
     
     func startExpedition() {
@@ -121,8 +132,12 @@ class InGameController {
     }
     
     private func moveShip() {
+        if isEngineFailing {
+            currentSpeed = max(Double(selectedShip.minSpeed), currentSpeed - Double(selectedShip.maxSpeed) * 0.02)
+        }
+        
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
-        distanceTravelledKm += kmPerSecond
+        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
     }
     
     private func spawnEvent() {
@@ -151,11 +166,26 @@ class InGameController {
     }
     
     func triggerObstacle() {
-        // Placeholder dengan ObstacleController (LUIS)
-        let rawDamage = Double.random(in: 10...40)
-        let finalDamage = rawDamage * damageMultiplier
-        applyDamage(finalDamage)
-        showEvent("Obstacle! -\(Int(finalDamage)) HP")
+        guard !isExpeditionOver else { return }
+                
+        // 80/20 Roll for Weather vs General Obstacle
+        let isWeatherSpecific = Double.random(in: 0...1) <= 0.80
+        var chosenObstacleType: ObstacleType
+        
+        if isWeatherSpecific {
+            switch actualWeather {
+            case .sunny: chosenObstacleType = .albatros
+            case .rainy: chosenObstacleType = .lightning
+            case .snowy: chosenObstacleType = .iceberg
+            case .windy: chosenObstacleType = .tornado
+            }
+        } else {
+            // General obstacle: 50% Predator, 50% Engine Failure
+            chosenObstacleType = Bool.random() ? .predator : .shipFailure
+        }
+        
+        // Let ObstacleController handle the effects
+        ObstacleController.applyEffects(obstacleType: chosenObstacleType, to: self)
     }
     
     func applyDamage(_ amount: Double) {
@@ -177,7 +207,7 @@ class InGameController {
         }
     }
     
-    private func showEvent(_ message: String) {
+    func showEvent(_ message: String) {
         latestEventMessage = message
         showEventPopup = true
         // AutoHide popup 2 detik
