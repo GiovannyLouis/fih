@@ -62,7 +62,7 @@ struct SelectShipPage: View {
                 Spacer() // Pushes the ship cards down to the middle
                 
                 // 2. MIDDLE: SHIP SELECTION CARDS
-                HStack(spacing: 30) {
+                HStack(spacing: 20) {
                     ForEach(shipController.availableShips) { ship in
                         ShipCardView(
                             ship: ship,
