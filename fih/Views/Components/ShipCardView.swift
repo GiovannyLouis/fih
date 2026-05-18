@@ -43,9 +43,9 @@ struct ShipCardView: View {
                 
                 // 3. Stats Row
                 HStack(spacing: 16) {
-                    StatView(icon: "speedometer", iconColor: .black, value: "\(ship.maxSpeed)")
-                    StatView(icon: "heart.fill", iconColor: .red, value: "\(ship.maxDurability)")
-                    StatView(icon: "gearshape.fill", iconColor: .gray, value: "\(ship.equipmentSlots)")
+                    StatView(icon: "icon_speed", value: "\(ship.maxSpeed)")
+                    StatView(icon: "icon_health", value: "\(ship.maxDurability)")
+                    StatView(icon: "icon_equipment", value: "\(ship.equipmentSlots)")
                 }
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.black)

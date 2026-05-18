@@ -9,13 +9,14 @@ import SwiftUI
 
 struct StatView: View {
     let icon: String
-    let iconColor: Color
     let value: String
     
     var body: some View {
         HStack(spacing: 2) {
-            Image(systemName: icon)
-                .foregroundStyle(Color(iconColor))
+            Image(icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
             Text(value)
                 .font(.custom("Cause-ExtraBold", size:16))
         }
@@ -23,5 +24,5 @@ struct StatView: View {
 }
 
 #Preview {
-    StatView(icon: "heart.fill", iconColor: .red, value: "0")
+    //StatView(icon: "heart.fill", iconColor: .red, value: "0")
 }
