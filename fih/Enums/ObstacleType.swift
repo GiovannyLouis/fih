@@ -14,4 +14,15 @@ enum ObstacleType {
     case tornado
     case predator
     case shipFailure
+    
+    var displayName: String {
+        switch self {
+        case .albatros: return "Albatross"
+        case .iceberg: return "Iceberg"
+        case .lightning: return "Lightning Strike"
+        case .tornado: return "Tornado"
+        case .predator: return "Predator Fish"
+        case .shipFailure: return "Engine Failure"
+    }
+}
 }

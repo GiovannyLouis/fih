@@ -120,7 +120,8 @@ struct SelectEquipmentPage: View {
                                 if let ship = appState.selectedShip {
                                     appState.inGameController = InGameController(
                                         ship: ship,
-                                        equippedItems: controller.equippedItems
+                                        equippedItems: controller.equippedItems,
+                                        actualWeather: appState.currentForecast!.actualWeather 
                                     )
                                 }
                                 appState.isMovingForward = true
