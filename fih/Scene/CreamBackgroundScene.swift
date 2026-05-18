@@ -7,13 +7,13 @@
 
 import SpriteKit
 
-class CardBackgroundScene: SKScene {
+class CreamBackgroundScene: SKScene {
     var cardBg: SKSpriteNode!
     
     override func didMove(to view: SKView) {
         self.backgroundColor = .clear
         
-        cardBg = SKSpriteNode(imageNamed: "card_background") // Your asset name
+        cardBg = SKSpriteNode(imageNamed: "card_background_cream") // Your asset name
         
         // SpriteKit uses percentages (0.0 to 1.0) for 9-slicing.
         // x and y define the start of the stretchable area. width and height define how much is stretchable.

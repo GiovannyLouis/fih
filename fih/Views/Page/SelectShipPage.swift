@@ -87,7 +87,7 @@ struct SelectShipPage: View {
                     appState.currentScreen = .selectEquipmentPage
                 }) {
                     ZStack {
-                        Image("green_button")
+                        Image(appState.selectedShip == nil ? "gray_button" : "green_button")
                             .resizable()
                             .frame(width: 180, height: 56)
                         
@@ -99,6 +99,7 @@ struct SelectShipPage: View {
                 }
                 .padding(.bottom, 16)
                 .disabled(appState.selectedShip == nil)
+                .buttonStyle(PlainButtonStyle())
             }
         }
     }

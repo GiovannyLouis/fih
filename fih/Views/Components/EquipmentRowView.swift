@@ -6,37 +6,53 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct EquipmentRowView: View {
     let item: Equipment
     let isSelected: Bool
     let action: () -> Void
     
+    var bgScene: SKScene {
+        let scene = WhiteBackgroundScene()
+        scene.scaleMode = .resizeFill
+        return scene
+    }
+    
     var body: some View {
         Button(action: action) {
             HStack {
                 // Temporary SF Symbol until you add your real icons
-                Image(systemName: item.imageName)
+                Image(item.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 32, height: 32)
+                    .frame(width: 48, height: 48)
                     .foregroundColor(isSelected ? .yellow : .gray)
                 
                 VStack(alignment: .leading) {
                     Text(item.name)
-                        .font(.headline)
-                        .foregroundColor(isSelected ? .white : Color(red: 0.1, green: 0.3, blue: 0.5))
+                        .font(.custom("Cause-Extrabold", size: 16))
+                        .foregroundColor(Color("color_dark_blue"))
                     Text(item.description)
-                        .font(.caption)
-                        .foregroundColor(isSelected ? .white.opacity(0.8) : .gray)
+                        .font(.custom("Cause-Regular", size: 14))
+                        .foregroundColor(Color("color_dark_blue"))
                         .multilineTextAlignment(.leading)
                 }
                 Spacer()
             }
             .padding()
-            .background(isSelected ? Color.blue.opacity(0.6) : Color.blue.opacity(0.1))
-            .cornerRadius(15)
-            .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+            .frame(width: 300, height: 90)
+            .background(
+                SpriteView(scene: bgScene, options: [.allowsTransparency])
+                    .frame(width: 600, height: 180)
+                    .scaleEffect(0.5)
+                    .frame(width: 300, height: 90)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    // Gunakan strokeBorder agar garisnya menggambar ke arah dalam frame
+                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 4)
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }

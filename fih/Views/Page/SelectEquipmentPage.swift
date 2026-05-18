@@ -14,7 +14,7 @@ struct SelectEquipmentPage: View {
     @Environment(AppStateManager.self) private var appState
     
     var bgScene: SKScene {
-        let scene = CardBackgroundScene()
+        let scene = CreamBackgroundScene()
         scene.scaleMode = .resizeFill
         return scene
     }
@@ -63,7 +63,7 @@ struct SelectEquipmentPage: View {
                             .padding(.bottom, 20)
                         
                         ScrollView {
-                            VStack(spacing: 15) {
+                            VStack(spacing: 5) {
                                 ForEach(controller.availableEquipment) { item in
                                     let isSelected = controller.equippedItems.contains(where: { $0.id == item.id })
                                     
@@ -74,7 +74,7 @@ struct SelectEquipmentPage: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 10)
                             .padding(.bottom, 10)
                         }
                     }
