@@ -110,7 +110,6 @@ struct WeatherForecastPage: View {
                 Spacer()
                 
                 Button(action: {
-                    appState.isMovingForward = true
                     appState.currentScreen = .selectShipPage
                 }) {
                     ZStack {
