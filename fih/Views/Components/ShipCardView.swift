@@ -58,8 +58,8 @@ struct ShipCardView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 5)
-                    .padding(-1)
+                    .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 8)
+                    .padding(-4)
             )
             .offset(y: isFloating ? -2 : 2)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
