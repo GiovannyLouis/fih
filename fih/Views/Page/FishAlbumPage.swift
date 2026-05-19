@@ -68,10 +68,10 @@ struct FishAlbumPage: View {
                     // 1. --- TAB ZONA DITARUH PALING ATAS KODE ---
                     // Karena ditaruh pertama, ini akan menjadi layer paling belakang!
                     HStack(spacing: 100) {
-                        ZoneTab(imageName: "zone_1", isSelected: selectedZone == 1) { selectedZone = 1 }
-                        ZoneTab(imageName: "zone_2", isSelected: selectedZone == 2) { selectedZone = 2 }
-                        ZoneTab(imageName: "zone_3", isSelected: selectedZone == 3) { selectedZone = 3 }
-                        ZoneTab(imageName: "zone_4", isSelected: selectedZone == 4) { selectedZone = 4 }
+                        ZoneTab(imageName: "zone_1", isSelected: selectedZone == 1) { fishController.filterFishes(byZone: 1)}
+                        ZoneTab(imageName: "zone_2", isSelected: selectedZone == 2) { fishController.filterFishes(byZone: 2) }
+                        ZoneTab(imageName: "zone_3", isSelected: selectedZone == 3) { fishController.filterFishes(byZone: 3) }
+                        ZoneTab(imageName: "zone_4", isSelected: selectedZone == 4) { fishController.filterFishes(byZone: 4) }
                     }
                     .padding(.top, 0)
                     

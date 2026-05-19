@@ -41,4 +41,12 @@ class FishController {
             print("Database sudah berisi \(existingFishCount) ikan. Aman.")
         }
     }
+    
+    func filterFishes(byZone zone: Int) -> [Fish] {
+        print ("Received fish zone \(zone)")
+        var listFish = [Fish]()
+        
+        
+        return listFish
+    }
 }
