@@ -49,7 +49,50 @@ struct FishAlbumPage: View {
             SpriteView(scene: fishBook, options: [.allowsTransparency])
                 .ignoresSafeArea()
             
+            // Isi card ikan bagian kiri dan kanan Layer 3
             
+            HStack(spacing: 45) {
+                Spacer()
+                // Halaman kiri
+                VStack {
+                    ForEach(0..<fishController.leftPageFishes.count, id: \.self) { index in
+                        // 2. Ambil data ikan berdasarkan indeksnya saat ini
+                        let fish = fishController.leftPageFishes[index]
+
+                        FishCardView(
+                            isLocked: !fish.isUnlocked,
+                            name: fish.name,
+                            description: fish.info,
+                            icon: fish.iconName
+                        )
+                        .padding(.vertical, index == 1 ? 8 : 0)
+                    }
+                    Spacer()
+                }
+
+
+                // Halaman kanan
+                VStack {
+                    ForEach(0..<fishController.rightPageFishes.count, id: \.self) { index in
+                        // 2. Ambil data ikan berdasarkan indeksnya saat ini
+                        let fish = fishController.rightPageFishes[index]
+
+                        FishCardView(
+                            isLocked: !fish.isUnlocked,
+                            name: fish.name,
+                            description: fish.info,
+                            icon: fish.iconName
+                        )
+                        .padding(.vertical, index == 1 ? 8 : 0)
+                    }
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(.top, 150)
+            
+            
+            // Navigation bar & Tab zone Layer 4
             VStack (spacing: 15) {
                 // 1. TOP NAVIGATION BAR (TETAP DIAM DI TEMPAT)
                 HStack {
@@ -57,10 +100,9 @@ struct FishAlbumPage: View {
                         appState.isMovingForward = false
                         appState.currentScreen = .weatherForecastPage
                     }) {
-                        Image("icon_back")
+                        Image("icon_close")
                             .resizable()
                             .frame(width: 40, height: 40)
-                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     }
                     
                     Spacer()
@@ -100,51 +142,6 @@ struct FishAlbumPage: View {
                     }
                 }
                
-                
-               
-                
-                // 3. Isi card ikan bagian kiri dan kanan
-                
-                HStack(spacing: 45) {
-                    Spacer()
-                    // Halaman kiri
-                    VStack {
-                        ForEach(0..<fishController.leftPageFishes.count, id: \.self) { index in
-                            // 2. Ambil data ikan berdasarkan indeksnya saat ini
-                            let fish = fishController.leftPageFishes[index]
-                            
-                            FishEntryView(
-                                isLocked: !fish.isUnlocked,
-                                name: fish.name,
-                                description: fish.info,
-                                icon: fish.iconName
-                            )
-                            .padding(.vertical, index == 1 ? 2 : 0)
-                        }
-                        Spacer()
-                    }
-                    
-                    
-                    // Halaman kanan
-                    VStack {
-                        ForEach(0..<fishController.rightPageFishes.count, id: \.self) { index in
-                            // 2. Ambil data ikan berdasarkan indeksnya saat ini
-                            let fish = fishController.rightPageFishes[index]
-                            
-                            FishEntryView(
-                                isLocked: !fish.isUnlocked,
-                                name: fish.name,
-                                description: fish.info,
-                                icon: fish.iconName
-                            )
-                            .padding(.vertical, index == 1 ? 2 : 0)
-                        }
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                
-                
                 Spacer()
             }
         }
@@ -153,125 +150,6 @@ struct FishAlbumPage: View {
         }
     }
 }
-
-struct FishEntryView: View {
-    let isLocked: Bool
-    let name: String
-    let description: String
-    let icon: String
-    
-    // Warna biru gelap khusus untuk teks dan ikon agar sesuai dengan tema gambar
-    let darkBlueTheme = Color(red: 0.1, green: 0.1, blue: 0.5)
-    
-    var body: some View {
-        HStack(spacing: 15) {
-            
-            // Gambar Ikan
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 55, height: 55)
-                // (Opsional) Jika Anda ingin ikan yang terkunci berwarna hitam pekat (siluet):
-                // .colorMultiply(isLocked ? .black : .white)
-            
-            VStack(alignment: .leading) {
-                // Teks Nama (Disembunyikan jadi ??? jika terkunci)
-                Text(isLocked ? "???" : name)
-                    .font(.custom("Cause-Extrabold", size: 16))
-                    .foregroundColor(darkBlueTheme)
-                
-                // Teks Deskripsi
-                Text(isLocked ? "You haven't caught this fish yet" : description)
-                    .font(.custom("Patrickhand-Regular", size: 16))
-                    .foregroundColor(darkBlueTheme)
-            }
-            
-            Spacer()
-        }
-        .padding(.horizontal, 5)
-        .frame(width: 230, height: 55)
-        
-        // KUNCI UTAMANYA DI SINI:
-        // Jika isLocked = true, transparansi seluruh baris menjadi 30% (0.3).
-        // Jika isLocked = false, transparansi kembali 100% (1.0).
-        .opacity(isLocked ? 0.3 : 1.0)
-    }
-}
-
-//struct FishEntryView: View {
-//    let isLocked: Bool
-//    let name: String
-//    let description: String
-//    let icon: String
-//    var imageOnRight: Bool = false
-//    
-//    // Warna biru gelap khusus untuk teks dan ikon agar sesuai dengan tema gambar
-//    let darkBlueTheme = Color(red: 0.1, green: 0.1, blue: 0.5)
-//    
-//    var body: some View {
-//        Group {
-//            if isLocked {
-//                // --- LOCKED STATE BARU ---
-//                HStack(spacing: 15) {
-//                    
-//                    // Ikon Gembok
-//                    // Jika Anda memiliki aset gambar gembok sendiri (seperti di desain),
-//                    // ganti baris ini menjadi: Image("nama_aset_gembok_anda")
-//                    Image(systemName: "lock")
-//                        .font(.system(size: 50, weight: .bold))
-//                        .foregroundColor(darkBlueTheme)
-//                        .frame(width: 40)
-//                    
-//                    Text("You have not caught\nthis fish yet")
-//                        .font(.system(size: 15, weight: .bold))
-//                        .foregroundColor(darkBlueTheme)
-//                        //.multilineTextAlignment(.center)
-//                    
-//                        //Spacer()
-//                }
-//                .padding(.horizontal, 15)
-//                .background(
-//                    RoundedRectangle(cornerRadius: 10)
-//                        .fill(Color(red: 0.82, green: 0.82, blue: 0.82)) // Abu-abu terang
-//                )
-//                // Menambahkan garis tepi (outline) pada kotak terkunci
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 10)
-//                        .stroke(darkBlueTheme.opacity(0.6), lineWidth: 2)
-//                )
-//                
-//            } else {
-//                // --- UNLOCKED STATE BARU ---
-//                HStack(spacing: 15) {
-//                    
-//                    // Gambar Ikan Langsung (tanpa lingkaran hijau)
-//                   
-//                    Image(icon)
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 60, height: 60)
-//                    
-//                    
-//                    VStack(alignment: .leading) {
-//                        Text(name)
-//                            .font(.custom("Cause-Extrabold", size: 16))
-//                            .foregroundColor(darkBlueTheme)
-//                        
-//                        Text(description)
-//                            .font(.custom("Patrickhand-Regular", size: 16))
-//                            .foregroundColor(darkBlueTheme) // Ubah warna jadi biru
-//                    }
-//                    
-//                    Spacer()
-//                }
-//                .padding(.horizontal, 5)
-//
-//            }
-//
-//        }                .frame(width: 225, height: 60)
-//
-//    }
-//}
 
 #Preview {
     FishAlbumPage()
