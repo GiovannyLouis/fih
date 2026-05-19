@@ -6,10 +6,103 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct FishAlbumPage: View {
+    
+    @State private var fishController = FishController()
+    
+    @Environment(AppStateManager.self) private var appState
+    
+    @State private var selectedZone: Int = 1
+    
+    var fishBackgroundScene: SKScene {
+        // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
+        // loads your fish, and triggers the didMove(to:) movement code!
+        if let scene = SKScene(fileNamed: "FishBackground") {
+            scene.scaleMode = .aspectFill
+            return scene
+        }
+        return SKScene()
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            // Background Color
+            SpriteView(scene: fishBackgroundScene)
+                .ignoresSafeArea() // Make sure the fish go behind the status bar
+                .opacity(0.075)
+            
+            VStack {
+                // 1. TOP NAVIGATION BAR
+                HStack {
+                    // Left Arrow (Back to Main Menu)
+                    Button(action: {
+                        appState.isMovingForward = false
+                        appState.currentScreen = .weatherForecastPage
+                    }) {
+                        Image("icon_back")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
+                    }
+                    
+                    Spacer() // Pushes the back button to the far left
+                    
+                    // Title
+                    Text("Fish Collection")
+                        .font(.custom("Cause-Bold", size: 32))
+                        .foregroundColor(Color("color_dark_blue"))
+                    
+                    Spacer() // Pushes the next button to the far right
+                    
+                    
+                }
+                .padding(.top, 32)
+                
+                Spacer() // Pushes the ship cards down to the middle
+                
+                // 2. MIDDLE: SHIP SELECTION CARDS
+                HStack(spacing: 20) {
+//                    ForEach(shipController.availableShips) { ship in
+//                        ShipCardView(
+//                            ship: ship,
+//                            isSelected: appState.selectedShip == ship,
+//                            action: {
+//                                // Selects the ship (triggers the animation)
+//                                appState.selectedShip = ship
+//                                //shipController.selectedShip = ship
+//                            }
+//                        )
+//                    }
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer() // Pushes the cards up to center them perfectly
+                
+              
+                // 3. Button next
+                // Right Arrow (Next Step: Select Equipment)
+                Button(action: {
+                    appState.isMovingForward = true
+                    appState.currentScreen = .selectEquipmentPage
+                }) {
+                    ZStack {
+                        Image(appState.selectedShip == nil ? "gray_button" : "green_button")
+                            .resizable()
+                            .frame(width: 180, height: 56)
+                        
+                        Text("Next")
+                            .font(.custom("Cause-Bold", size: 32))
+                            .foregroundColor(Color("color_dark_blue"))
+                    }
+                   
+                }
+                .padding(.bottom, 16)
+                .disabled(appState.selectedShip == nil)
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
     }
 }
 
