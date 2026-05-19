@@ -11,6 +11,16 @@ import SwiftData
 @Observable
 class FishController {
     
+    var filteredFishes: [Fish] = []
+    
+    var leftPageFishes: [Fish] {
+        return stride(from: 0, to: filteredFishes.count, by: 2).map { filteredFishes[$0] }
+    }
+    
+    var rightPageFishes: [Fish] {
+        return stride(from: 1, to: filteredFishes.count, by: 2).map { filteredFishes[$0] }
+    }
+    
     @MainActor
     static func seedInitialData(context: ModelContext) {
         let descriptor = FetchDescriptor<Fish>()
@@ -39,6 +49,27 @@ class FishController {
             print("Seeding berhasil! \(initialFishes.count) ikan dimasukkan.")
         } else {
             print("Database sudah berisi \(existingFishCount) ikan. Aman.")
+        }
+    }
+    
+    func filterFishes(byZone zone: Int, context: ModelContext) {
+        print("Mencari ikan untuk Zona \(zone)...")
+        
+        let targetZone = zone // Pindahkan ke variabel lokal agar Predicate SwiftData tidak bingung
+        
+        // Buat perintah pencarian: Cari ikan yang zonanya sama, lalu urutkan sesuai nama
+        let descriptor = FetchDescriptor<Fish>(
+            predicate: #Predicate { $0.zone == targetZone },
+            sortBy: [SortDescriptor(\.name)]
+        )
+        
+        do {
+            // Jalankan pencarian dan simpan hasilnya ke array
+            filteredFishes = try context.fetch(descriptor)
+            print("Ditemukan \(filteredFishes.count) ikan di Zona \(zone).")
+        } catch {
+            print("Gagal mengambil data ikan: \(error.localizedDescription)")
+            filteredFishes = []
         }
     }
 }
