@@ -218,9 +218,11 @@ struct FishImage: View {
                 .scaledToFit()
                 .frame(width: 40, height: 40)
         }
+
     }
 }
 
 #Preview {
     FishAlbumPage()
+        .environment(AppStateManager())
 }

@@ -10,11 +10,11 @@
 //
 //struct InGamePage: View {
 //    let controller: inGameController
-//    
+//
 //    @Environment(AppStateManager.self) private var appState
 //    @State private var scene : GameScene? = nil
 //    @State private var showShipPanel: Bool = false
-//    
+//
 //    var body: some View {
 //        ZStack {
 //            if let scene = scene {
@@ -34,7 +34,7 @@
 //                .padding(.horizontal, 16)
 //                .padding(.top, 12)
 //                Spacer()
-//                
+//
 //            }
 //        }
 //    }
