@@ -51,22 +51,13 @@ struct WeatherForecastPage: View {
                     
                     Spacer()
                     
-                    Button(action: {
-                        appState.isMovingForward = true
-                        appState.currentScreen = .selectShipPage
-                        print("Go to select ship screen")
-                    }) {
-                        Image("icon_back")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .rotationEffect(Angle(degrees: 180))
-                    }
+                    
                 }
                 .padding(.top, 32)
                 
                 Spacer()
                 
-                // MARK: Weather Card
+                 // MARK: Weather Card
                 SpriteView(scene: WeatherCardScene(
                     size: CGSize(width: 320, height: 140),
                     textureName: "frame_normal.png",
