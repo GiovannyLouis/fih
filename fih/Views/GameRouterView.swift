@@ -17,6 +17,7 @@ struct GameRouterView: View {
     
     var body: some View {
         ZStack {
+            Color.white.ignoresSafeArea()
             Group {
                 switch appState.currentScreen {
                 case .fishAlbumPage:

@@ -52,7 +52,7 @@ struct SelectEquipmentPage: View {
                         }
                         Spacer()
                     }
-                    .padding(.top, 30)
+                    .padding(.top, 32)
                     .padding(.trailing, 30)
                     
                     // 2. PANEL EQUIPMENT LIST (Background Krem)
@@ -121,7 +121,8 @@ struct SelectEquipmentPage: View {
                                 if let ship = appState.selectedShip {
                                     appState.inGameController = InGameController(
                                         ship: ship,
-                                        equippedItems: controller.equippedItems
+                                        equippedItems: controller.equippedItems,
+                                        actualWeather: appState.currentForecast!.actualWeather 
                                     )
                                 }
                                 appState.isMovingForward = true
