@@ -62,8 +62,6 @@ struct InGamePage: View {
 
     @Environment(AppStateManager.self) private var appState
 
-    // @State supaya scene tidak di-recreate setiap kali SwiftUI re-render
-    // Kalau tidak @State, setiap HP berubah → scene dibuat ulang → game reset
     @State private var scene: GameScene? = nil
     @State private var showShipPanel: Bool = false
 
@@ -74,7 +72,6 @@ struct InGamePage: View {
             if let scene = scene {
                 SpriteView(scene: scene, options: [.allowsTransparency])
                     .ignoresSafeArea()
-                    // Blur saat panel terbuka — kesan pause yang jelas
                     .blur(radius: showShipPanel ? 8 : 0)
                     .animation(.easeInOut(duration: 0.25), value: showShipPanel)
             } else {
@@ -153,10 +150,6 @@ struct InGamePage: View {
 
     private var clockAndStats: some View {
         HStack(alignment: .center, spacing: 10) {
-
-            // Jam dengan lingkaran progress
-            // Lingkaran berputar dari atas (−90°) searah jarum jam
-            // Penuh saat progress = 1.0 (5 PM)
             ZStack {
                 Circle()
                     .stroke(
@@ -189,47 +182,39 @@ struct InGamePage: View {
             }
             .frame(width: 64, height: 64)
 
-            // Health + Speed
             VStack(alignment: .leading, spacing: 6) {
 
                 // Health bar
                 HStack(spacing: 6) {
                     ZStack {
-                        Circle()
-                            .fill(Color(red: 0.08, green: 0.30, blue: 0.15))
-                            .frame(width: 28, height: 28)
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white)
+                        Image("icon_health")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
                     }
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(width: 110, height: 20)
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(healthColor)
-                            .frame(width: 110 * controller.healthPercentage, height: 20)
-                            .animation(.easeInOut(duration: 0.3), value: controller.healthPercentage)
-                        Text("\(Int(controller.currentHealth))")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: 110)
+                            Image("health_frame")
+                                .resizable()
+                                .frame(width: 110, height: 40)
+                        
+                            Text("\(Int(controller.currentHealth))")
+                                .frame(width: 110)
+                                .font(.custom("Cause-Bold", size: 16))
+                                .foregroundColor(Color("color_dark_blue"))
                     }
                 }
 
                 // Speed
                 HStack(spacing: 6) {
                     ZStack {
-                        Circle()
-                            .fill(Color(red: 0.08, green: 0.30, blue: 0.15))
-                            .frame(width: 28, height: 28)
-                        Image(systemName: "speedometer")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white)
+                        Image("icon_speed")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
                     }
                     Text(String(format: "%.0f knots", controller.currentSpeed))
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
+                        .font(.custom("Cause-Bold", size: 16))
+                        .foregroundColor(Color("color_dark_blue"))
                 }
             }
         }
@@ -242,33 +227,36 @@ struct InGamePage: View {
         return String(format: "%02d:%02d", hour, minute)
     }
 
-    private var healthColor: Color {
-        if controller.healthPercentage > 0.5  { return Color(red: 0.15, green: 0.75, blue: 0.35) }
-        if controller.healthPercentage > 0.25 { return .orange }
-        return .red
-    }
-
     // MARK: - Distance + Zone (kanan atas)
 
     private var distanceAndZone: some View {
         HStack(alignment: .top, spacing: 10) {
             Text(String(format: "%.0f km", controller.distanceTravelledKm))
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
-                .padding(.top, 6)
+                .font(.custom("Cause-Bold", size: 16))
+                .foregroundColor(Color("color_dark_blue"))
+                .padding(.top, 15)
 
-            // 4 kotak zona — aktif = biru penuh, belum = transparan
-            VStack(alignment: .trailing, spacing: 3) {
-                HStack(spacing: 3) {
-                    ForEach(1...4, id: \.self) { zoneNum in
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(zoneNum <= currentZoneNumber
-                                  ? Color(red: 0.15, green: 0.40, blue: 0.85)
-                                  : Color(red: 0.15, green: 0.40, blue: 0.85).opacity(0.2))
-                            .frame(width: 34, height: 26)
-                    }
-                }
-                Text(controller.currentZone?.name ?? "—")
+            VStack() {
+                Image("zone_indicator_outline")
+                    .resizable()
+                    .scaledToFit()
+                    .overlay(
+                        GeometryReader { geometry in
+                            Image("zone_indicator_fill")
+                                .resizable()
+                                .scaledToFit()
+                                .mask(
+                                    HStack(spacing: 0) {
+                                        Rectangle()
+                                            .frame(width: geometry.size.width * (CGFloat(currentZoneNumber) / 4.0))
+                                        Spacer(minLength: 0)
+                                    }
+                                )
+                        }
+                    )
+                    .frame(width: 200, height: 100)
+                
+                Text(controller.currentZone?.name ?? "")
                     .font(.system(size: 10))
                     .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45).opacity(0.6))
             }
@@ -450,7 +438,6 @@ struct InGamePage: View {
                     .foregroundColor(.white.opacity(0.75))
                     .multilineTextAlignment(.center)
 
-                // Daftar ikan kalau tidak tenggelam
                 if controller.expeditionResults != .shipDestroyed && !controller.catchLog.isEmpty {
                     VStack(spacing: 5) {
                         Text("🐟 \(controller.catchLog.count) fish saved")

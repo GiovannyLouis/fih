@@ -27,6 +27,7 @@ struct SelectShipPage: View {
         
     var body: some View {
         ZStack {
+            Color.white.ignoresSafeArea()
             // Background Color
             SpriteView(scene: fishBackgroundScene)
                 .ignoresSafeArea() // Make sure the fish go behind the status bar
