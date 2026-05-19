@@ -71,19 +71,15 @@ struct FishAlbumPage: View {
                     // 1. --- TAB ZONA DITARUH PALING ATAS KODE ---
                     // Karena ditaruh pertama, ini akan menjadi layer paling belakang!
                     HStack(spacing: 100) {
-                        ZoneTab(imageName: "zone_1", isSelected: selectedZone == 1) {
-                            selectedZone = 1
-                            fishController.filterFishes(byZone: 1, context: context)}
-                        ZoneTab(imageName: "zone_2", isSelected: selectedZone == 2) {
-                            selectedZone = 2
-                            fishController.filterFishes(byZone: 2, context: context)
+                        ForEach(1...4, id: \.self) { index in
+                            ZoneTabView(
+                                imageName: "zone_\(index)", // Otomatis menjadi "zone_1", "zone_2", dst.
+                                isSelected: selectedZone == index
+                            ) {
+                                selectedZone = index
+                                fishController.filterFishes(byZone: index, context: context)
+                            }
                         }
-                        ZoneTab(imageName: "zone_3", isSelected: selectedZone == 3) {
-                            selectedZone = 3
-                            fishController.filterFishes(byZone: 3, context: context) }
-                        ZoneTab(imageName: "zone_4", isSelected: selectedZone == 4) {
-                            selectedZone = 4 
-                            fishController.filterFishes(byZone: 4, context: context) }
                     }
                     .padding(.top, 0)
                     
@@ -132,29 +128,13 @@ struct FishAlbumPage: View {
               
             }
         }
+        .onAppear {
+            fishController.filterFishes(byZone: selectedZone, context: context)
+        }
     }
 }
 
-struct ZoneTab: View {
-    let imageName: String // Sekarang kita meminta nama gambar asetnya
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(imageName)
-                .resizable()
-                .scaledToFit()
-                // Jika terpilih, ukurannya 70x70. Jika tidak, mengecil jadi 55x55
-                .frame(width: isSelected ? 70 : 55, height: isSelected ? 70 : 55)
-                // Jika tidak terpilih, dorong ke bawah agar terlihat seperti berada di belakang buku
-                .offset(y: isSelected ? 0 : 15)
-                .zIndex(isSelected ? 1 : 0) // Tab terpilih selalu berada di layer paling depan
-        }
-        .buttonStyle(PlainButtonStyle())
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
-    }
-}
+
 struct FishEntryView: View {
     let isLocked: Bool
     let name: String
