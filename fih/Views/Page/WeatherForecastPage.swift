@@ -22,7 +22,6 @@ struct WeatherForecastPage: View {
 
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
             
             SpriteView(
                 scene: fishBackgroundScene,
