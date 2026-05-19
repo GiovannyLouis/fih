@@ -11,15 +11,13 @@ import SpriteKit
 struct MainMenuPage: View {
     @Environment(AppStateManager.self) private var appState
     
-    var mainMenuScene: SKScene {
-        // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
-        // loads your fish, and triggers the didMove(to:) movement code!
-        if let scene = SKScene(fileNamed: "MainScreen") {
+    @State private var mainMenuScene: SKScene = {
+        if let scene = MainMenuScene(fileNamed: "MainScreen") {
             scene.scaleMode = .aspectFill
             return scene
         }
         return SKScene()
-    }
+    }()
     
     var body: some View {
         ZStack {
@@ -27,11 +25,12 @@ struct MainMenuPage: View {
                 .ignoresSafeArea()
             
             VStack(alignment: .center) {
+                
                 Text("DAY 1")
                     .font(.custom("cause-bold", size: 24))
                     .foregroundStyle(.colorDarkBlue)
-                    .padding(.top, 20)
-                    .padding(.bottom, 40)
+                    .padding(.top, 40)
+                    .padding(.bottom, 32)
                 
                 
                 Button(action: {
