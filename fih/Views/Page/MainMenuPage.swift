@@ -6,18 +6,25 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct MainMenuPage: View {
     @Environment(AppStateManager.self) private var appState
     
+    var mainMenuScene: SKScene {
+        // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
+        // loads your fish, and triggers the didMove(to:) movement code!
+        if let scene = SKScene(fileNamed: "MainScreen") {
+            scene.scaleMode = .aspectFill
+            return scene
+        }
+        return SKScene()
+    }
+    
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
-            
-            Image("background_mainScreen")
-                .resizable()
+            SpriteView(scene: mainMenuScene)
                 .ignoresSafeArea()
-                .aspectRatio(contentMode: .fit)
             
             VStack(alignment: .center) {
                 Text("DAY 1")
