@@ -51,7 +51,7 @@ struct SelectEquipmentPage: View {
                         }
                         Spacer()
                     }
-                    .padding(.top, 30)
+                    .padding(.top, 32)
                     .padding(.trailing, 30)
                     
                     // 2. PANEL EQUIPMENT LIST (Background Krem)
