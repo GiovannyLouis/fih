@@ -30,6 +30,7 @@ struct SelectEquipmentPage: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
+                Color.white.ignoresSafeArea()
                 // LAYER 1: Background Ikan Animasi
                 SpriteView(scene: fishBackgroundScene, options: [.allowsTransparency])
                     .ignoresSafeArea()
