@@ -34,7 +34,7 @@ struct WeatherForecastPage: View {
                 HStack {
                     Button(action: {
                         appState.isMovingForward = false
-                        appState.currentScreen = .mainMenuPage
+                        appState.currentScreen = .fishAlbumPage
                         print("Go back to main screen")
                     }) {
                         Image("icon_back")
