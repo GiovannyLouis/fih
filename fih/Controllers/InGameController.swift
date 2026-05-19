@@ -141,6 +141,9 @@ class InGameController {
         
         print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
         distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
+        distanceTravelledKm += kmPerSecond
+        
+        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
     }
     
     private func spawnEvent() {
