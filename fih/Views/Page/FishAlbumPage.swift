@@ -42,7 +42,7 @@ struct FishAlbumPage: View {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
                         appState.isMovingForward = false
-                        appState.currentScreen = .weatherForecastPage
+                        appState.currentScreen = .mainMenuPage
                     }) {
                         Image("icon_back")
                             .resizable()
