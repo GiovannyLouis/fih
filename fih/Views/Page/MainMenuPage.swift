@@ -28,8 +28,8 @@ struct MainMenuPage: View {
             
             VStack(alignment: .center) {
                 Text("DAY 1")
-                    .font(.custom("cause-bold", size: 20))
-                    .foregroundStyle(Color(red: 0.1, green: 0.3, blue: 0.5))
+                    .font(.custom("cause-bold", size: 24))
+                    .foregroundStyle(.colorDarkBlue)
                     .padding(.top, 20)
                     .padding(.bottom, 40)
                 
@@ -38,10 +38,12 @@ struct MainMenuPage: View {
                     appState.currentScreen = .weatherForecastPage
                 }) {
                     ZStack {
-                        Image("play_button")
+                        Image("green_button")
+                            .resizable()
+                            .frame(width: 200, height: 60)
                         Text("Play")
                             .font(.custom("cause-bold", size: 36))
-                            .foregroundStyle(Color(red: 0.1, green: 0.3, blue: 0.5))
+                            .foregroundStyle(.colorDarkBlue)
                     }
                 }
                 
@@ -49,10 +51,12 @@ struct MainMenuPage: View {
                     appState.currentScreen = .fishAlbumPage
                 }) {
                     ZStack {
-                        Image("collection_button")
+                        Image("cream_button")
+                            .resizable()
+                            .frame(width: 160, height: 48)
                         Text("Collection")
                             .font(.custom("cause-bold", size: 20))
-                            .foregroundStyle(Color(red: 0.1, green: 0.3, blue: 0.5))
+                            .foregroundStyle(.colorDarkBlue)
                     }
                 }
                 .padding(.top, -12)
