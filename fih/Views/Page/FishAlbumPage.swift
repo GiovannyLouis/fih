@@ -98,7 +98,7 @@ struct FishAlbumPage: View {
                 HStack {
                     Button(action: {
                         appState.isMovingForward = false
-                        appState.currentScreen = .weatherForecastPage
+                        appState.currentScreen = .mainMenuPage
                     }) {
                         Image("icon_close")
                             .resizable()
