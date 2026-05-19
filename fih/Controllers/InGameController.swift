@@ -50,10 +50,10 @@ class InGameController {
     private let eventInterval: TimeInterval = 3.0
     
     let zones: [fishZoneInfo] = [
-        fishZoneInfo(name: "Zone 1",startKm: 0,endKm: 5, fish: ["ikan"]),
-        fishZoneInfo(name: "Zone 2",startKm: 5,endKm: 15, fish: ["ikan"]),
-        fishZoneInfo(name: "Zone 3",startKm: 15,endKm: 30, fish: ["ikan"]),
-        fishZoneInfo(name: "Zone 4",startKm: 30,endKm: 50, fish: ["ikan"]),
+        fishZoneInfo(name: "Zone 1",startKm: 0,endKm: 30, fish: ["fish_blue"]),
+        fishZoneInfo(name: "Zone 2",startKm: 30,endKm: 80 , fish: ["fish_read"]),
+        fishZoneInfo(name: "Zone 3",startKm: 80,endKm: 150, fish: ["ikan"]),
+        fishZoneInfo(name: "Zone 4",startKm: 150,endKm: 300, fish: ["ikan"]),
     ]
     var currentZone: fishZoneInfo? {
         zones.first { distanceTravelledKm >= $0.startKm && distanceTravelledKm < $0.endKm }
@@ -137,12 +137,15 @@ class InGameController {
         }
         
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
+        distanceTravelledKm += kmPerSecond
+        
+        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
         distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
     }
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.6 {
+        if roll < 0.7 {
             spawnfish()
         } else {
             triggerObstacle()
