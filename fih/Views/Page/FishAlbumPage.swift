@@ -62,36 +62,60 @@ struct FishAlbumPage: View {
                 
                 Spacer() // Pushes the ship cards down to the middle
                 
-                // 2. MIDDLE: SHIP SELECTION CARDS
-                ZStack(alignment:.top) {
-                    Image("book_page") // Replace with your book PNG name
-                                            .resizable()
-                                            //.scaledToFit()
-                                            .frame(width: 600) // Adjust based on your iPad/iPhone target
-                                            .padding(.top, 30)
+                // 2. MIDDLE: FISH BOOK & TABS
+                ZStack(alignment: .top) {
                     
-                    HStack(spacing: 60) {
-                                            ZoneTab(title: "1st\nZONE", isSelected: selectedZone == 1) { selectedZone = 1 }
-                                            ZoneTab(title: "2nd\nZONE", isSelected: selectedZone == 2) { selectedZone = 2 }
-                                            ZoneTab(title: "3rd\nZONE", isSelected: selectedZone == 3) { selectedZone = 3 }
-                                            ZoneTab(title: "4th\nZONE", isSelected: selectedZone == 4) { selectedZone = 4 }
-                                        }
-                                        .padding(.top, 0) // Tabs sit at the very top
-//                    ForEach(shipController.availableShips) { ship in
-//                        ShipCardView(
-//                            ship: ship,
-//                            isSelected: appState.selectedShip == ship,
-//                            action: {
-//                                // Selects the ship (triggers the animation)
-//                                appState.selectedShip = ship
-//                                //shipController.selectedShip = ship
-//                            }
-//                        )
+                    // 1. --- TAB ZONA DITARUH PALING ATAS KODE ---
+                    // Karena ditaruh pertama, ini akan menjadi layer paling belakang!
+                    HStack(spacing: 100) {
+                        ZoneTab(imageName: "zone_1", isSelected: selectedZone == 1) { selectedZone = 1 }
+                        ZoneTab(imageName: "zone_2", isSelected: selectedZone == 2) { selectedZone = 2 }
+                        ZoneTab(imageName: "zone_3", isSelected: selectedZone == 3) { selectedZone = 3 }
+                        ZoneTab(imageName: "zone_4", isSelected: selectedZone == 4) { selectedZone = 4 }
+                    }
+                    .padding(.top, 0)
+                    
+                    
+                    // 2. --- BUKU BACKGROUND ---
+                    // Digambar setelah Tab, sehingga akan MENUTUPI bagian bawah Tab yang turun (offset).
+                    HStack(spacing: 0) {
+                        Image("book_left")
+                            .resizable()
+                        
+                        Image("book_right")
+                            .resizable()
+                    }
+                    .frame(width: 725)
+                    .padding(.top, 40)
+                    
+                    
+                    // 3. --- ISI HALAMAN (KIRI & KANAN) ---
+                    // Digambar terakhir, sehingga teks selalu ada di atas buku.
+//                    HStack(spacing: 50) {
+//                        
+//                        // HALAMAN KIRI
+//                        VStack(spacing: 5) {
+//                            FishEntryView(isLocked: false, name: "Tuna", description: "Short explanation of the fish", icon: "fish_blue")
+//                            FishEntryView(isLocked: true, name: "", description: "", icon: "")
+//                            FishEntryView(isLocked: false, name: "Tuna 3", description: "Short explanation of the fish", icon: "fish_blue")
+//                            Spacer()
+//                        }
+//                        .frame(width: 260)
+//                        
+//                        // HALAMAN KANAN
+//                        VStack(spacing: 5) {
+//                            FishEntryView(isLocked: true, name: "", description: "", icon: "")
+//                            FishEntryView(isLocked: false, name: "Tuna 5", description: "Short explanation of the fish", icon: "fish_red", imageOnRight: true)
+//                            FishEntryView(isLocked: true, name: "", description: "", icon: "")
+//                            Spacer()
+//                        }
+//                        .frame(width: 260)
 //                    }
+//                    .padding(.top, 80)
                 }
                 .padding(.horizontal, 10)
                 
-                Spacer() // Pushes the cards up to center them perfectly
+                //Spacer() // Pushes the cards up to center them perfectly
                 
               
             }
@@ -100,30 +124,25 @@ struct FishAlbumPage: View {
 }
 
 struct ZoneTab: View {
-    let title: String
+    let imageName: String // Sekarang kita meminta nama gambar asetnya
     let isSelected: Bool
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            ZStack {
-                Image("yellow_tag_asset") // Replace with your yellow tag PNG
-                    .resizable()
-                    .scaledToFill()
-                
-                Text(title)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.black)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(width: 60, height: isSelected ? 80 : 60) // Taller if selected
-            .offset(y: isSelected ? 0 : 10) // Push down if unselected to look like it's behind
-            .zIndex(isSelected ? 1 : 0) // Bring selected tab to front
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                // Jika terpilih, ukurannya 70x70. Jika tidak, mengecil jadi 55x55
+                .frame(width: isSelected ? 70 : 55, height: isSelected ? 70 : 55)
+                // Jika tidak terpilih, dorong ke bawah agar terlihat seperti berada di belakang buku
+                .offset(y: isSelected ? 0 : 15)
+                .zIndex(isSelected ? 1 : 0) // Tab terpilih selalu berada di layer paling depan
         }
         .buttonStyle(PlainButtonStyle())
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
     }
 }
-
 struct FishEntryView: View {
     let isLocked: Bool
     let name: String
