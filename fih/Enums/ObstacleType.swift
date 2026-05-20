@@ -9,6 +9,7 @@ import Foundation
 
 enum ObstacleType {
     case albatros
+    case albatrosSteal
     case iceberg
     case lightning
     case tornado
@@ -17,7 +18,7 @@ enum ObstacleType {
     
     var displayName: String {
         switch self {
-        case .albatros: return "Albatross"
+        case .albatros, .albatrosSteal: return "Albatros"
         case .iceberg: return "Iceberg"
         case .lightning: return "Lightning Strike"
         case .tornado: return "Tornado"

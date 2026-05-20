@@ -19,9 +19,9 @@ class ObstacleController {
         var shouldStealFish = false
         
         switch obstacleType {
-        case .albatros:
+        case .albatros, .albatrosSteal:
             shouldStealFish = true
-        
+            
         case .iceberg:
             switch ship.shipType {
             case .speedBoat:    damage = 30; speedPenalty = 30
@@ -50,7 +50,10 @@ class ObstacleController {
         // SCARE CROW vs Albatross
         if obstacleType == .albatros && equipment.contains(where: { $0.type == .scarecrow }) {
             shouldStealFish = false
-            gameController.showEvent("Scarecrow protected your fish!")
+            gameController.gameScene?.spawnObstacleVisual(.albatros)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                gameController.showEvent("Scarecrow protected your fish!")
+            }
         }
         
         // PREDATOR BAIT vs Predator
@@ -104,9 +107,17 @@ class ObstacleController {
         if shouldStealFish {
             if let randomIndex = gameController.catchLog.indices.randomElement() {
                 let stolen = gameController.catchLog.remove(at: randomIndex)
-                gameController.showEvent("Albatross stole your \(stolen)!")
+                gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    gameController.showEvent("Albatross stole your \(stolen)!")
+                }
             } else {
-                gameController.showEvent("Albatross circled, but you have no fish!")
+                gameController.gameScene?.spawnObstacleVisual(.albatros)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    gameController.showEvent("Albatross circled, but you have no fish!")
+                }
             }
         }
     }

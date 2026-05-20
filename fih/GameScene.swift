@@ -174,6 +174,113 @@ class GameScene: SKScene {
         }
     }
     
+    func spawnObstacleVisual(_ type: ObstacleType) {
+        switch type {
+        case .albatros, .albatrosSteal:
+            handleAlbatrosAnimation(isStealing: type == .albatrosSteal)
+
+        case .lightning:
+            // A simple white flash overlay
+            let flash = SKSpriteNode(color: .white, size: self.size)
+            flash.position = CGPoint(x: size.width/2, y: size.height/2)
+            flash.alpha = 0
+            flash.zPosition = 100
+            addChild(flash)
+            
+            let fadeIn = SKAction.fadeAlpha(to: 0.6, duration: 0.1)
+            let fadeOut = SKAction.fadeOut(withDuration: 0.2)
+            let shake = SKAction.sequence([
+                SKAction.moveBy(x: 10, y: 0, duration: 0.05),
+                SKAction.moveBy(x: -20, y: 0, duration: 0.05),
+                SKAction.moveBy(x: 10, y: 0, duration: 0.05)
+            ])
+            
+            flash.run(.sequence([fadeIn, fadeOut, .removeFromParent()]))
+            self.run(shake) // Shake the whole scene
+
+        case .tornado:
+            let tornado = SKSpriteNode(imageNamed: "obs_tornado")
+            tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
+            tornado.zPosition = 8
+            addChild(tornado)
+            
+            let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
+            let move = SKAction.moveTo(x: -100, duration: 5.0)
+            
+            tornado.run(rotate)
+            tornado.run(.sequence([move, .removeFromParent()]))
+
+        case .iceberg:
+            let iceberg = SKSpriteNode(imageNamed: "obs_iceberg")
+            iceberg.position = CGPoint(x: size.width + 100, y: seaY - 20)
+            iceberg.zPosition = 4 // Behind the ship/sea
+            addChild(iceberg)
+            
+            // Icebergs move slow and heavy
+            let move = SKAction.moveTo(x: -100, duration: 10.0)
+            iceberg.run(.sequence([move, .removeFromParent()]))
+
+        default:
+            break
+        }
+    }
+    
+    private func handleAlbatrosAnimation(isStealing: Bool) {
+        // 1. Prepare Textures (The Ping-Pong Pattern: 1 -> 2 -> 3 -> 2)
+        let emptyBase = [
+            SKTexture(imageNamed: "obs_albatros_empty_1"),
+            SKTexture(imageNamed: "obs_albatros_empty_2"),
+            SKTexture(imageNamed: "obs_albatros_empty_3")
+        ]
+        // Construct the 1,2,3,2 sequence
+        let emptyTextures = [emptyBase[0], emptyBase[1], emptyBase[2], emptyBase[1]]
+        
+        let fishBase = [
+            SKTexture(imageNamed: "obs_albatros_fish_1"),
+            SKTexture(imageNamed: "obs_albatros_fish_2"),
+            SKTexture(imageNamed: "obs_albatros_fish_3")
+        ]
+        // Construct the 1,2,3,2 sequence
+        let fishTextures = [fishBase[0], fishBase[1], fishBase[2], fishBase[1]]
+        
+        // 2. Setup Bird Node
+        let bird = SKSpriteNode(texture: emptyTextures[0])
+        bird.setScale(0.2)
+        bird.zPosition = 12
+        bird.position = CGPoint(x: size.width + 50, y: skyMaxY)
+        addChild(bird)
+        
+        // 3. Flapping Animation (Time per frame set to 0.15 for smoother look)
+        let flapEmpty = SKAction.repeatForever(SKAction.animate(with: emptyTextures, timePerFrame: 0.15))
+        let flapFish = SKAction.repeatForever(SKAction.animate(with: fishTextures, timePerFrame: 0.15))
+        bird.run(flapEmpty, withKey: "flapAction")
+        
+        // 4. Movement Logic (The Dive)
+        let shipPos = shipNode.position
+        let diveTarget = CGPoint(x: shipPos.x, y: shipPos.y + 15)
+        let exitTarget = CGPoint(x: -100, y: skyMaxY)
+        
+        let dive = SKAction.move(to: diveTarget, duration: 1.5)
+        dive.timingMode = .easeIn
+        
+        let grabFish = SKAction.run { [weak bird] in
+            if isStealing {
+                bird?.removeAction(forKey: "flapAction")
+                bird?.run(flapFish, withKey: "flapAction")
+            }
+        }
+        
+        let flyAway = SKAction.move(to: exitTarget, duration: 1.8)
+        flyAway.timingMode = .easeOut
+        
+        bird.run(.sequence([
+            dive,
+            grabFish,
+            flyAway,
+            .removeFromParent()
+        ]))
+    }
+    
     func pauseGame() {
         self.isPaused = true
     }
