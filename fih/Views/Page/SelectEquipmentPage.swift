@@ -105,10 +105,27 @@ struct SelectEquipmentPage: View {
                                 let equippedCount = controller.equippedItems.count
                                 
                                 if slotCount > 0 {
-                                    EquipmentSlotView(iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil)
+                                    EquipmentSlotView(
+                                        iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil,
+                                        onRemove: {
+                                            if equippedCount > 0 {
+                                                let itemToRemove = controller.equippedItems[0]
+                                                controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                            }
+                                        }
+                                    )
                                 }
+                                                                
                                 if slotCount > 1 {
-                                    EquipmentSlotView(iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil)
+                                    EquipmentSlotView(
+                                        iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil,
+                                        onRemove: {
+                                            if equippedCount > 1 {
+                                                let itemToRemove = controller.equippedItems[1]
+                                                controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                            }
+                                        }
+                                    )
                                 }
                             }
                             .padding(.top, 10)

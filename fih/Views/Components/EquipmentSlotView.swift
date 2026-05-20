@@ -6,39 +6,48 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import SpriteKit
 
 struct EquipmentSlotView: View {
-    let iconName: String? // Nil means the slot is empty
+    let iconName: String?
+    
+    var onRemove: (() -> Void)? = nil
     
     var bgScene: SKScene {
         let scene = CreamBackgroundScene()
-        // We ensure the scene matches the SwiftUI frame exactly
-        //scene.size = CGSize(width: 60, height: 60)
         scene.scaleMode = .fill
         return scene
     }
     
     var body: some View {
-        ZStack {
-            // REMOVED: RoundedRectangle() that was painting the box black
+        ZStack(alignment: .topTrailing) {
             
-            if let icon = iconName {
-                Image(icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(Color("color_dark_blue"))
+            ZStack {
+                SpriteView(scene: bgScene, options: [.allowsTransparency])
+                
+                if let icon = iconName {
+                    Image(icon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(Color("color_dark_blue"))
+                }
+            }
+            .frame(width: 60, height: 60)
+            
+            if iconName != nil {
+                Button(action: {
+                    onRemove?()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.red)
+                        .background(Circle().fill(Color.white)) 
+                }
+                .offset(x: 8, y: -8)
             }
         }
-        // Set the size directly on the container ZStack
-        .frame(width: 60, height: 60)
-        // Attach your 9-sliced SpriteKit view underneath
-        .background (
-            SpriteView(scene: bgScene, options: [.allowsTransparency])
-        )
     }
 }
 
