@@ -38,7 +38,7 @@ class GameScene: SKScene {
     
     private func setupSea() {
         let seaTexture = SKTexture(imageNamed: "ocean")
-        let seaWidth = seaTexture.size().width
+        let seaWidth = seaTexture.size().width - 6
         let duration: TimeInterval = 4.0
 
         for i in 0..<4 {

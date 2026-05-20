@@ -151,32 +151,20 @@ struct InGamePage: View {
 
     private var clockAndStats: some View {
         HStack(alignment: .center, spacing: 10) {
+            let angleInRadians = (-90 + 360 * controller.timer.progress) * .pi / 180
             ZStack {
-                Circle()
-                    .stroke(
-                        Color(red: 0.08, green: 0.18, blue: 0.45).opacity(0.15),
-                        lineWidth: 4
+                Image("indicator_line")
+                    .resizable()
+                    .frame(width: 64, height: 100)
+
+                Image("indicator_dot")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                    .offset(
+                        x: 32 * cos(angleInRadians),
+                        y: 50 * sin(angleInRadians)
                     )
-                    .frame(width: 64, height: 64)
-
-                Circle()
-                    .trim(from: 0, to: controller.timer.progress)
-                    .stroke(
-                        Color(red: 0.08, green: 0.18, blue: 0.45),
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                    )
-                    .frame(width: 64, height: 64)
-                    .rotationEffect(.degrees(-90)) // mulai dari atas
                     .animation(.linear(duration: 1), value: controller.timer.progress)
-
-                // Titik kecil di ujung progress arc
-                Circle()
-                    .fill(Color(red: 0.08, green: 0.18, blue: 0.45))
-                    .frame(width: 8, height: 8)
-                    .offset(y: -32)
-                    .rotationEffect(.degrees(-90 + controller.timer.progress * 360))
-                    .animation(.linear(duration: 1), value: controller.timer.progress)
-
                 Text(clockText)
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))

@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 class GameTimerServices {
-    static let realSecondPerGameHour: Double = 30.0
+    static let realSecondPerGameHour: Double = 10.0
     static let gameDurationHours: Double = 8.0
     static let totalRealSecond: Double = realSecondPerGameHour * gameDurationHours
     
