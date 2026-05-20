@@ -106,11 +106,11 @@ class ObstacleController {
         // Apply Fish Theft
         if shouldStealFish {
             if let randomIndex = gameController.catchLog.indices.randomElement() {
-                let stolen = gameController.catchLog.remove(at: randomIndex)
+                let stolenFish = gameController.catchLog.remove(at: randomIndex)
                 gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    gameController.showEvent("Albatross stole your \(stolen)!")
+                    gameController.showEvent("Albatross stole your \(stolenFish.name)!")
                 }
             } else {
                 gameController.gameScene?.spawnObstacleVisual(.albatros)

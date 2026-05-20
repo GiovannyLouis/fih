@@ -15,47 +15,39 @@ struct FishCardView: View {
     var imageOnRight: Bool = false
     
     // Warna biru gelap khusus untuk teks dan ikon agar sesuai dengan tema gambar
-    let darkBlueTheme = Color(red: 0.1, green: 0.1, blue: 0.5)
+    let darkBlueTheme = Color("color_dark_blue")
     
     var body: some View {
         Group {
             if isLocked {
                 // --- LOCKED STATE BARU ---
-                HStack(spacing: 15) {
-                    Image(systemName: "lock")
-                        .font(.system(size: 50, weight: .bold))
-                        .foregroundColor(darkBlueTheme)
-                        .frame(width: 40)
+                HStack(spacing: 5) {
+                    Image("icon_lock")
+                        .resizable()
+                        .scaledToFit()
                     
                     Text("You have not caught\nthis fish yet")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.custom("cause-extrabold", size: 15))
                         .foregroundColor(darkBlueTheme)
-                        //.multilineTextAlignment(.center)
-                    
+                        .multilineTextAlignment(.leading)
                     Spacer()
                 }
-                .padding(.horizontal, 15)
+                .frame(width: 223, height: 60)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 0.82, green: 0.82, blue: 0.82)) // Abu-abu terang
                 )
-                // Menambahkan garis tepi (outline) pada kotak terkunci
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(darkBlueTheme.opacity(0.6), lineWidth: 2)
-                )
+                
                 
             } else {
                 // --- UNLOCKED STATE BARU ---
-                HStack(spacing: 15) {
+                HStack(spacing: 5) {
                     
                     // Gambar Ikan Langsung (tanpa lingkaran hijau)
                    
                     Image(icon)
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: 60, height: 60)
-                    
+                        .scaledToFit()                    
                     
                     VStack(alignment: .leading) {
                         Text(name)
@@ -69,12 +61,12 @@ struct FishCardView: View {
                     
                     Spacer()
                 }
-                .padding(.horizontal, 5)
+                .frame(width: 223, height: 60)
 
             }
 
         }
-        .frame(width: 225, height: 60)
+        
     }
 }
 
