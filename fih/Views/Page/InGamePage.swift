@@ -282,119 +282,186 @@ struct InGamePage: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture { closePanel() }
-
             VStack(spacing: 0) {
-                // Handle bar
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.gray.opacity(0.4))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 12)
-                    .padding(.bottom, 10)
 
-                Text(controller.selectedShip.name)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
-                    .padding(.bottom, 16)
+                // MARK: - Panel utama
+                ZStack {
+                    // Background asset
+                    Image("card_background_cream")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .clipped()
+                        .padding(.horizontal,10)
 
-                HStack(alignment: .top, spacing: 20) {
+                    VStack(spacing: 0) {
 
-                    // Kolom kiri: Equipment
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Equipment", systemImage: "wrench.fill")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
+                        // Title
+                        Text("Expedition Details")
+                            .font(.custom("Cause-Bold", size: 20))
+                            .foregroundColor(Color("color_dark_blue"))
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .fill(Color("card_background_cream"))
+                                    .overlay(Capsule().stroke(Color("color_dark_blue"), lineWidth: 2.5))
+                            )
+                            .padding(.top, 14)
+                            .padding(.bottom, 10)
 
-                        if controller.equippedItems.isEmpty {
-                            Text("None").font(.caption).foregroundColor(.gray)
-                        } else {
-                            ForEach(controller.equippedItems) { item in
-                                HStack(spacing: 6) {
-                                    Image(systemName: equipmentIcon(item.type))
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.white)
-                                        .frame(width: 24, height: 24)
-                                        .background(Color(red: 0.08, green: 0.18, blue: 0.45))
-                                        .cornerRadius(5)
-                                    Text(item.name)
-                                        .font(.system(size: 12))
-                                        .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
-                                }
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(alignment: .top, spacing: 0) {
 
-                    Divider()
+                            // MARK: - Kiri: Equipment slots + kapal
+                            HStack(spacing: 12) {
 
-                    // Kolom kanan: Catch log
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Catch (\(controller.catchLog.count))", systemImage: "fish.fill")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
-
-                        if controller.catchLog.isEmpty {
-                            Text("No fish yet").font(.caption).foregroundColor(.gray)
-                        } else {
-                            ScrollView {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fish in
-                                        Text("• \(fish)")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
+                                // Equipment slots (kotak-kotak)
+                                VStack(spacing: 8) {
+                                    ForEach(0..<max(controller.selectedShip.equipmentSlots, 2), id: \.self) { index in
+                                        equipmentSlot(index: index)
                                     }
                                 }
+
+                                // Gambar kapal
+                                Image(controller.selectedShip.imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
                             }
-                            .frame(maxHeight: 110)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 16)
+
+                            // Divider vertikal
+                            Rectangle()
+                                .fill(Color("color_dark_blue"))
+                                .frame(width: 2)
+                                .padding(.vertical, 8)
+
+                            // MARK: - Kanan: Fish Collected
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Fish Collected")
+                                    .font(.custom("Cause-Bold", size: 16))
+                                    .foregroundColor(Color("color_dark_blue"))
+                                    .frame(maxWidth: .infinity, alignment: .center)
+
+                                if controller.catchLog.isEmpty {
+                                    Text("No fish yet...")
+                                        .font(.caption)
+                                        .foregroundColor(Color("color_dark_blue").opacity(0.4))
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .padding(.top, 20)
+                                } else {
+                                    ScrollView(showsIndicators: true) {
+                                        VStack(spacing: 6) {
+                                            ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fishName in
+                                                HStack(spacing: 10) {
+                                                    Image("fish_\(fishName.lowercased())")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 48, height: 32)
+                                                    Text(fishName)
+                                                        .font(.system(size: 14, weight: .medium))
+                                                        .foregroundColor(Color("color_dark_blue"))
+                                                    Spacer()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .frame(maxHeight: 160)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 12)
                         }
+                        .padding(.bottom, 12)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.horizontal, 24)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color("color_dark_blue"), lineWidth: 2.5)
+                )
+                .padding(.horizontal, 16)
 
-                Divider().padding(.vertical, 14)
+                // MARK: - Bottom bar
+                HStack(spacing: 0) {
+                    Text("Finish early to save your ship and secure your fish")
+                        .font(.custom("Cause-Bold", size: 14))
+                        .foregroundColor(Color("color_dark_blue"))
+                        .padding(.leading, 20)
+                        .padding(.vertical, 14)
 
-                // Buttons
-                HStack(spacing: 12) {
-                    // Resume
-                    Button(action: { closePanel() }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "play.fill")
-                            Text("Resume").fontWeight(.semibold)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame (height: 44)
-                        .background(Color(red: 0.08, green: 0.18, blue: 0.45))
-                        .cornerRadius(22)
-                    }
+                    Spacer()
 
-                    // Go Home (abort)
+                    // Tombol Home merah
                     Button(action: {
                         closePanel()
-                        // Delay supaya panel selesai animasi tutup dulu
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             controller.abortExpedition()
                         }
                     }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "house.fill")
-                            Text("Go Home").fontWeight(.semibold)
-                        }
-                        .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
-                        .frame(maxWidth: .infinity)
-                        .frame (height: 44)
-                        .background(Color.yellow)
-                        .cornerRadius(22)
+                        Image("button_home")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
                     }
+                    .padding(.trailing, 10)
+                    .padding(.vertical, 15)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 28)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(red: 0.97, green: 0.93, blue: 0.78))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color("color_dark_blue"), lineWidth: 2.5)
+                        )
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
             }
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(radius: 20)
-            .padding(.horizontal, 32)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+
+            // MARK: - Tombol Resume (teal, floating di kanan luar panel)
+            HStack {
+                Spacer()
+                VStack {
+                    Button(action: { closePanel() }) {
+                        Image("button_play")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                            .shadow(color: .black.opacity(0.25), radius: 6, x: 2, y: 3)
+                    }
+                    .padding(100)
+                    .position(x: 730, y: 180)
+                }
+            }
+        }
+    }
+    // MARK: - Equipment slot helper
+    // Dipakai di shipPanel — satu kotak equipment
+    private func equipmentSlot(index: Int) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(red: 0.93, green: 0.91, blue: 0.82))
+                .frame(width: 65, height: 65)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color("color_dark_blue"), lineWidth: 2)
+                )
+
+            if index < controller.equippedItems.count {
+                let item = controller.equippedItems[index]
+                Image(item.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 46, height: 46)
+            } else {
+                // Slot kosong
+                Image(systemName: "square.dashed")
+                    .font(.system(size: 26))
+                    .foregroundColor(Color("color_dark_blue").opacity(0.25))
+            }
         }
     }
 

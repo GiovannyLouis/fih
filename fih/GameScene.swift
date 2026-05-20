@@ -19,7 +19,7 @@ class GameScene: SKScene {
     private var seaY: CGFloat {size.height * 0.42}
     private var shipY: CGFloat {seaY}
     private var fishMinY: CGFloat {size.height * 0.05}
-    private var fishMaxY: CGFloat {seaY - 15}
+    private var fishMaxY: CGFloat {seaY * 0.5}
     private var skyMinY: CGFloat {seaY + 100}
     private var skyMaxY: CGFloat {size.height * 0.92}
     
@@ -41,8 +41,7 @@ class GameScene: SKScene {
 
         for i in 0..<4 {
             let seaNode = SKSpriteNode(texture: seaTexture)
-            seaNode.zPosition = 6
-
+            seaNode.zPosition = 2
             let initialX = CGFloat(i) * seaWidth
             seaNode.position = CGPoint(x: initialX, y: 100)
             
@@ -68,8 +67,11 @@ class GameScene: SKScene {
         if shipImageName == "ship_speedboat" {
             finalShipY = shipY - 15
         }
+        if shipImageName == "ship_cargoboat" {
+            finalShipY = shipY - 5
+        }
         shipNode.position = CGPoint(x: size.width * 0.28, y: finalShipY)
-        shipNode.zPosition = 5
+        shipNode.zPosition = 1
         shipNode.name = "ship"
         addChild(shipNode)
         
@@ -87,38 +89,69 @@ class GameScene: SKScene {
         
     }
     
-    func spawnFishVisual (_ fishName : String) {
-        let assetName = "fish_\(fishName.lowercased())"
-        let fish = SKSpriteNode (imageNamed: assetName)
-        fish.size = CGSize(width: 100, height: 50)
-        fish.name = fishName
-        fish.zPosition = 5
-        
+    func spawnFishVisual(iconName: String, fishName: String) {
+        let fish = SKSpriteNode(imageNamed: iconName)
+        fish.size      = CGSize(width: 50, height: 25)
+        fish.name      = fishName
+        fish.zPosition = 3
+     
+        // Spawn dari kanan layar
         let startY = CGFloat.random(in: fishMinY...fishMaxY)
-        fish.position = CGPoint(x: size.width + 60, y: startY)
+        fish.position  = CGPoint(x: size.width + 60, y: startY)
         addChild(fish)
-        
-        let duration = Double.random(in: 5...9)
-        
-        let shipX = size.width * 0.28
-        let totalDist = size.width + 60 + abs(shipX)
-        let distToShip = size.width + 60 + shipX
+     
+        let duration   = Double.random(in: 5...9)
+     
+        // FIX: posisi X kapal = size.width * 0.28 dari kiri
+        // distToShip = jarak dari spawn point ke kapal
+        let shipX      = size.width * 0.28
+        let spawnX     = size.width + 60.0
+        let distToShip = spawnX - shipX                    // selisih dari spawn ke kapal
+        let totalDist  = spawnX + 80.0                     // total jarak sampai keluar layar kiri
         let timeToShip = (distToShip / totalDist) * duration
-        
-        fish.run (.sequence([
+     
+        // Action gerak ke kiri sampai keluar layar
+        fish.run(.sequence([
             SKAction.moveTo(x: -80, duration: duration),
             SKAction.removeFromParent()
         ]))
-        
+     
+        // Saat sampai di posisi kapal → tangkap
         let catchTrigger = SKAction.run { [weak self, weak fish] in
-            guard let self = self, let fish = fish, fish.parent != nil else { return }
-            self.onFishCaught?(fish.name ?? fishName)  // → InGameController.catchFish()
+            guard let self = self,
+                  let fish = fish,
+                  fish.parent != nil else { return }
+     
+            self.onFishCaught?(fish.name ?? fishName)
+            self.showCatchEffect(at: fish.position)
             fish.removeFromParent()
         }
+     
         fish.run(.sequence([
             .wait(forDuration: timeToShip),
             catchTrigger
         ]), withKey: "catchCheck")
+    }
+    
+    private func showCatchEffect(at position: CGPoint) {
+        for _ in 0..<5 {
+            let star        = SKShapeNode(circleOfRadius: 4)
+            star.fillColor  = .yellow
+            star.strokeColor = .clear
+            star.position   = position
+            star.zPosition  = 10
+            addChild(star)
+     
+            let dx = CGFloat.random(in: -25...25)
+            let dy = CGFloat.random(in: 10...35)
+            star.run(.sequence([
+                .group([
+                    .moveBy(x: dx, y: dy, duration: 0.5),
+                    .fadeOut(withDuration: 0.5)
+                ]),
+                .removeFromParent()
+            ]))
+        }
     }
     
     func pauseGame() {
