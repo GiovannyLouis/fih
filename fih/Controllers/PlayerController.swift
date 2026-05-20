@@ -94,4 +94,19 @@ class PlayerController {
         }
         
     }
+    
+    
+    func incrementDays(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+        
+        do {
+            let players = try context.fetch(descriptor)
+            if let currentPlayer = players.first {
+                currentPlayer.totalDays += 1
+                try context.save()
+            }
+        } catch {
+            
+        }
+    }
 }

@@ -55,12 +55,18 @@
 
 import SwiftUI
 import SpriteKit
+import SwiftData
 
 struct InGamePage: View {
 
     let controller: InGameController
 
     @Environment(AppStateManager.self) private var appState
+    
+    @Environment(\.modelContext) private var context
+
+    @State private var playerController = PlayerController()
+
 
     @State private var scene: GameScene? = nil
     @State private var showShipPanel: Bool = false
@@ -514,6 +520,7 @@ struct InGamePage: View {
                 // Kembali ke pilih kapal
                 // InGamePage yang handle navigasi — bukan controller
                 Button(action: {
+                    playerController.incrementDays(context: context)
                     appState.currentScreen = .mainMenuPage
                     appState.resetForecast()
                 }) {
