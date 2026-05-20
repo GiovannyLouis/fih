@@ -458,7 +458,8 @@ struct InGamePage: View {
                 // Kembali ke pilih kapal
                 // InGamePage yang handle navigasi — bukan controller
                 Button(action: {
-                    appState.currentScreen = .selectShipPage
+                    appState.currentScreen = .mainMenuPage
+                    appState.resetForecast()
                 }) {
                     Text("New Expedition")
                         .fontWeight(.bold)
