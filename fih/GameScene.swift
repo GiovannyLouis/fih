@@ -13,6 +13,8 @@ class GameScene: SKScene {
     
     var onFishCaught: ((String) -> Void)?
     
+    var weather: WeatherType = .sunny
+    
     private var shipNode: SKSpriteNode!
     private var seaNode: SKSpriteNode!
     
@@ -30,7 +32,7 @@ class GameScene: SKScene {
         backgroundColor = UIColor(red: 0.97, green: 0.97, blue: 0.97, alpha: 1)
         setupSea()
         setupShip()
-        setupClouds()
+        setupClouds(weather: weather)
         setupSeabirds()
     }
     
@@ -82,9 +84,27 @@ class GameScene: SKScene {
         shipNode.run(SKAction.repeatForever(.sequence([up, down])))
     }
     
-    private func setupClouds() {
-        
+    private func setupClouds(weather: WeatherType) {
+        for data in weather.particleData {
+                
+                if let emitter = SKEmitterNode(fileNamed: data.fileName) {
+                    
+                    switch data.spawn {
+                    case .rightEdge:
+                        emitter.position = CGPoint(x: frame.width + 20, y: frame.height - 100)
+                        
+                    case .top:
+                        emitter.position = CGPoint(x: (frame.width / 2)+30, y: frame.height + 20)
+                        emitter.particlePositionRange = CGVector(dx: frame.width, dy: 0)
+                        emitter.zPosition = 4
+                    }
+                    
+                    emitter.targetNode = self
+                    addChild(emitter)
+                }
+            }
     }
+    
     private func setupSeabirds() {
         
     }

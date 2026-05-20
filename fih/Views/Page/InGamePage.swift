@@ -132,7 +132,8 @@ struct InGamePage: View {
         let s = GameScene(size: CGSize(width: 844, height: 390))
         s.scaleMode     = .aspectFill
         s.shipImageName = controller.selectedShip.imageName
-
+        s.weather       = controller.actualWeather
+        
         s.onShipTapped = { [controller] in
             withAnimation(.spring(response: 0.35)) { showShipPanel = true }
             s.pauseGame()
@@ -560,4 +561,9 @@ struct InGamePage: View {
         case .inProgress:    return ""
         }
     }
+}
+
+#Preview {
+    InGamePage(controller: InGameController(ship: Ship.allShips[0], equippedItems: [], actualWeather: .sunny))
+        .environment(AppStateManager())
 }
