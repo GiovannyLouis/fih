@@ -351,7 +351,7 @@ struct InGamePage: View {
                                         VStack(spacing: 6) {
                                             ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fish in
                                                 HStack(spacing: 10) {
-                                                    Image("fish_\(fish.name.lowercased())")
+                                                    Image(fish.iconName)
                                                         .resizable()
                                                         .scaledToFit()
                                                         .frame(width: 48, height: 32)
