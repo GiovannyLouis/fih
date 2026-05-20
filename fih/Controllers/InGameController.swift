@@ -33,8 +33,8 @@ class InGameController {
     
     var currentHealth : Double
     var currentSpeed : Double
-    var isAlive : Bool {currentHealth > 0}
     var isEngineFailing: Bool = false
+    var guardianAngelHitsRemaining: Int = 3
     
     var distanceTravelledKm : Double = 0
     var catchLog : [String] = []
@@ -63,19 +63,16 @@ class InGameController {
         currentZone? .fish.randomElement()
     }
     
-    // MARK: - Equipment helpers
-    var hasShield: Bool       { equippedItems.contains { $0.type == .shield } }
-    var hasScarecrow: Bool    { equippedItems.contains { $0.type == .scarecrow } }
-    var hasPredatorBait: Bool { equippedItems.contains { $0.type == .predatorBait } }
+//    // MARK: - Equipment helpers
+//    var hasShield: Bool       { equippedItems.contains { $0.type == .shield } }
+//    var hasScarecrow: Bool    { equippedItems.contains { $0.type == .scarecrow } }
+//    var hasPredatorBait: Bool { equippedItems.contains { $0.type == .predatorBait } }
     var hasSoulEater: Bool    { equippedItems.contains { $0.type == .soulEater } }
     var hasLuckyHat: Bool     { equippedItems.contains { $0.type == .luckyHat } }   // does nothing :)
 
-    var guardianAngelHitsRemaining: Int = 3
     var hasGuardianAngel: Bool {
         equippedItems.contains { $0.type == .guardianAngel } && guardianAngelHitsRemaining > 0
     }
-    
-    var damageMultiplier: Double { hasShield ? 0.7 : 1.0 }
     
     init (ship : Ship, equippedItems : [Equipment], actualWeather: WeatherType) {
         self.selectedShip = ship
@@ -191,24 +188,24 @@ class InGameController {
         ObstacleController.applyEffects(obstacleType: chosenObstacleType, to: self)
     }
     
-    func applyDamage(_ amount: Double) {
-        if hasGuardianAngel {
-            guardianAngelHitsRemaining -= 1
-            
-            if guardianAngelHitsRemaining == 0 {
-                showEvent("Guardian Angel destroyed!")
-            } else {
-                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
-            }
-            return
-        }
-        
-        let finalDamage = amount * damageMultiplier
-        currentHealth = max(0, currentHealth - finalDamage)
-        if currentHealth <= 0 {
-            endExpedition(result: .shipDestroyed)
-        }
-    }
+//    func applyDamage(_ amount: Double) {
+//        if hasGuardianAngel {
+//            guardianAngelHitsRemaining -= 1
+//            
+//            if guardianAngelHitsRemaining == 0 {
+//                showEvent("Guardian Angel destroyed!")
+//            } else {
+//                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
+//            }
+//            return
+//        }
+//        
+//        let finalDamage = amount * damageMultiplier
+//        currentHealth = max(0, currentHealth - finalDamage)
+//        if currentHealth <= 0 {
+//            endExpedition(result: .shipDestroyed)
+//        }
+//    }
     
     func showEvent(_ message: String) {
         latestEventMessage = message
@@ -219,7 +216,7 @@ class InGameController {
         }
     }
     
-    private func endExpedition(result: ExpeditionResult) {
+    func endExpedition(result: ExpeditionResult) {
 //        @Environment(AppStateManager.self) var appState
 
         guard !isExpeditionOver else { return }
