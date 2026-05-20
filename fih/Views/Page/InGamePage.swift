@@ -55,12 +55,18 @@
 
 import SwiftUI
 import SpriteKit
+import SwiftData
 
 struct InGamePage: View {
 
     let controller: InGameController
 
     @Environment(AppStateManager.self) private var appState
+    
+    @Environment(\.modelContext) private var context
+
+    @State private var playerController = PlayerController()
+
 
     @State private var scene: GameScene? = nil
     @State private var showShipPanel: Bool = false
@@ -343,13 +349,13 @@ struct InGamePage: View {
                                 } else {
                                     ScrollView(showsIndicators: true) {
                                         VStack(spacing: 6) {
-                                            ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fishName in
+                                            ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fish in
                                                 HStack(spacing: 10) {
-                                                    Image("fish_\(fishName.lowercased())")
+                                                    Image(fish.iconName)
                                                         .resizable()
                                                         .scaledToFit()
                                                         .frame(width: 48, height: 32)
-                                                    Text(fishName)
+                                                    Text(fish.name)
                                                         .font(.system(size: 14, weight: .medium))
                                                         .foregroundColor(Color("color_dark_blue"))
                                                     Spacer()
@@ -499,7 +505,7 @@ struct InGamePage: View {
                         Text("🐟 \(controller.catchLog.count) fish saved")
                             .font(.headline).foregroundColor(.cyan)
                         ForEach(Array(controller.catchLog.prefix(5).enumerated()), id: \.offset) { _, fish in
-                            Text("• \(fish)").font(.caption).foregroundColor(.white.opacity(0.85))
+                            Text("• \(fish.name)").font(.caption).foregroundColor(.white.opacity(0.85))
                         }
                         if controller.catchLog.count > 5 {
                             Text("+ \(controller.catchLog.count - 5) more")
@@ -514,6 +520,8 @@ struct InGamePage: View {
                 // Kembali ke pilih kapal
                 // InGamePage yang handle navigasi — bukan controller
                 Button(action: {
+                    playerController.incrementDays(context: context)
+                    playerController.collectFish(context: context, catchFish: controller.catchLog)
                     appState.currentScreen = .mainMenuPage
                     appState.resetForecast()
                 }) {

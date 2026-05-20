@@ -37,7 +37,7 @@ class InGameController {
     var guardianAngelHitsRemaining: Int = 3
     
     var distanceTravelledKm : Double = 0
-    var catchLog : [String] = []
+    var catchLog : [Fish] = []
     var isExpeditionOver : Bool = false
     var expeditionResults : ExpeditionResult = .inProgress
     
@@ -173,21 +173,19 @@ class InGameController {
     }
     
     private func spawnfish() {
-        guard  let fish = randomFishForCurrentZone() else { return }
-        let iconName = fish.iconName
-        let fishName = fish.name
-        gameScene?.spawnFishVisual(iconName: iconName, fishName: fishName)
+        guard  let spawnedFish = randomFishForCurrentZone() else { return }
+        gameScene?.spawnFishVisual(fish: spawnedFish)
     }
     
-    func catchFish(_ fishName: String) {
+    func catchFish(_ catchedFish: Fish) {
         guard !isExpeditionOver else { return }
-        catchLog.append(fishName)
+        catchLog.append(catchedFish)
  
         if hasSoulEater {
             let heal = Double(selectedShip.maxDurability) * 0.03
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
         }
-        showEvent(" Caught \(fishName)!")
+        showEvent(" Caught \(catchedFish.name)!")
     }
     
     func triggerObstacle() {

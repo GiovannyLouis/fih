@@ -91,7 +91,69 @@ class PlayerController {
         } catch {
             //print("gagal mengambil data hari")
             self.currentDays = 0
+            print("Gagal mengambil data hari: \(error.localizedDescription)")
         }
         
+    }
+    
+    
+    func incrementDays(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+        
+        do {
+            let players = try context.fetch(descriptor)
+            if let currentPlayer = players.first {
+                currentPlayer.totalDays += 1
+                try context.save()
+            }
+        } catch {
+            print("Gagal meng-update hari: \(error.localizedDescription)")
+        }
+    }
+    
+    
+    func collectFish(context: ModelContext, catchFish: [Fish]) {
+        // Jika tidak ada ikan yang ditangkap, hentikan fungsi
+        guard !catchFish.isEmpty else { return }
+            
+        // 1. HAPUS DUPLIKAT
+        // ambil nama ikan nya saja
+        // menggunakan SET agar otomatis hanya mengambil unique valuenya saja
+        let uniqueCaughtNames = Set(catchFish.map { $0.name })
+            
+        let descriptor = FetchDescriptor<Player>()
+            
+        do {
+            let players = try context.fetch(descriptor)
+            guard let currentPlayer = players.first else {
+                print("Player tidak ditemukan!")
+                return
+            }
+            
+            var isDataChanged = false
+            
+            // 2. LOOP SEPANJANG ARRAY IKAN (Tangkapan Unik):
+            for caughtName in uniqueCaughtNames {
+                // Cari ikan yang namanya cocok di dalam "buku koleksi" Player
+                if let matchedFish = currentPlayer.collectedFish.first(where: { $0.name == caughtName }) {
+                    // 3. CEK JIKA STATUS IKAN MASIH TERKUNCI:
+                    if !matchedFish.isUnlocked {
+                        matchedFish.isUnlocked = true
+                        isDataChanged = true
+                    }
+                }
+            }
+            
+            // 4. SIMPAN PERUBAHAN:
+            // hanya akan save jika minimal ada 1 ikan yang berubah/terbuka
+            if isDataChanged {
+                try context.save()
+            } else {
+                return
+            }
+            
+        } catch {
+            print("Gagal meng-update koleksi ikan: \(error.localizedDescription)")
+        }
     }
 }

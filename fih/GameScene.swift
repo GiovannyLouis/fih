@@ -11,7 +11,7 @@ class GameScene: SKScene {
     
     var onShipTapped: (() -> Void)?
     
-    var onFishCaught: ((String) -> Void)?
+    var onFishCaught: ((Fish) -> Void)?
     
     var weather: WeatherType = .sunny
     
@@ -109,16 +109,19 @@ class GameScene: SKScene {
         
     }
     
-    func spawnFishVisual(iconName: String, fishName: String) {
-        let fish = SKSpriteNode(imageNamed: iconName)
-        fish.size      = CGSize(width: 50, height: 25)
-        fish.name      = fishName
-        fish.zPosition = 3
+    // 1. Ubah parameter menjadi objek Fish
+    func spawnFishVisual(fish: Fish) {
+        
+        // 2. Ubah nama variabel SKSpriteNode menjadi 'fishNode' agar tidak bentrok
+        let fishNode = SKSpriteNode(imageNamed: fish.iconName)
+        fishNode.size      = CGSize(width: 50, height: 25)
+        fishNode.name      = fish.name
+        fishNode.zPosition = 3
      
         // Spawn dari kanan layar
         let startY = CGFloat.random(in: fishMinY...fishMaxY)
-        fish.position  = CGPoint(x: size.width + 60, y: startY)
-        addChild(fish)
+        fishNode.position  = CGPoint(x: size.width + 60, y: startY)
+        addChild(fishNode)
      
         let duration   = Double.random(in: 5...9)
      
@@ -131,27 +134,74 @@ class GameScene: SKScene {
         let timeToShip = (distToShip / totalDist) * duration
      
         // Action gerak ke kiri sampai keluar layar
-        fish.run(.sequence([
+        fishNode.run(.sequence([
             SKAction.moveTo(x: -80, duration: duration),
             SKAction.removeFromParent()
         ]))
      
         // Saat sampai di posisi kapal → tangkap
-        let catchTrigger = SKAction.run { [weak self, weak fish] in
+        // 3. Masukkan 'fishNode' ke dalam penangkapan weak (closure)
+        let catchTrigger = SKAction.run { [weak self, weak fishNode] in
             guard let self = self,
-                  let fish = fish,
-                  fish.parent != nil else { return }
+                  let fishNode = fishNode,
+                  fishNode.parent != nil else { return }
      
-            self.onFishCaught?(fish.name ?? fishName)
-            self.showCatchEffect(at: fish.position)
-            fish.removeFromParent()
+            // 4. Teruskan objek 'fish' (dari parameter fungsi) secara utuh!
+            self.onFishCaught?(fish)
+            
+            self.showCatchEffect(at: fishNode.position)
+            fishNode.removeFromParent()
         }
      
-        fish.run(.sequence([
+        fishNode.run(.sequence([
             .wait(forDuration: timeToShip),
             catchTrigger
         ]), withKey: "catchCheck")
     }
+    
+//    func spawnFishVisual(iconName: String, fishName: String) {
+//        let fish = SKSpriteNode(imageNamed: iconName)
+//        fish.size      = CGSize(width: 50, height: 25)
+//        fish.name      = fishName
+//        fish.zPosition = 3
+//     
+//        // Spawn dari kanan layar
+//        let startY = CGFloat.random(in: fishMinY...fishMaxY)
+//        fish.position  = CGPoint(x: size.width + 60, y: startY)
+//        addChild(fish)
+//     
+//        let duration   = Double.random(in: 5...9)
+//     
+//        // FIX: posisi X kapal = size.width * 0.28 dari kiri
+//        // distToShip = jarak dari spawn point ke kapal
+//        let shipX      = size.width * 0.28
+//        let spawnX     = size.width + 60.0
+//        let distToShip = spawnX - shipX                    // selisih dari spawn ke kapal
+//        let totalDist  = spawnX + 80.0                     // total jarak sampai keluar layar kiri
+//        let timeToShip = (distToShip / totalDist) * duration
+//     
+//        // Action gerak ke kiri sampai keluar layar
+//        fish.run(.sequence([
+//            SKAction.moveTo(x: -80, duration: duration),
+//            SKAction.removeFromParent()
+//        ]))
+//     
+//        // Saat sampai di posisi kapal → tangkap
+//        let catchTrigger = SKAction.run { [weak self, weak fish] in
+//            guard let self = self,
+//                  let fish = fish,
+//                  fish.parent != nil else { return }
+//     
+//            self.onFishCaught?(fish.name ?? fishName)
+//            self.showCatchEffect(at: fish.position)
+//            fish.removeFromParent()
+//        }
+//     
+//        fish.run(.sequence([
+//            .wait(forDuration: timeToShip),
+//            catchTrigger
+//        ]), withKey: "catchCheck")
+//    }
     
     private func showCatchEffect(at position: CGPoint) {
         for _ in 0..<5 {
