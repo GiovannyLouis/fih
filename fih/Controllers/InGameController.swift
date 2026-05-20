@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct fishZoneInfo{
+struct FishZoneInfo{
     let name : String
     let startKm: Double
     let endKm: Double
-    let fish: [String]
+    let fishes: [Fish]
 }
 
 enum ExpeditionResult{
@@ -49,18 +49,42 @@ class InGameController {
     private let movementInterval: TimeInterval = 1.0
     private let eventInterval: TimeInterval = 3.0
     
-    let zones: [fishZoneInfo] = [
-        fishZoneInfo(name: "Zone 1", startKm: 0,  endKm: 10,fish: ["Tuna", "Salmon", "Sardine", "Mackerel", "Anchovy", "Snapper"]),
-        fishZoneInfo(name: "Zone 2", startKm: 10, endKm: 25,fish: ["Clownfish", "Blue Tang", "Pufferfish", "Grouper", "Mahi Mahi", "Barracuda"]),
-        fishZoneInfo(name: "Zone 3", startKm: 25, endKm: 45, fish: ["Anglerfish", "Coelacanth", "Oarfish", "Blobfish", "Lanternfish", "Goblin Shark"]),
-        fishZoneInfo(name: "Zone 4", startKm: 45, endKm: 100,fish: ["Golden Koi", "Megalodon", "Leviathan", "Abyssal Ray", "Ghost Fish", "Cosmic Whale"]),
+    let zones: [FishZoneInfo] = [
+        FishZoneInfo(
+            name: "Zone 1",
+            startKm: 0,
+            endKm: 10,
+            // Menyaring allFish: "Ambil semua ikan yang properti zone-nya bernilai 1"
+            fishes: Fish.allFish.filter { $0.zone == 1 }
+        ),
+        FishZoneInfo(
+            name: "Zone 2",
+            startKm: 10,
+            endKm: 25,
+            fishes: Fish.allFish.filter { $0.zone == 2 }
+        ),
+        FishZoneInfo(
+            name: "Zone 3",
+            startKm: 25,
+            endKm: 45,
+            fishes: Fish.allFish.filter { $0.zone == 3 }
+        ),
+        FishZoneInfo(
+            name: "Zone 4",
+            startKm: 45,
+            endKm: 100,
+            fishes: Fish.allFish.filter { $0.zone == 4 }
+        )
     ]
-    var currentZone: fishZoneInfo? {
+    var currentZone: FishZoneInfo? {
         zones.first { distanceTravelledKm >= $0.startKm && distanceTravelledKm < $0.endKm }
     }
     
-    func randomFishForCurrentZone () -> String? {
-        currentZone? .fish.randomElement()
+    func randomFishForCurrentZone() -> Fish? {
+        guard let fishesInZone = currentZone?.fishes, !fishesInZone.isEmpty else {
+            return nil
+        }
+        return fishesInZone.randomElement()
     }
     
 //    // MARK: - Equipment helpers
@@ -136,11 +160,11 @@ class InGameController {
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
         distanceTravelledKm += kmPerSecond
         
-        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
-        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
-        distanceTravelledKm += kmPerSecond
-        
-        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
+//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
+//        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
+//        distanceTravelledKm += kmPerSecond
+//        
+//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
     }
     
     private func spawnEvent() {
@@ -153,42 +177,10 @@ class InGameController {
     }
     
     private func spawnfish() {
-        guard  let fishName = randomFishForCurrentZone() else { return }
-        let iconName = fishIconName(for: fishName)
+        guard  let fish = randomFishForCurrentZone() else { return }
+        let iconName = fish.iconName
+        let fishName = fish.name
         gameScene?.spawnFishVisual(iconName: iconName, fishName: fishName)
-    }
-    private func fishIconName(for name: String) -> String {
-        let mapping: [String: String] = [
-            // Zone 1
-            "Tuna":      "fish_blue",
-            "Salmon":    "fish_red",
-            "Sardine":   "fish_blue",
-            "Mackerel":  "fish_red",
-            "Anchovy":   "fish_blue",
-            "Snapper":   "fish_red",
-            // Zone 2
-            "Clownfish": "fish_red",
-            "Blue Tang": "fish_blue",
-            "Pufferfish":"fish_red",
-            "Grouper":   "fish_blue",
-            "Mahi Mahi": "fish_red",
-            "Barracuda": "fish_blue",
-            // Zone 3
-            "Anglerfish":"fish_red",
-            "Coelacanth":"fish_blue",
-            "Oarfish":   "fish_red",
-            "Blobfish":  "fish_blue",
-            "Lanternfish":"fish_red",
-            "Goblin Shark":"fish_blue",
-            // Zone 4
-            "Golden Koi":"fish_red",
-            "Megalodon": "fish_blue",
-            "Leviathan": "fish_red",
-            "Abyssal Ray":"fish_blue",
-            "Ghost Fish":"fish_red",
-            "Cosmic Whale":"fish_blue",
-        ]
-        return mapping[name] ?? "fish_blue"
     }
     
     func catchFish(_ fishName: String) {
