@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct fishZoneInfo{
+struct FishZoneInfo{
     let name : String
     let startKm: Double
     let endKm: Double
-    let fish: [String]
+    let fishes: [Fish]
 }
 
 enum ExpeditionResult{
@@ -49,18 +49,42 @@ class InGameController {
     private let movementInterval: TimeInterval = 1.0
     private let eventInterval: TimeInterval = 3.0
     
-    let zones: [fishZoneInfo] = [
-        fishZoneInfo(name: "Zone 1",startKm: 0,endKm: 30, fish: ["fish_blue"]),
-        fishZoneInfo(name: "Zone 2",startKm: 30,endKm: 80 , fish: ["fish_read"]),
-        fishZoneInfo(name: "Zone 3",startKm: 80,endKm: 150, fish: ["ikan"]),
-        fishZoneInfo(name: "Zone 4",startKm: 150,endKm: 300, fish: ["ikan"]),
+    let zones: [FishZoneInfo] = [
+        FishZoneInfo(
+            name: "Zone 1",
+            startKm: 0,
+            endKm: 10,
+            // Menyaring allFish: "Ambil semua ikan yang properti zone-nya bernilai 1"
+            fishes: Fish.allFish.filter { $0.zone == 1 }
+        ),
+        FishZoneInfo(
+            name: "Zone 2",
+            startKm: 10,
+            endKm: 25,
+            fishes: Fish.allFish.filter { $0.zone == 2 }
+        ),
+        FishZoneInfo(
+            name: "Zone 3",
+            startKm: 25,
+            endKm: 45,
+            fishes: Fish.allFish.filter { $0.zone == 3 }
+        ),
+        FishZoneInfo(
+            name: "Zone 4",
+            startKm: 45,
+            endKm: 100,
+            fishes: Fish.allFish.filter { $0.zone == 4 }
+        )
     ]
-    var currentZone: fishZoneInfo? {
+    var currentZone: FishZoneInfo? {
         zones.first { distanceTravelledKm >= $0.startKm && distanceTravelledKm < $0.endKm }
     }
     
-    func randomFishForCurrentZone () -> String? {
-        currentZone? .fish.randomElement()
+    func randomFishForCurrentZone() -> Fish? {
+        guard let fishesInZone = currentZone?.fishes, !fishesInZone.isEmpty else {
+            return nil
+        }
+        return fishesInZone.randomElement()
     }
     
 //    // MARK: - Equipment helpers
@@ -136,8 +160,11 @@ class InGameController {
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
         distanceTravelledKm += kmPerSecond
         
-        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
-        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
+//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
+//        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
+//        distanceTravelledKm += kmPerSecond
+//        
+//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
     }
     
     private func spawnEvent() {
@@ -150,8 +177,10 @@ class InGameController {
     }
     
     private func spawnfish() {
-        guard  let fishName = randomFishForCurrentZone() else { return }
-        gameScene? .spawnFishVisual(fishName)
+        guard  let fish = randomFishForCurrentZone() else { return }
+        let iconName = fish.iconName
+        let fishName = fish.name
+        gameScene?.spawnFishVisual(iconName: iconName, fishName: fishName)
     }
     
     func catchFish(_ fishName: String) {

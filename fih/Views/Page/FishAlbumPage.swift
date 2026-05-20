@@ -11,7 +11,7 @@ import SwiftData
 
 struct FishAlbumPage: View {
     
-    @State private var fishController = FishController()
+    @State private var playerController = PlayerController()
     
     @Environment(AppStateManager.self) private var appState
     
@@ -55,9 +55,9 @@ struct FishAlbumPage: View {
                 Spacer()
                 // Halaman kiri
                 VStack {
-                    ForEach(0..<fishController.leftPageFishes.count, id: \.self) { index in
+                    ForEach(0..<playerController.leftPageFishes.count, id: \.self) { index in
                         // 2. Ambil data ikan berdasarkan indeksnya saat ini
-                        let fish = fishController.leftPageFishes[index]
+                        let fish = playerController.leftPageFishes[index]
 
                         FishCardView(
                             isLocked: !fish.isUnlocked,
@@ -73,9 +73,9 @@ struct FishAlbumPage: View {
 
                 // Halaman kanan
                 VStack {
-                    ForEach(0..<fishController.rightPageFishes.count, id: \.self) { index in
+                    ForEach(0..<playerController.rightPageFishes.count, id: \.self) { index in
                         // 2. Ambil data ikan berdasarkan indeksnya saat ini
-                        let fish = fishController.rightPageFishes[index]
+                        let fish = playerController.rightPageFishes[index]
 
                         FishCardView(
                             isLocked: !fish.isUnlocked,
@@ -121,11 +121,11 @@ struct FishAlbumPage: View {
                     HStack(alignment: .top, spacing: 15) {
                         ZoneTabView(imageName: "zone_1", isSelected: selectedZone == 1) {
                             selectedZone = 1
-                            fishController.filterFishes(byZone: 1, context: context)
+                            playerController.filterFishes(byZone: 1, context: context)
                         }
                         ZoneTabView(imageName: "zone_2", isSelected: selectedZone == 2) {
                             selectedZone = 2
-                            fishController.filterFishes(byZone: 2, context: context)
+                            playerController.filterFishes(byZone: 2, context: context)
                         }
                     }
 
@@ -133,11 +133,11 @@ struct FishAlbumPage: View {
                     HStack(alignment: .top, spacing: 15) {
                         ZoneTabView(imageName: "zone_3", isSelected: selectedZone == 3) {
                             selectedZone = 3
-                            fishController.filterFishes(byZone: 3, context: context)
+                            playerController.filterFishes(byZone: 3, context: context)
                         }
                         ZoneTabView(imageName: "zone_4", isSelected: selectedZone == 4) {
                             selectedZone = 4
-                            fishController.filterFishes(byZone: 4, context: context)
+                            playerController.filterFishes(byZone: 4, context: context)
                         }
                     }
                 }
@@ -146,7 +146,7 @@ struct FishAlbumPage: View {
             }
         }
         .onAppear {
-            fishController.filterFishes(byZone: selectedZone, context: context)
+            playerController.filterFishes(byZone: selectedZone, context: context)
         }
     }
 }

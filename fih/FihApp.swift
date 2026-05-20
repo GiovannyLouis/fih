@@ -16,8 +16,8 @@ struct FihApp: App {
     
     init() {
         do {
-            container = try ModelContainer(for: Fish.self)
-            FishController.seedInitialData(context: container.mainContext)
+            container = try ModelContainer(for: Player.self)
+            PlayerController.seedInitialData(context: container.mainContext)
             
         } catch {
             fatalError("Gagal menginisialisasi ModelContainer: \(error)")
