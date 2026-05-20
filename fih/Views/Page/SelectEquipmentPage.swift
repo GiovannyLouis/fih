@@ -13,6 +13,15 @@ struct SelectEquipmentPage: View {
     @State private var controller: EquipmentController = EquipmentController()
     @Environment(AppStateManager.self) private var appState
     
+    var equipmentCreamBackground: SKScene {
+        if let scene = SKScene(fileNamed: "EquipmentCreamBackground") {
+            scene.scaleMode = .aspectFill
+            scene.backgroundColor = .clear
+            return scene
+        }
+        return SKScene()
+    }
+    
     var bgScene: SKScene {
         let scene = CreamBackgroundScene()
         scene.scaleMode = .resizeFill
@@ -28,145 +37,141 @@ struct SelectEquipmentPage: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Color.white.ignoresSafeArea()
-                // LAYER 1: Background Ikan Animasi
-                SpriteView(scene: fishBackgroundScene, options: [.allowsTransparency])
-                    .ignoresSafeArea()
-                    .opacity(0.075)
+        ZStack {
+            Color.white.ignoresSafeArea()
+            
+            // LAYER 1: Background Ikan Animasi
+            SpriteView(scene: fishBackgroundScene, options: [.allowsTransparency])
+                .ignoresSafeArea()
+                .opacity(0.075)
+            
+            SpriteView(scene: equipmentCreamBackground, options: [.allowsTransparency])
+                .ignoresSafeArea()
+            
+            // LAYER 2: Layout Utama
+            HStack(spacing: 0) {
                 
-                // LAYER 2: Layout Utama
-                HStack(spacing: 0) {
-                    
-                    // 1. KOLOM TOMBOL BACK
-                    VStack {
-                        Button(action: {
-                            appState.isMovingForward = false
-                            appState.currentScreen = .selectShipPage
-                        }) {
-                            Image("icon_back")
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
-                        }
-                        Spacer()
+                // 1. KOLOM TOMBOL BACK
+                VStack {
+                    Button(action: {
+                        appState.isMovingForward = false
+                        appState.currentScreen = .selectShipPage
+                    }) {
+                        Image("icon_back")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     }
-                    .padding(.top, 32)
-                    .padding(.trailing, 30)
+                    Spacer()
+                }
+                .padding(.top, 32)
+                .padding(.trailing, 32)
+                
+                // 2. PANEL EQUIPMENT LIST (Background Krem)
+                VStack(spacing: 0) {
+                    Text("Select Equipment")
+                        .font(.custom("Cause-Bold", size: 32))
+                        .foregroundColor(Color("color_dark_blue"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 20)
                     
-                    // 2. PANEL EQUIPMENT LIST (Background Krem)
-                    VStack(spacing: 0) {
-                        Text("Select Equipment")
-                            .font(.custom("Cause-Bold", size: 32))
-                            .foregroundColor(Color("color_dark_blue"))
-                            .padding(.top, 15) // Jarak teks dari atas kotak
-                            .padding(.bottom, 20)
-                        
-                        ScrollView {
-                            VStack(spacing: 5) {
-                                ForEach(controller.availableEquipment) { item in
-                                    let isSelected = controller.equippedItems.contains(where: { $0.id == item.id })
-                                    
-                                    EquipmentRowView(item: item, isSelected: isSelected) {
-                                        if let selectedShip = appState.selectedShip {
-                                            controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
-                                        }
+                    ScrollView {
+                        VStack(spacing: 5) {
+                            ForEach(controller.availableEquipment) { item in
+                                let isSelected = controller.equippedItems.contains(where: { $0.id == item.id })
+                                
+                                EquipmentRowView(item: item, isSelected: isSelected) {
+                                    if let selectedShip = appState.selectedShip {
+                                        controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
                                     }
                                 }
                             }
-                            .padding(.horizontal, 10)
-                            .padding(.bottom, 10)
                         }
+                        .padding(.horizontal, 10)
                     }
-                    .frame(width: geometry.size.width * 0.45)
-                    .frame(maxHeight: .infinity)
-                    .padding(.vertical, 4) // padding untuk spacing bawah antara content sm background scene
-                    .background(
-                        SpriteView(scene: bgScene, options: [.allowsTransparency])
-                            .ignoresSafeArea()
-                    )
-                   
-                    // 3. PANEL KANAN: SHIP PREVIEW & START BUTTON
-                    if let selectedShip = appState.selectedShip {
-                        VStack {
-                            Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
+                .padding(.top, 4)
+                
+                if let selectedShip = appState.selectedShip {
+                    VStack {
+                        Spacer()
+                        
+                        // Ship Image
+                        Image(selectedShip.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 150)
+                            .frame(width: 200)
+                        
+                        // DYNAMIC EQUIPMENT SLOTS
+                        HStack(spacing: 15) {
+                            let slotCount = selectedShip.equipmentSlots
+                            let equippedCount = controller.equippedItems.count
                             
-                            // Ship Image
-                            Image(selectedShip.imageName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 150)
-                                .frame(width: 200)
-                            
-                            // DYNAMIC EQUIPMENT SLOTS
-                            HStack(spacing: 15) {
-                                let slotCount = selectedShip.equipmentSlots
-                                let equippedCount = controller.equippedItems.count
+                            if slotCount > 0 {
+                                EquipmentSlotView(
+                                    iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil,
+                                    onRemove: {
+                                        if equippedCount > 0 {
+                                            let itemToRemove = controller.equippedItems[0]
+                                            controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                        }
+                                    }
+                                )
+                            }
+                                                                                                    
+                            if slotCount > 1 {
+                                EquipmentSlotView(
+                                    iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil,
+                                    onRemove: {
+                                        if equippedCount > 1 {
+                                            let itemToRemove = controller.equippedItems[1]
+                                            controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.top, 10)
+                        
+                        Spacer()
+                        
+                        // Start Button
+                        Button(action: {
+                            appState.equippedItems = controller.equippedItems
+                            if let ship = appState.selectedShip {
+                                appState.inGameController = InGameController(
+                                    ship: ship,
+                                    equippedItems: controller.equippedItems,
+                                    actualWeather: appState.currentForecast!.actualWeather
+                                )
+                            }
+                            appState.isMovingForward = true
+                            appState.currentScreen = .inGamePage
+                        }) {
+                            ZStack {
+                                Image("green_button")
+                                    .resizable()
+                                    .frame(width: 180, height: 56)
                                 
-                                if slotCount > 0 {
-                                    EquipmentSlotView(
-                                        iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil,
-                                        onRemove: {
-                                            if equippedCount > 0 {
-                                                let itemToRemove = controller.equippedItems[0]
-                                                controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
-                                            }
-                                        }
-                                    )
-                                }
-                                                                
-                                if slotCount > 1 {
-                                    EquipmentSlotView(
-                                        iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil,
-                                        onRemove: {
-                                            if equippedCount > 1 {
-                                                let itemToRemove = controller.equippedItems[1]
-                                                controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
-                                            }
-                                        }
-                                    )
-                                }
+                                Text("Start")
+                                    .font(.custom("Cause-Bold", size: 32))
+                                    .foregroundColor(Color("color_dark_blue"))
                             }
-                            .padding(.top, 10)
-                            
-                            Spacer()
-                            
-                            // Start Button
-                            Button(action: {
-                                appState.equippedItems = controller.equippedItems
-                                if let ship = appState.selectedShip {
-                                    appState.inGameController = InGameController(
-                                        ship: ship,
-                                        equippedItems: controller.equippedItems,
-                                        actualWeather: appState.currentForecast!.actualWeather 
-                                    )
-                                }
-                                appState.isMovingForward = true
-                                appState.currentScreen = .inGamePage
-                            }) {
-                                ZStack {
-                                    Image("green_button")
-                                        .resizable()
-                                        .frame(width: 180, height: 56)
-                                    
-                                    Text("Start")
-                                        .font(.custom("Cause-Bold", size: 32))
-                                        .foregroundColor(Color("color_dark_blue"))
-                                }
-                            }
-                            .padding(.bottom, 16)
                         }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        Spacer().frame(maxWidth: .infinity)
+                        .padding(.bottom, 16)
                     }
+                    .frame(maxWidth: .infinity)
+                    
+                } else {
+                    Spacer().frame(maxWidth: .infinity)
                 }
             }
         }
     }
 }
-
 
 #Preview {
     let dummyShip = Ship(name: "Cargo Ship", imageName: "ship_cargo", maxSpeed: 50, maxDurability: 800, equipmentSlots: 2, shipType: .cargoBoat)
