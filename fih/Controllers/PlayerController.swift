@@ -109,4 +109,11 @@ class PlayerController {
             
         }
     }
+    
+    
+    func collectFish(context: ModelContext, catchFish: [Fish]) {
+        if !catchFish.isEmpty {
+            
+        }
+    }
 }
