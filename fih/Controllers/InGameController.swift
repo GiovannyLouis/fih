@@ -76,6 +76,7 @@ class InGameController {
             fishes: Fish.allFish.filter { $0.zone == 4 }
         )
     ]
+
     var currentZone: FishZoneInfo? {
         zones.first { distanceTravelledKm >= $0.startKm && distanceTravelledKm < $0.endKm }
     }
@@ -159,12 +160,7 @@ class InGameController {
         
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
         distanceTravelledKm += kmPerSecond
-        
-//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
-//        distanceTravelledKm = max(0, distanceTravelledKm + kmPerSecond)
-//        distanceTravelledKm += kmPerSecond
-//        
-//        print("Ship moved \(kmPerSecond) km/h, travelled \(distanceTravelledKm) km")
+
     }
     
     private func spawnEvent() {
