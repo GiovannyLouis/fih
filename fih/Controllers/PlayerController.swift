@@ -21,6 +21,8 @@ class PlayerController {
         return stride(from: 1, to: filteredFishes.count, by: 2).map { filteredFishes[$0] }
     }
     
+    var currentDays: Int = 0
+    
     @MainActor
     static func seedInitialData(context: ModelContext) {
         
@@ -75,5 +77,21 @@ class PlayerController {
             print("Gagal mengambil data player: \(error.localizedDescription)")
             self.filteredFishes = []
         }
+    }
+    
+    func getDays(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+
+        do {
+            //print("berhasil mengambil data hari")
+            let players = try context.fetch(descriptor)
+            if let currentPlayer = players.first {
+                self.currentDays = currentPlayer.totalDays
+            }
+        } catch {
+            //print("gagal mengambil data hari")
+            self.currentDays = 0
+        }
+        
     }
 }

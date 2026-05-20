@@ -11,6 +11,12 @@ import SpriteKit
 struct MainMenuPage: View {
     @Environment(AppStateManager.self) private var appState
     
+    @Environment(\.modelContext) private var context
+
+    
+    @State private var playerController = PlayerController()
+
+    
     @State private var mainMenuScene: SKScene = {
         if let scene = MainMenuScene(fileNamed: "MainScreen") {
             scene.scaleMode = .aspectFill
@@ -26,7 +32,7 @@ struct MainMenuPage: View {
             
             VStack(alignment: .center) {
                 
-                Text("DAY 1")
+                Text("DAY \(playerController.currentDays)")
                     .font(.custom("cause-bold", size: 24))
                     .foregroundStyle(.colorDarkBlue)
                     .padding(.top, 40)
@@ -65,6 +71,9 @@ struct MainMenuPage: View {
 
             }
                 
+        }
+        .onAppear {
+            playerController.getDays(context: context)
         }
     }
 }
