@@ -38,6 +38,19 @@ enum WeatherType: CaseIterable {
             return "icon_windy"
         }
     }
+    
+    var particleData: [(fileName: String, spawn: ParticleSpawnPosition)] {
+        switch self {
+        case .sunny:
+            return [("SunnyCloudParticle.sks", .rightEdge), ("BirdParticle.sks", .rightEdge)]
+        case .rainy:
+            return [("RainyCloudParticle.sks", .rightEdge), ("RainParticle.sks", .top)]
+        case .snowy:
+            return [("SnowyCloudParticle.sks", .rightEdge), ("SnowParticle.sks", .top)]
+        case .windy:
+            return [("WindyCloudParticle.sks", .rightEdge)]
+        }
+    }
 }
 
 struct DailyForecast: Identifiable, Equatable{
@@ -45,4 +58,9 @@ struct DailyForecast: Identifiable, Equatable{
     let predictedWeather: WeatherType
     let actualWeather: WeatherType
     let confidence: Int
+}
+
+enum ParticleSpawnPosition {
+    case rightEdge
+    case top
 }
