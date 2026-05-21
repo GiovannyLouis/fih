@@ -114,7 +114,7 @@ class GameScene: SKScene {
         
         // 2. Ubah nama variabel SKSpriteNode menjadi 'fishNode' agar tidak bentrok
         let fishNode = SKSpriteNode(imageNamed: fish.iconName)
-        fishNode.size      = CGSize(width: 50, height: 25)
+        fishNode.size      = CGSize(width: 50, height: 50)
         fishNode.name      = fish.name
         fishNode.zPosition = 3
      
