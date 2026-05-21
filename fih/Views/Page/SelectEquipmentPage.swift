@@ -12,6 +12,7 @@ struct SelectEquipmentPage: View {
 
     @State private var controller: EquipmentController = EquipmentController()
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
     
     var equipmentCreamBackground: SKScene {
         if let scene = SKScene(fileNamed: "EquipmentCreamBackground") {
@@ -55,6 +56,7 @@ struct SelectEquipmentPage: View {
                 VStack {
                     Button(action: {
                         appState.isMovingForward = false
+                        audio.haptic(style: .light)
                         appState.currentScreen = .selectShipPage
                     }) {
                         Image("icon_back")
@@ -82,6 +84,7 @@ struct SelectEquipmentPage: View {
                                 
                                 EquipmentRowView(item: item, isSelected: isSelected) {
                                     if let selectedShip = appState.selectedShip {
+                                        audio.haptic(style: .light)
                                         controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
                                     }
                                 }
@@ -116,6 +119,7 @@ struct SelectEquipmentPage: View {
                                     onRemove: {
                                         if equippedCount > 0 {
                                             let itemToRemove = controller.equippedItems[0]
+                                            audio.haptic(style: .light)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -128,6 +132,7 @@ struct SelectEquipmentPage: View {
                                     onRemove: {
                                         if equippedCount > 1 {
                                             let itemToRemove = controller.equippedItems[1]
+                                            audio.haptic(style: .light)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -148,6 +153,9 @@ struct SelectEquipmentPage: View {
                                     actualWeather: appState.currentForecast!.actualWeather
                                 )
                             }
+                            audio.playSFX(filename: "play")
+                            audio.stopBGM_Menu()
+                            audio.haptic(style: .medium)
                             appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {
@@ -178,4 +186,5 @@ struct SelectEquipmentPage: View {
     
     SelectEquipmentPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

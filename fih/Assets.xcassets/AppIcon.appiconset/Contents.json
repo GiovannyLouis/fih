@@ -1,112 +1,112 @@
 {
   "images" : [
     {
-      "filename" : "FIH_ICON_DUMMY 14.png",
+      "filename" : "app_icon_40.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "20x20"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 15.png",
+      "filename" : "app_icon_60.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "20x20"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 13.png",
+      "filename" : "app_icon_58.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "29x29"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 12.png",
+      "filename" : "app_icon_87.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "29x29"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 11.png",
+      "filename" : "app_icon_76.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "38x38"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 10.png",
+      "filename" : "app_icon_114.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "38x38"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 9.png",
+      "filename" : "app_icon_80.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "40x40"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 8.png",
+      "filename" : "app_icon_120 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "40x40"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 7.png",
+      "filename" : "app_icon_120.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "60x60"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 6.png",
+      "filename" : "app_icon_180.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "60x60"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 4.png",
+      "filename" : "app_icon_128.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "64x64"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 5.png",
+      "filename" : "app_icon_192.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "64x64"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 3.png",
+      "filename" : "app_icon_136.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "68x68"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 2.png",
+      "filename" : "app_icon_152.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "76x76"
     },
     {
-      "filename" : "FIH_ICON_DUMMY 1.png",
+      "filename" : "app_icon_167.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "FIH_ICON_DUMMY.png",
+      "filename" : "app_icon_1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct WeatherForecastPage: View {
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
     @State private var controller: WeatherController = WeatherController()
     
     var fishBackgroundScene: SKScene {
@@ -56,7 +57,7 @@ struct WeatherForecastPage: View {
                 
                 Spacer()
                 
-                 // MARK: Weather Card
+                // MARK: Weather Card
                 SpriteView(scene: WeatherCardScene(
                     size: CGSize(width: 320, height: 140),
                     textureName: "frame_normal.png",
@@ -100,6 +101,8 @@ struct WeatherForecastPage: View {
                 Spacer()
                 
                 Button(action: {
+                    audio.playSFX(filename: "play")
+                    audio.haptic(style: .light)
                     appState.currentScreen = .selectShipPage
                 }) {
                     ZStack {
@@ -121,6 +124,16 @@ struct WeatherForecastPage: View {
                     controller.generateTomorrowWeather()
                     appState.currentForecast = controller.todayForecast
                 }
+                if let forecast = appState.currentForecast {
+                    audio
+                        .playBGM_Game(
+                            filename: forecast.predictedWeather.soundName,
+                            volume: 1.0
+                        )
+                }
+            }
+            .onDisappear {
+                audio.stopBGM_Game()
             }
         }
     }
@@ -129,4 +142,5 @@ struct WeatherForecastPage: View {
 #Preview {
     WeatherForecastPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

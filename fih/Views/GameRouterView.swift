@@ -14,6 +14,7 @@ struct GameRouterView: View {
     
     // pakai appstatemanager (global variabel, semua halaman bs akses)
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
     
     var body: some View {
         ZStack {
@@ -39,13 +40,18 @@ struct GameRouterView: View {
                     if let controller = appState.inGameController {
                         InGamePage(controller: controller)}
                 }
-//                    .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
+                //                    .transition(.push(from: appState.isMovingForward ? .trailing : .leading))
             }
             // Adds a nice crossfade animation when switching screens
-            .animation(.smooth(duration: 0.6), value: appState.currentScreen)    }
+            .animation(.smooth(duration: 0.6), value: appState.currentScreen)
+        }
+        .onAppear {
+            audio.playBGM_Menu()
+        }
     }
 }
 #Preview {
     GameRouterView()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

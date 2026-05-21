@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @Observable
 class ObstacleController {
@@ -36,10 +37,14 @@ class ObstacleController {
             gameController.gameScene?.shakeScreen(intensity: "heavy")
             
         case .lightning:
+            gameController.onPlaySFX?("thunder")
+            gameController.hapticStyle?(.heavy)
             gameController.gameScene?.spawnObstacleVisual(.lightning)
             damage = 40
             
         case .tornado:
+            gameController.onPlaySFX?("tornado")
+            gameController.hapticStyle?(.heavy)
             var distance = 0.0
             gameController.gameScene?.spawnObstacleVisual(.tornado)
             switch ship.shipType {
@@ -56,9 +61,12 @@ class ObstacleController {
             }
             
         case .predator:
+            gameController.onPlaySFX?("kraken")
+            gameController.hapticStyle?(.heavy)
             gameController.gameScene?.spawnObstacleVisual(.predator)
             
             try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
+            
             damage = Double(ship.maxDurability) * 0.2
             gameController.gameScene?.shakeScreen(intensity: "heavy")
             
@@ -66,6 +74,8 @@ class ObstacleController {
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
             if !gameController.isEngineFailing {
                 gameController.isEngineFailing = true
+                gameController.onPlaySFX?("engine_fail")
+                gameController.hapticStyle?(.heavy)
                 gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
@@ -74,6 +84,8 @@ class ObstacleController {
         // PREDATOR BAIT vs Predator
         if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
             damage = 0
+            gameController.onPlaySFX?("albatros_steal")
+            gameController.hapticStyle?(.heavy)
             gameController.showEvent("Predator took the bait and left!")
         }
         
