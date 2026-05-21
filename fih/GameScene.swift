@@ -47,6 +47,13 @@ class GameScene: SKScene {
             let initialX = CGFloat(i) * seaWidth
             seaNode.position = CGPoint(x: initialX, y: 100)
             
+            let rectSize = CGSize(width: seaWidth + 10, height: 100)
+            let underSeaRect = SKShapeNode(rectOf: rectSize)
+            underSeaRect.fillColor = UIColor(red: 247.0/255.0, green: 247.0/255.0, blue: 247.0/255.0, alpha: 1.0)
+            underSeaRect.strokeColor = .clear
+            underSeaRect.zPosition = 1
+            underSeaRect.position = CGPoint(x: seaWidth / 2, y: -100)
+            seaNode.addChild(underSeaRect)
             addChild(seaNode)
 
             let moveLeft = SKAction.moveBy(x: -seaWidth, y: 0, duration: duration)
@@ -116,7 +123,7 @@ class GameScene: SKScene {
         let fishNode = SKSpriteNode(imageNamed: fish.iconName)
         fishNode.size      = CGSize(width: 50, height: 50)
         fishNode.name      = fish.name
-        fishNode.zPosition = 3
+        fishNode.zPosition = 4
      
         // Spawn dari kanan layar
         let startY = CGFloat.random(in: fishMinY...fishMaxY)
