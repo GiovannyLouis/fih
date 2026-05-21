@@ -51,6 +51,19 @@ enum WeatherType: CaseIterable {
             return [("WindyCloudParticle.sks", .rightEdge)]
         }
     }
+    
+    var soundName: String {
+        switch self {
+        case .sunny:
+            return "sunny"
+        case .rainy:
+            return "rain"
+        case .snowy:
+            return "snow_bg"
+        case .windy:
+            return "wind_background"
+        }
+    }
 }
 
 struct DailyForecast: Identifiable, Equatable{

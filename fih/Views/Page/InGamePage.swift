@@ -62,7 +62,7 @@ struct InGamePage: View {
     let controller: InGameController
 
     @Environment(AppStateManager.self) private var appState
-    
+    @Environment(AudioManager.self) private var audio
     @Environment(\.modelContext) private var context
 
     @State private var playerController = PlayerController()
@@ -124,6 +124,14 @@ struct InGamePage: View {
             }
         }
         .onAppear {
+            audio.playBGM_Wave()
+            if let weather = appState.currentForecast {
+                audio
+                    .playBGM_Game(
+                        filename: weather.actualWeather.soundName,
+                        volume: 2.0
+                    )
+            }
             setupScene()
             controller.startExpedition()
         }
@@ -522,6 +530,7 @@ struct InGamePage: View {
                 Button(action: {
                     playerController.incrementDays(context: context)
                     playerController.collectFish(context: context, catchFish: controller.catchLog)
+                    audio.stopBGM_Wave()
                     appState.currentScreen = .mainMenuPage
                     appState.resetForecast()
                 }) {
@@ -560,6 +569,7 @@ struct InGamePage: View {
 }
 
 #Preview {
-    InGamePage(controller: InGameController(ship: Ship.allShips[0], equippedItems: [], actualWeather: .sunny))
+    InGamePage(controller: InGameController(ship: Ship.allShips[0], equippedItems: [], actualWeather: .windy))
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

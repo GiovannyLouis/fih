@@ -12,6 +12,7 @@ import SwiftData
 struct FihApp: App {
     
     @State var appState = AppStateManager()
+    @State var audioManager = AudioManager()
     let container: ModelContainer
     
     init() {
@@ -29,6 +30,7 @@ struct FihApp: App {
             GameRouterView()
                 // inject appstate ke environment supaya semua page bisa akses data yang sama dan state selalu sama
                 .environment(appState)
+                .environment(audioManager)
                 
         }
         .modelContainer(container)

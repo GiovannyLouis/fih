@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 import SpriteKit
 
 struct MainMenuPage: View {
     @Environment(AppStateManager.self) private var appState
-    
+    @Environment(AudioManager.self) private var audio
     @Environment(\.modelContext) private var context
 
     
@@ -40,6 +41,7 @@ struct MainMenuPage: View {
                 
                 
                 Button(action: {
+                    audio.playSFX(filename: "play")
                     appState.currentScreen = .weatherForecastPage
                 }) {
                     ZStack {
@@ -53,6 +55,7 @@ struct MainMenuPage: View {
                 }
                 
                 Button(action: {
+                    audio.playSFX(filename: "turning_book", volume: 6.0)
                     appState.currentScreen = .fishAlbumPage
                 }) {
                     ZStack {
@@ -73,6 +76,7 @@ struct MainMenuPage: View {
                 
         }
         .onAppear {
+            audio.playBGM_Menu()
             playerController.getDays(context: context)
         }
     }
@@ -81,4 +85,5 @@ struct MainMenuPage: View {
 #Preview {
     MainMenuPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }
