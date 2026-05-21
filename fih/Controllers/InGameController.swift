@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct FishZoneInfo{
     let name : String
@@ -44,6 +45,7 @@ class InGameController {
     var latestEventMessage : String = ""
     var showEventPopup: Bool = false
     var onPlaySFX: ((String) -> Void)?
+    var hapticStyle: ((UIImpactFeedbackGenerator.FeedbackStyle) -> Void)?
     
     private var movementTimer: Timer?
     private var eventTimer: Timer?
@@ -183,6 +185,7 @@ class InGameController {
         catchLog.append(catchedFish)
  
         onPlaySFX?("get_fish")
+        hapticStyle?(.medium)
         
         if hasSoulEater {
             let heal = Double(selectedShip.maxDurability) * 0.03
@@ -263,10 +266,13 @@ class InGameController {
         switch result {
         case .shipDestroyed:
             onPlaySFX?("ship_destroyed")
+            hapticStyle?(.heavy)
         case .safeReturn:
             onPlaySFX?("safe_return")
+            hapticStyle?(.heavy)
         case .timeUp:
             onPlaySFX?("safe_return")
+            hapticStyle?(.heavy)
         case .inProgress:
             break
         }
