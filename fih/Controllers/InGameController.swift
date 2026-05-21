@@ -214,7 +214,9 @@ class InGameController {
         }
         
         // Let ObstacleController handle the effects
-        ObstacleController.applyEffects(obstacleType: chosenObstacleType, to: self)
+        Task {
+            await ObstacleController.applyEffects(obstacleType: chosenObstacleType, to: self)
+        }
     }
     
 //    func applyDamage(_ amount: Double) {

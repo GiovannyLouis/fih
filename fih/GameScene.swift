@@ -17,6 +17,7 @@ class GameScene: SKScene {
     
     private var shipNode: SKSpriteNode!
     private var seaNode: SKSpriteNode!
+    private var mainCamera: SKCameraNode!
     
     private var seaY: CGFloat {size.height * 0.42}
     private var shipY: CGFloat {seaY}
@@ -34,6 +35,12 @@ class GameScene: SKScene {
         setupShip()
         setupClouds(weather: weather)
         setupSeabirds()
+        
+        mainCamera = SKCameraNode()
+        // Center the camera
+        mainCamera.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        self.camera = mainCamera
+        addChild(mainCamera)
     }
     
     private func setupSea() {
@@ -237,45 +244,16 @@ class GameScene: SKScene {
             handleAlbatrosAnimation(isStealing: type == .albatrosSteal)
 
         case .lightning:
-            // A simple white flash overlay
-            let flash = SKSpriteNode(color: .white, size: self.size)
-            flash.position = CGPoint(x: size.width/2, y: size.height/2)
-            flash.alpha = 0
-            flash.zPosition = 100
-            addChild(flash)
-            
-            let fadeIn = SKAction.fadeAlpha(to: 0.6, duration: 0.1)
-            let fadeOut = SKAction.fadeOut(withDuration: 0.2)
-            let shake = SKAction.sequence([
-                SKAction.moveBy(x: 10, y: 0, duration: 0.05),
-                SKAction.moveBy(x: -20, y: 0, duration: 0.05),
-                SKAction.moveBy(x: 10, y: 0, duration: 0.05)
-            ])
-            
-            flash.run(.sequence([fadeIn, fadeOut, .removeFromParent()]))
-            self.run(shake) // Shake the whole scene
+            handleLightningAnimation()
 
         case .tornado:
-            let tornado = SKSpriteNode(imageNamed: "obs_tornado")
-            tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
-            tornado.zPosition = 8
-            addChild(tornado)
-            
-            let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
-            let move = SKAction.moveTo(x: -100, duration: 5.0)
-            
-            tornado.run(rotate)
-            tornado.run(.sequence([move, .removeFromParent()]))
+            handleTornadoAnimation()
 
         case .iceberg:
-            let iceberg = SKSpriteNode(imageNamed: "obs_iceberg")
-            iceberg.position = CGPoint(x: size.width + 100, y: seaY - 20)
-            iceberg.zPosition = 4 // Behind the ship/sea
-            addChild(iceberg)
+            handleIcebergAnimation()
             
-            // Icebergs move slow and heavy
-            let move = SKAction.moveTo(x: -100, duration: 10.0)
-            iceberg.run(.sequence([move, .removeFromParent()]))
+        case .predator:
+            handlePredatorAnimation()
 
         default:
             break
@@ -336,6 +314,169 @@ class GameScene: SKScene {
             flyAway,
             .removeFromParent()
         ]))
+    }
+    
+    private func handleLightningAnimation() {
+        let bolt1 = SKTexture(imageNamed: "obs_lightning_1")
+        let bolt2 = SKTexture(imageNamed: "obs_lightning_2")
+        let bolt3 = SKTexture(imageNamed: "obs_lightning_3")
+        
+        let lightningNode = SKSpriteNode(texture: bolt1)
+        lightningNode.anchorPoint = CGPoint(x: 0.5, y: 0.1)
+        // Make it follow the ship's current position
+        lightningNode.position = shipNode.position
+        lightningNode.zPosition = 15
+        lightningNode.setScale(0.8) // Made it a bit bigger
+        addChild(lightningNode)
+        
+        // Create a more violent flicker
+        let flicker = SKAction.animate(with: [bolt1, bolt2, bolt3, bolt2, bolt1], timePerFrame: 0.04)
+        let vanish = SKAction.removeFromParent()
+        
+        // FLASH: Add it to the camera so it covers the screen even if the camera shakes
+        let flash = SKSpriteNode(color: .white, size: self.size)
+        flash.zPosition = 100
+        flash.alpha = 0
+        mainCamera.addChild(flash) // flash is now child of camera
+        
+        let flashIn = SKAction.fadeAlpha(to: 0.8, duration: 0.02)
+        let flashOut = SKAction.fadeOut(withDuration: 0.2)
+        
+        // Execute
+        lightningNode.run(.sequence([flicker, vanish]))
+        flash.run(.sequence([flashIn, flashOut, .removeFromParent()]))
+        shakeScreen(intensity: "light")
+    }
+    
+    private func handleTornadoAnimation() {
+        let tornado = SKSpriteNode(imageNamed: "obs_tornado")
+        tornado.setScale(0.5)
+        tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
+        tornado.zPosition = 8
+        addChild(tornado)
+        
+        let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
+        let move = SKAction.moveTo(x: -100, duration: 5.0)
+        
+        tornado.run(rotate)
+        tornado.run(.sequence([move, .removeFromParent()]))
+    }
+    
+    private func handleIcebergAnimation() {
+        let iceberg = SKSpriteNode(imageNamed: "obs_iceberg")
+        iceberg.setScale(0.3)
+        iceberg.position = CGPoint(x: size.width + 100, y: seaY - 20)
+        iceberg.zPosition = 1 // Behind the ship/sea
+        addChild(iceberg)
+        
+        // Icebergs move slow and heavy
+        let move = SKAction.moveTo(x: -100, duration: 5.0)
+        iceberg.run(.sequence([move, .removeFromParent()]))
+    }
+    
+    private func handlePredatorAnimation() {
+        let shipPos = shipNode.position
+        
+        // Helper to create a tentacle
+        func createTentacle(name: String, isLeft: Bool) -> SKSpriteNode {
+            let tentacle = SKSpriteNode(imageNamed: name)
+            tentacle.setScale(0.6)
+            tentacle.zPosition = 1 // Just in front of the ship
+            
+            // CRITICAL: Set anchor point to bottom middle so it rotates from the base
+            tentacle.anchorPoint = CGPoint(x: 0.5, y: 0)
+            
+            // Start position: Under the sea level (seaY)
+            let sideOffset: CGFloat = isLeft ? -120 : 120
+            tentacle.position = CGPoint(x: shipPos.x + sideOffset, y: seaY-300)
+            
+            return tentacle
+        }
+
+        let leftTentacle = createTentacle(name: "obs_kraken_1", isLeft: true)
+        let rightTentacle = createTentacle(name: "obs_kraken_2", isLeft: false)
+        
+        addChild(leftTentacle)
+        addChild(rightTentacle)
+
+        // --- ANIMATION SEQUENCE ---
+        
+        // 1. Rise from the depths
+        let rise = SKAction.moveBy(x: 0, y: 160, duration: 0.8)
+        rise.timingMode = .easeOut
+        
+        // 2. Anticipation (tilt slightly back before the slap)
+        let tiltBackLeft = SKAction.rotate(toAngle: .pi/6, duration: 0.4)
+        let tiltBackRight = SKAction.rotate(toAngle: -.pi/6, duration: 0.4)
+        
+        // 3. THE SLAP (Aggressive rotation + hard ease out)
+        // Left rotates clockwise (negative), Right rotates counter-clockwise (positive)
+        let slapLeft = SKAction.rotate(toAngle: -.pi/6, duration: 0.2)
+        let slapRight = SKAction.rotate(toAngle: .pi/6, duration: 0.2)
+        let scaleDown = SKAction.scale(to: 0.4, duration: 0.2)
+        slapLeft.timingMode = .easeIn
+        slapRight.timingMode = .easeIn
+        
+        let impactLeft = SKAction.group([slapLeft, scaleDown])
+        let impactRight = SKAction.group([slapRight, scaleDown])
+        
+        // 4. Retreat
+        let wait = SKAction.wait(forDuration: 0.5)
+        let sink = SKAction.moveBy(x: 0, y: -200, duration: 0.6)
+        sink.timingMode = .easeIn
+
+        // Run Left Sequence
+        leftTentacle.run(.sequence([
+            rise,
+            tiltBackLeft,
+            impactLeft,
+            slapLeft,
+            wait,
+            sink,
+            .removeFromParent()
+        ]))
+        
+        // Run Right Sequence
+        rightTentacle.run(.sequence([
+            rise,
+            tiltBackRight,
+            impactRight,
+            slapRight,
+            wait,
+            sink,
+            .removeFromParent()
+        ]))
+    }
+    
+    func shakeScreen(intensity: String) {
+        var shake: SKAction!
+        switch intensity {
+        case "heavy":
+            let shakeAmount: CGFloat = 8
+            let shakeWait = 0.03
+            let shakeAction = SKAction.sequence([
+                .moveBy(x: shakeAmount, y: -shakeAmount, duration: shakeWait),
+                .moveBy(x: -shakeAmount * 2, y: shakeAmount * 2, duration: shakeWait),
+                .moveBy(x: shakeAmount, y: -shakeAmount, duration: shakeWait),
+            ])
+            shake = shakeAction
+        case "light":
+            let shakeAmount: CGFloat = 4
+            let shakeWait = 0.02
+            let shakeAction = SKAction.sequence([
+                .moveBy(x: shakeAmount, y: -shakeAmount, duration: shakeWait),
+                .moveBy(x: -shakeAmount * 2, y: shakeAmount * 2, duration: shakeWait),
+                .moveBy(x: shakeAmount, y: -shakeAmount, duration: shakeWait),
+                .moveBy(x: shakeAmount, y: shakeAmount, duration: shakeWait),
+                .moveBy(x: -shakeAmount, y: -shakeAmount, duration: shakeWait)
+            ])
+            shake = shakeAction
+        default:
+            shake = SKAction.sequence([])
+        }
+        
+        mainCamera.run(shake)
+        
     }
     
     func pauseGame() {
