@@ -34,6 +34,7 @@ class AudioManager {
             bgmPlayerMenu?.numberOfLoops = -1
             bgmPlayerMenu?.volume = volume
             bgmPlayerMenu?.play()
+            print("Playing BGM Menu sound")
         } catch {
             print("Audio error, could not play BGM Menu sound")
         }
@@ -55,6 +56,7 @@ class AudioManager {
             bgmPlayerWave?.numberOfLoops = -1
             bgmPlayerWave?.volume = volume
             bgmPlayerWave?.play()
+            print("Playing BGM Wave sound")
         } catch {
             print("Audio error, could not play BGM Menu sound")
         }
@@ -76,6 +78,7 @@ class AudioManager {
             bgmPlayerGame?.numberOfLoops = -1
             bgmPlayerGame?.volume = volume
             bgmPlayerGame?.play()
+            print("Playing \(filename).\(type) sound")
         } catch {
             print("Audio error, could not play \(filename).\(type) sound")
         }
@@ -97,6 +100,7 @@ class AudioManager {
             let player = try AVAudioPlayer(contentsOf: url)
             player.volume = volume
             player.play()
+            print("Playing \(filename).\(type) sound")
             
             sfxPlayers.append(player)
             

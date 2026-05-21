@@ -132,8 +132,16 @@ struct InGamePage: View {
                         volume: 2.0
                     )
             }
+            controller.onPlaySFX = { filename in
+                audio.playSFX(filename: filename, volume: 0.8)
+            }
+            
             setupScene()
             controller.startExpedition()
+        }
+        .onDisappear {
+            audio.stopBGM_Wave()
+            audio.stopBGM_Game()
         }
         .statusBar(hidden: true)
     }
