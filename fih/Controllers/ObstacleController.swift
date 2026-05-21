@@ -23,9 +23,11 @@ class ObstacleController {
         
         switch obstacleType {
         case .albatros, .albatrosSteal:
+            gameController.onPlaySFX?("albatros_steal")
             shouldStealFish = true
             
         case .iceberg:
+            gameController.onPlaySFX?("glacier")
             gameController.gameScene?.spawnObstacleVisual(.iceberg)
             
             try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
@@ -73,9 +75,9 @@ class ObstacleController {
         case .shipFailure:
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
             if !gameController.isEngineFailing {
-                gameController.isEngineFailing = true
                 gameController.onPlaySFX?("engine_fail")
                 gameController.hapticStyle?(.heavy)
+                gameController.isEngineFailing = true
                 gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
@@ -84,7 +86,6 @@ class ObstacleController {
         // PREDATOR BAIT vs Predator
         if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
             damage = 0
-            gameController.onPlaySFX?("albatros_steal")
             gameController.hapticStyle?(.heavy)
             gameController.showEvent("Predator took the bait and left!")
         }
