@@ -112,6 +112,16 @@ struct FishAlbumPage: View {
                         .foregroundColor(Color("color_dark_blue"))
                     
                     Spacer()
+                    
+                    Button(action: {
+                        appState.currentScreen = .settingsPage
+                    }) {
+                        Image(systemName: "gear")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundStyle(Color("color_dark_blue"))
+                    }
+                    
                 }
                 .padding(.top, 32)
                 
@@ -144,6 +154,9 @@ struct FishAlbumPage: View {
                
                 Spacer()
             }
+            
+            
+            
         }
         .onAppear {
             playerController.filterFishes(byZone: selectedZone, context: context)

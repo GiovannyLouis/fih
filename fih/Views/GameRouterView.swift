@@ -21,6 +21,8 @@ struct GameRouterView: View {
             Color.white.ignoresSafeArea()
             Group {
                 switch appState.currentScreen {
+                case .settingsPage:
+                    SettingsPage()
                 case .fishAlbumPage:
                     FishAlbumPage()
                     
