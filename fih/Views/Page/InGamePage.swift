@@ -258,12 +258,13 @@ struct InGamePage: View {
             }
         }
         
-        // MARK: - COMPONENT 1: Kapal & Equipment
+    // MARK: - COMPONENT 1: Kapal & Equipment
         private var component1_ShipDetails: some View {
-            VStack(spacing: 12) {
+            VStack(spacing: 0) { // Ubah ke 0 agar spacing vertikal murni diatur frame
                 Text(controller.selectedShip.name)
-                    .font(.custom("Cause-Bold", size: 16))
+                    .font(.custom("Cause-Bold", size: 24))
                     .foregroundColor(Color("color_dark_blue"))
+                    .padding(.bottom, 8)
                 
                 HStack(spacing: 12) {
                     // Kotak-kotak Equipment
@@ -273,17 +274,21 @@ struct InGamePage: View {
                         }
                     }
                     
+                    Spacer(minLength: 0)
+                    
                     // Gambar Kapal
                     Image(controller.selectedShip.imageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 70)
+                        .frame(width: 120, height: 70)
+                    Spacer()
                 }
+                .padding(.horizontal, 4)
+                .frame(maxHeight: .infinity) // Memaksa konten HStack mengambil sisa ruang box biru
             }
-            // KUNCI: Paksa komponen mengisi penuh ruang kosong
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.vertical, 16)
-            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // KUNCI: Mengikuti batas parent
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
             .overlay(
                 Rectangle()
                     .stroke(Color("color_dark_blue"), lineWidth: 2)
@@ -292,42 +297,58 @@ struct InGamePage: View {
         
         // MARK: - COMPONENT 2: Fish Collected
         private var component2_FishCollected: some View {
-            VStack(spacing: 12) {
+            VStack(spacing: 0) { // Ubah ke 0 agar simetris dengan Component 1
                 Text("Fish Collected")
-                    .font(.custom("Cause-Bold", size: 16))
+                    .font(.custom("Cause-Bold", size: 24))
                     .foregroundColor(Color("color_dark_blue"))
+                    .padding(.bottom, 8)
                 
                 if controller.catchLog.isEmpty {
-                    Spacer()
                     Text("No fish yet...")
                         .font(.caption)
                         .foregroundColor(Color("color_dark_blue").opacity(0.5))
-                    Spacer()
+                        .frame(maxHeight: .infinity, alignment: .center)
                 } else {
+                    let groupedFish = Dictionary(grouping: controller.catchLog, by: { $0.name })
+                    let sortedKeys = groupedFish.keys.sorted()
+                    
                     ScrollView(showsIndicators: true) {
                         VStack(spacing: 8) {
-                            ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fish in
-                                HStack(spacing: 12) {
-                                    Image(fish.iconName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 36, height: 24)
+                            ForEach(sortedKeys, id: \.self) { fishName in
+                                if let sampleFish = groupedFish[fishName]?.first,
+                                   let fishCount = groupedFish[fishName]?.count {
                                     
-                                    Text(fish.name)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(Color("color_dark_blue"))
-                                    Spacer()
+                                    HStack(spacing: 12) {
+                                        // Icon Ikan
+                                        Image(sampleFish.iconName)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 36, height: 36)
+                                        
+                                        // Nama Ikan
+                                        Text(fishName)
+                                            .font(.custom("Cause-Bold", size: 16))
+                                            .foregroundColor(Color("color_dark_blue"))
+                                        
+                                        Spacer()
+                                        
+                                        // 💡 LANGKAH 3: Tampilkan Jumlah Ikan di sisi kanan sebelum Spacer
+                                        Text("\(fishCount)")
+                                            .font(.custom("Cause-Bold", size: 16)) // Menggunakan font game Anda agar serasi
+                                            .foregroundColor(Color("color_dark_blue"))
+                                            .padding(.trailing, 4)
+                                    }
                                 }
                             }
                         }
                         .padding(.trailing, 8)
                     }
+                    .frame(maxHeight: .infinity)
                 }
             }
-            // KUNCI: Paksa komponen ini melar sehingga tingginya otomatis SAMA PERSIS dengan C1
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.vertical, 16)
-            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // KUNCI: Mengikuti batas parent
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
             .overlay(
                 Rectangle()
                     .stroke(Color("color_dark_blue"), lineWidth: 2)
@@ -335,7 +356,6 @@ struct InGamePage: View {
         }
         
         // MARK: - COMPONENT 3: Expedition Details (Wrapper C1 & C2)
-    // MARK: - COMPONENT 3: Expedition Details (Wrapper C1 & C2)
         private var component3_ExpeditionBox: some View {
             ZStack(alignment: .top) {
                 
@@ -345,19 +365,16 @@ struct InGamePage: View {
                     // Background Kertas Krem
                     Image("card_background_cream")
                         .resizable()
-                        .frame(width: 700, height: 260)
                     
                     // Konten (C1 & C2)
                     HStack(spacing: 36) {
                         component1_ShipDetails
                         component2_FishCollected
                     }
-                    .padding(.leading, 36)
-                    .padding(.trailing, 36)
-                    // Memberi ruang ekstra di dalam kotak krem agar konten tidak menabrak judul
-                    .padding(.top, 40)
+                    .padding(.leading, 48)
+                    .padding(.trailing, 48)
+                    .padding(.top, 48) // Ditambah sedikit agar tulisan size 30 di dalam tidak menabrak judul atas
                     .padding(.bottom, 24)
-                    .frame(width: 700, height: 260)
                     
                     // Tombol Play (Melayang di kanan kotak)
                     Button(action: { closePanel() }) {
@@ -368,14 +385,11 @@ struct InGamePage: View {
                     }
                     .offset(x: 36)
                 }
-                // 💡 KUNCI UTAMA: Dorong seluruh kotak krem beserta isinya turun sejauh 24 pixel.
-                // Karena tinggi judul sekitar 48 pixel, angka 24 akan membuat judul memotong
-                // kotak krem tepat di tengah-tengahnya!
+                // 💡 KUNCI FIX UTAMA: Kunci frame pembungkus luar ZStack-nya di sini setelah padding top selesai dihitung!
+                .frame(width: 700, height: 250)
                 .padding(.top, 24)
                 
-                // LAYER 2 (PALING DEPAN): Judul
-                // Karena ZStack menggunakan alignment .top, teks ini akan tetap diam
-                // di posisi paling atas layar, sementara kotak krem di bawahnya sudah turun.
+                // LAYER 2 (PALING DEPAN): Judul Melayang
                 Text("Expedition Details")
                     .font(.custom("Cause-Bold", size: 20))
                     .foregroundColor(Color("color_dark_blue"))
@@ -383,9 +397,8 @@ struct InGamePage: View {
                     .padding(.vertical, 14)
                     .background(Capsule().fill(Color(red: 0.98, green: 0.97, blue: 0.91)))
                     .overlay(Capsule().stroke(Color("color_dark_blue"), lineWidth: 2.5))
-                
             }
-            .padding(.top, 24)
+            .padding(.top, 28)
         }
     
         // MARK: - COMPONENT 4: Finish Early Box
@@ -405,7 +418,7 @@ struct InGamePage: View {
                         .foregroundColor(Color("color_dark_blue"))
                     Spacer()
                 }
-                .padding(.horizontal, 36)
+                .padding(.horizontal, 48)
                 .frame(width: 700, height: 80)
                 
                 // LAYER 3: Tombol Home Melayang (Tarik ke kanan)
