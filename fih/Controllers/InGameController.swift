@@ -222,7 +222,7 @@ class InGameController {
 //    func applyDamage(_ amount: Double) {
 //        if hasGuardianAngel {
 //            guardianAngelHitsRemaining -= 1
-//            
+//
 //            if guardianAngelHitsRemaining == 0 {
 //                showEvent("Guardian Angel destroyed!")
 //            } else {
@@ -230,7 +230,7 @@ class InGameController {
 //            }
 //            return
 //        }
-//        
+//
 //        let finalDamage = amount * damageMultiplier
 //        currentHealth = max(0, currentHealth - finalDamage)
 //        if currentHealth <= 0 {
