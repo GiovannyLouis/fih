@@ -23,6 +23,8 @@ class PlayerController {
     
     var currentDays: Int = 0
     
+    var totalUnlockedFish: Int = 0
+    
     @MainActor
     static func seedInitialData(context: ModelContext) {
         
@@ -154,6 +156,46 @@ class PlayerController {
             
         } catch {
             print("Gagal meng-update koleksi ikan: \(error.localizedDescription)")
+        }
+    }
+    func getTotalUnlockedFish(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+        
+        do {
+            let players = try context.fetch(descriptor)
+            if let currentPlayer = players.first {
+                self.totalUnlockedFish = currentPlayer.collectedFish.filter {
+                    $0.isUnlocked
+                }.count
+            }
+        } catch {
+            print("Gagal menghitung ikan yang terbuka: \(error.localizedDescription)")
+        }
+    }
+    
+    func resetData(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+        
+        do {
+            let existingPlayers = try context.fetch(descriptor)
+            
+            for player in existingPlayers {
+                context.delete(player)
+            }
+            
+            let defaultFishCollection = Fish.allFish
+            
+            let newPlayer = Player(intialDays: 1, collectedFish: defaultFishCollection)
+            
+            context.insert(newPlayer)
+            try context.save()
+            
+            self.currentDays = 1
+            self.totalUnlockedFish = 0
+
+            self.filteredFishes = []
+        } catch {
+            print("Gagal mereset data player: \(error.localizedDescription)")
         }
     }
 }
