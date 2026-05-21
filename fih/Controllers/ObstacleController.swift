@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @Observable
 class ObstacleController {
@@ -31,14 +32,18 @@ class ObstacleController {
             
         case .lightning:
             gameController.onPlaySFX?("thunder")
+            gameController.hapticStyle?(.heavy)
             damage = 40
             
         case .tornado:
             gameController.onPlaySFX?("tornado")
+            gameController.hapticStyle?(.heavy)
+
             teleportDistance = Bool.random() ? 10.0 : -10.0
             
         case .predator:
             gameController.onPlaySFX?("kraken")
+            gameController.hapticStyle?(.heavy)
             damage = Double(ship.maxDurability) * 0.2
             
         case .shipFailure:
@@ -46,6 +51,7 @@ class ObstacleController {
             if !gameController.isEngineFailing {
                 gameController.isEngineFailing = true
                 gameController.onPlaySFX?("engine_fail")
+                gameController.hapticStyle?(.heavy)
                 gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
@@ -56,6 +62,7 @@ class ObstacleController {
             shouldStealFish = false
             gameController.gameScene?.spawnObstacleVisual(.albatros)
             gameController.onPlaySFX?("albatros_steal")
+            gameController.hapticStyle?(.heavy)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 gameController.showEvent("Scarecrow protected your fish!")
             }
@@ -65,6 +72,7 @@ class ObstacleController {
         if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
             damage = 0
             gameController.onPlaySFX?("albatros_steal")
+            gameController.hapticStyle?(.heavy)
             gameController.showEvent("Predator took the bait and left!")
         }
         
@@ -79,6 +87,7 @@ class ObstacleController {
             damage = 0
             gameController.guardianAngelHitsRemaining -= 1
             gameController.onPlaySFX?("angel")
+            gameController.hapticStyle?(.heavy)
             gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
             
             if gameController.guardianAngelHitsRemaining == 0 {
@@ -92,6 +101,7 @@ class ObstacleController {
         if damage > 0 {
             gameController.currentHealth = max(0, gameController.currentHealth - damage)
             gameController.onPlaySFX?("hit")
+            gameController.hapticStyle?(.heavy)
             gameController.showEvent("\(obstacleType.displayName)! -\(Int(damage)) HP")
             if gameController.currentHealth <= 0 {
                 gameController.endExpedition(result: .shipDestroyed)

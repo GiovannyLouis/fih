@@ -40,6 +40,7 @@ struct SelectShipPage: View {
                     // Left Arrow (Back to Main Menu)
                     Button(action: {
                         appState.isMovingForward = false
+                        audio.haptic(style: .light)
                         appState.currentScreen = .weatherForecastPage
                     }) {
                         Image("icon_back")
@@ -71,6 +72,7 @@ struct SelectShipPage: View {
                             isSelected: appState.selectedShip == ship,
                             action: {
                                 // Selects the ship (triggers the animation)
+                                audio.haptic(style: .light)
                                 appState.selectedShip = ship
                                 //shipController.selectedShip = ship
                             }
@@ -86,6 +88,7 @@ struct SelectShipPage: View {
                 // Right Arrow (Next Step: Select Equipment)
                 Button(action: {
                     appState.isMovingForward = true
+                    audio.haptic(style: .medium)
                     audio.playSFX(filename: "play")
                     appState.currentScreen = .selectEquipmentPage
                 }) {

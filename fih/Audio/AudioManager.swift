@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Observation
+import UIKit
 
 @Observable
 class AudioManager {
@@ -108,5 +109,11 @@ class AudioManager {
         } catch {
             print("Audio error, could not play \(filename).\(type) sound")
         }
+    }
+    
+    func haptic(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
+        generator.impactOccurred()
     }
 }

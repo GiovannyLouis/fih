@@ -56,6 +56,7 @@ struct SelectEquipmentPage: View {
                 VStack {
                     Button(action: {
                         appState.isMovingForward = false
+                        audio.haptic(style: .light)
                         appState.currentScreen = .selectShipPage
                     }) {
                         Image("icon_back")
@@ -83,6 +84,7 @@ struct SelectEquipmentPage: View {
                                 
                                 EquipmentRowView(item: item, isSelected: isSelected) {
                                     if let selectedShip = appState.selectedShip {
+                                        audio.haptic(style: .light)
                                         controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
                                     }
                                 }
@@ -117,6 +119,7 @@ struct SelectEquipmentPage: View {
                                     onRemove: {
                                         if equippedCount > 0 {
                                             let itemToRemove = controller.equippedItems[0]
+                                            audio.haptic(style: .light)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -129,6 +132,7 @@ struct SelectEquipmentPage: View {
                                     onRemove: {
                                         if equippedCount > 1 {
                                             let itemToRemove = controller.equippedItems[1]
+                                            audio.haptic(style: .light)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -151,6 +155,7 @@ struct SelectEquipmentPage: View {
                             }
                             audio.playSFX(filename: "play")
                             audio.stopBGM_Menu()
+                            audio.haptic(style: .medium)
                             appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {

@@ -42,6 +42,7 @@ struct MainMenuPage: View {
                 
                 Button(action: {
                     audio.playSFX(filename: "play")
+                    audio.haptic()
                     appState.currentScreen = .weatherForecastPage
                 }) {
                     ZStack {

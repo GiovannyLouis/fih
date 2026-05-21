@@ -87,6 +87,9 @@ struct InGamePage: View {
             controller.onPlaySFX = { filename in
                 audio.playSFX(filename: filename, volume: 0.8)
             }
+            controller.hapticStyle = { style in
+                audio.haptic(style: style)
+            }
             
             setupScene()
             controller.startExpedition()
@@ -528,6 +531,7 @@ struct InGamePage: View {
                 Button(action: {
                     playerController.incrementDays(context: context)
                     playerController.collectFish(context: context, catchFish: controller.catchLog)
+                    audio.haptic(style: .medium)
                     audio.stopBGM_Wave()
                     appState.currentScreen = .mainMenuPage
                     appState.resetForecast()
