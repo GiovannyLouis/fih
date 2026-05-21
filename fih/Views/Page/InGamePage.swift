@@ -86,7 +86,7 @@ struct InGamePage: View {
                 audio
                     .playBGM_Game(
                         filename: weather.actualWeather.soundName,
-                        volume: 2.0
+                        volume: 1.0
                     )
             }
             controller.onPlaySFX = { filename in
