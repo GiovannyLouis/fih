@@ -12,6 +12,7 @@ struct SelectEquipmentPage: View {
 
     @State private var controller: EquipmentController = EquipmentController()
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
     
     var equipmentCreamBackground: SKScene {
         if let scene = SKScene(fileNamed: "EquipmentCreamBackground") {
@@ -148,6 +149,8 @@ struct SelectEquipmentPage: View {
                                     actualWeather: appState.currentForecast!.actualWeather
                                 )
                             }
+                            audio.playSFX(filename: "play")
+                            audio.stopBGM_Menu()
                             appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {
@@ -178,4 +181,5 @@ struct SelectEquipmentPage: View {
     
     SelectEquipmentPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

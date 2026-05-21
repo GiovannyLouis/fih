@@ -30,18 +30,22 @@ class ObstacleController {
             }
             
         case .lightning:
+            gameController.onPlaySFX?("thunder")
             damage = 40
             
         case .tornado:
+            gameController.onPlaySFX?("tornado")
             teleportDistance = Bool.random() ? 10.0 : -10.0
             
         case .predator:
+            gameController.onPlaySFX?("kraken")
             damage = Double(ship.maxDurability) * 0.2
             
         case .shipFailure:
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
             if !gameController.isEngineFailing {
                 gameController.isEngineFailing = true
+                gameController.onPlaySFX?("engine_fail")
                 gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
@@ -51,6 +55,7 @@ class ObstacleController {
         if obstacleType == .albatros && equipment.contains(where: { $0.type == .scarecrow }) {
             shouldStealFish = false
             gameController.gameScene?.spawnObstacleVisual(.albatros)
+            gameController.onPlaySFX?("albatros_steal")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 gameController.showEvent("Scarecrow protected your fish!")
             }
@@ -59,6 +64,7 @@ class ObstacleController {
         // PREDATOR BAIT vs Predator
         if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
             damage = 0
+            gameController.onPlaySFX?("albatros_steal")
             gameController.showEvent("Predator took the bait and left!")
         }
         
@@ -72,6 +78,7 @@ class ObstacleController {
         if damage > 0 && gameController.guardianAngelHitsRemaining > 0 && equipment.contains(where: { $0.type == .guardianAngel }) {
             damage = 0
             gameController.guardianAngelHitsRemaining -= 1
+            gameController.onPlaySFX?("angel")
             gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
             
             if gameController.guardianAngelHitsRemaining == 0 {
@@ -84,6 +91,7 @@ class ObstacleController {
         // Apply Damage
         if damage > 0 {
             gameController.currentHealth = max(0, gameController.currentHealth - damage)
+            gameController.onPlaySFX?("hit")
             gameController.showEvent("\(obstacleType.displayName)! -\(Int(damage)) HP")
             if gameController.currentHealth <= 0 {
                 gameController.endExpedition(result: .shipDestroyed)

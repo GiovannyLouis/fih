@@ -14,6 +14,7 @@ struct SelectShipPage: View {
     @State private var shipController = ShipController()
     
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
     
     var fishBackgroundScene: SKScene {
         // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
@@ -85,6 +86,7 @@ struct SelectShipPage: View {
                 // Right Arrow (Next Step: Select Equipment)
                 Button(action: {
                     appState.isMovingForward = true
+                    audio.playSFX(filename: "play")
                     appState.currentScreen = .selectEquipmentPage
                 }) {
                     ZStack {
@@ -109,4 +111,5 @@ struct SelectShipPage: View {
 #Preview {
     SelectShipPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

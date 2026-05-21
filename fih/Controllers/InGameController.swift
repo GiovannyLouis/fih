@@ -43,6 +43,7 @@ class InGameController {
     
     var latestEventMessage : String = ""
     var showEventPopup: Bool = false
+    var onPlaySFX: ((String) -> Void)?
     
     private var movementTimer: Timer?
     private var eventTimer: Timer?
@@ -181,6 +182,8 @@ class InGameController {
         guard !isExpeditionOver else { return }
         catchLog.append(catchedFish)
  
+        onPlaySFX?("get_fish")
+        
         if hasSoulEater {
             let heal = Double(selectedShip.maxDurability) * 0.03
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
@@ -256,6 +259,17 @@ class InGameController {
         expeditionResults = result
         isExpeditionOver = true
 //        appState.resetForecast()
+        // SFX matching the expedition ending condition
+        switch result {
+        case .shipDestroyed:
+            onPlaySFX?("ship_destroyed")
+        case .safeReturn:
+            onPlaySFX?("safe_return")
+        case .timeUp:
+            onPlaySFX?("safe_return")
+        case .inProgress:
+            break
+        }
     }
     
     var healthPercentage: Double {
