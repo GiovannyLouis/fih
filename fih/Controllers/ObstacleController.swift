@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 class ObstacleController {
-    static func applyEffects(obstacleType: ObstacleType, to gameController: InGameController) {
+    static func applyEffects(obstacleType: ObstacleType, to gameController: InGameController) async {
         let ship = gameController.selectedShip
         let equipment = gameController.equippedItems
         
@@ -17,26 +17,50 @@ class ObstacleController {
         var speedPenalty: Double = 0
         var teleportDistance: Double = 0
         var shouldStealFish = false
+        var speedText = ""
+        var shieldtext = ""
         
         switch obstacleType {
         case .albatros, .albatrosSteal:
             shouldStealFish = true
             
         case .iceberg:
+            gameController.gameScene?.spawnObstacleVisual(.iceberg)
+            
+            try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
             switch ship.shipType {
             case .speedBoat:    damage = 30; speedPenalty = 30
             case .fishingBoat:  damage = 20; speedPenalty = 20
             case .cargoBoat:    damage = 15; speedPenalty = 10
             }
+            gameController.gameScene?.shakeScreen(intensity: "heavy")
             
         case .lightning:
+            gameController.gameScene?.spawnObstacleVisual(.lightning)
             damage = 40
             
         case .tornado:
-            teleportDistance = Bool.random() ? 10.0 : -10.0
+            var distance = 0.0
+            gameController.gameScene?.spawnObstacleVisual(.tornado)
+            switch ship.shipType {
+            case .speedBoat:    distance = 10.0
+            case .fishingBoat:  distance = 7.0
+            case .cargoBoat:    distance = 3.0
+            }
+            teleportDistance = Bool.random() ? distance : -(distance)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                gameController.distanceTravelledKm = max(0, gameController.distanceTravelledKm + teleportDistance)
+                gameController.gameScene?.shakeScreen(intensity: "heavy")
+                let dir = teleportDistance > 0 ? "forward" : "backward"
+                gameController.showEvent("Tornado threw you \(Int(distance))km \(dir)!")
+            }
             
         case .predator:
+            gameController.gameScene?.spawnObstacleVisual(.predator)
+            
+            try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
             damage = Double(ship.maxDurability) * 0.2
+            gameController.gameScene?.shakeScreen(intensity: "heavy")
             
         case .shipFailure:
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
@@ -46,15 +70,6 @@ class ObstacleController {
             }
             return
         }
-                
-        // SCARE CROW vs Albatross
-        if obstacleType == .albatros && equipment.contains(where: { $0.type == .scarecrow }) {
-            shouldStealFish = false
-            gameController.gameScene?.spawnObstacleVisual(.albatros)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                gameController.showEvent("Scarecrow protected your fish!")
-            }
-        }
         
         // PREDATOR BAIT vs Predator
         if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
@@ -62,55 +77,50 @@ class ObstacleController {
             gameController.showEvent("Predator took the bait and left!")
         }
         
-        // SHIELD (Reduces any incoming damage by 30%)
-        if damage > 0 && equipment.contains(where: { $0.type == .shield }) {
-            damage *= 0.7
-            // Optional: add a small visual cue that shield worked
-        }
-        
-        // GUARDIAN ANGEL (Blocks all damage, loses a stack)
-        if damage > 0 && gameController.guardianAngelHitsRemaining > 0 && equipment.contains(where: { $0.type == .guardianAngel }) {
-            damage = 0
-            gameController.guardianAngelHitsRemaining -= 1
-            gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
-            
-            if gameController.guardianAngelHitsRemaining == 0 {
-                gameController.showEvent("Your Guardian Angel has broken!")
-            }
-        }
-
-        // Resolution: Apply final values to game state
-        
-        // Apply Damage
-        if damage > 0 {
-            gameController.currentHealth = max(0, gameController.currentHealth - damage)
-            gameController.showEvent("\(obstacleType.displayName)! -\(Int(damage)) HP")
-            if gameController.currentHealth <= 0 {
-                gameController.endExpedition(result: .shipDestroyed)
-            }
-        }
-        
         // Apply Speed Drop
         if speedPenalty > 0 {
             gameController.currentSpeed = max(Double(ship.minSpeed), gameController.currentSpeed - speedPenalty)
-            gameController.showEvent("Speed reduced by \(Int(speedPenalty))!")
+            speedText = " Speed reduced by \(Int(speedPenalty))!"
         }
         
-        // Apply Teleport
-        if teleportDistance != 0 {
-            gameController.distanceTravelledKm = max(0, gameController.distanceTravelledKm + teleportDistance)
-            let dir = teleportDistance > 0 ? "forward" : "backward"
-            gameController.showEvent("Tornado threw you 10km \(dir)!")
+        if damage > 0 {
+            if gameController.guardianAngelHitsRemaining > 0 && equipment.contains(where: { $0.type == .guardianAngel }) {
+                damage = 0
+                gameController.guardianAngelHitsRemaining -= 1
+                gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
+                
+                if gameController.guardianAngelHitsRemaining == 0 {
+                    gameController.showEvent("Your Guardian Angel has broken!")
+                }
+            } else if equipment.contains(where: { $0.type == .shield }) {
+                damage *= 0.7
+                shieldtext = " Shield reduced the damage!"
+            }
+            
+            if damage > 0 {
+                gameController.currentHealth = max(0, gameController.currentHealth - damage)
+                gameController.showEvent("\(obstacleType.displayName), -\(Int(damage.rounded())) HP!\(shieldtext)\(speedText)")
+                if gameController.currentHealth <= 0 {
+                    gameController.endExpedition(result: .shipDestroyed)
+                }
+            }
         }
         
         // Apply Fish Theft
         if shouldStealFish {
             if let randomIndex = gameController.catchLog.indices.randomElement() {
-                let stolenFish = gameController.catchLog.remove(at: randomIndex)
-                gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    gameController.showEvent("Albatross stole your \(stolenFish.name)!")
+                if equipment.contains(where: { $0.type == .scarecrow }) {
+                    gameController.gameScene?.spawnObstacleVisual(.albatros)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        gameController.showEvent("Scarecrow protected your fish!")
+                    }
+                } else {
+                    let stolenFish = gameController.catchLog.remove(at: randomIndex)
+                    gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        gameController.showEvent("Albatross stole your \(stolenFish.name)!")
+                    }
                 }
             } else {
                 gameController.gameScene?.spawnObstacleVisual(.albatros)
