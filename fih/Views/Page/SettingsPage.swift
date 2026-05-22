@@ -86,8 +86,8 @@ struct SettingsPage: View {
                             // Info 1: Days Aboard
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Total days aboard")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(Color("color_dark_blue").opacity(0.7))
+                                    .font(.custom("Cause-Bold", size: 16))
+                                    .foregroundColor(Color("color_dark_blue"))
                                 
                                 // Ganti .totalDays dengan variabel yang benar di PlayerController Anda
                                 Text("\(playerController.currentDays) days")
@@ -98,8 +98,8 @@ struct SettingsPage: View {
                             // Info 2: Unlocked Fish
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Total unlocked fish")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(Color("color_dark_blue").opacity(0.7))
+                                    .font(.custom("Cause-Bold", size: 16))
+                                    .foregroundColor(Color("color_dark_blue"))
                                 
                                 // Ganti angka ini dengan variabel yang benar di PlayerController Anda
                                 Text("\(playerController.totalUnlockedFish)/24")
@@ -114,7 +114,7 @@ struct SettingsPage: View {
                         // --- KOLOM KANAN: DANGER ZONE (RESET) ---
                         VStack(spacing: 16) {
                             Text("Are you sure want to reset the data?")
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.custom("Cause-Extrabold", size: 16))
                                 .foregroundColor(Color("color_dark_blue"))
                                 .multilineTextAlignment(.center)
                                 .frame(width: 200)
