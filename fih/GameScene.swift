@@ -45,16 +45,19 @@ class GameScene: SKScene {
     
     private func setupSea() {
         let seaTexture = SKTexture(imageNamed: "ocean")
-        let seaWidth = seaTexture.size().width - 6
+        let seaNode = SKSpriteNode(texture: seaTexture)
+        seaNode.setScale(0.5)
+        let seaWidth = seaNode.size.width - 3
         let duration: TimeInterval = 4.0
 
-        for i in 0..<4 {
+        for i in 0..<8 {
             let seaNode = SKSpriteNode(texture: seaTexture)
             seaNode.zPosition = 2
             let initialX = CGFloat(i) * seaWidth
             seaNode.position = CGPoint(x: initialX, y: 100)
-            
-            let rectSize = CGSize(width: seaWidth + 10, height: 100)
+            seaNode.setScale(0.5)
+        
+            let rectSize = CGSize(width: 500, height: 200)
             let underSeaRect = SKShapeNode(rectOf: rectSize)
             underSeaRect.fillColor = UIColor(red: 247.0/255.0, green: 247.0/255.0, blue: 247.0/255.0, alpha: 1.0)
             underSeaRect.strokeColor = .clear
@@ -78,13 +81,13 @@ class GameScene: SKScene {
         var finalShipY = shipY
         
         if shipImageName == "ship_fishingboat" {
-            finalShipY = shipY + 20
+            finalShipY = shipY + 10
         }
         if shipImageName == "ship_speedboat" {
-            finalShipY = shipY - 15
+            finalShipY = shipY - 25
         }
         if shipImageName == "ship_cargoboat" {
-            finalShipY = shipY - 5
+            finalShipY = shipY - 11
         }
         shipNode.position = CGPoint(x: size.width * 0.28, y: finalShipY)
         shipNode.zPosition = 1
