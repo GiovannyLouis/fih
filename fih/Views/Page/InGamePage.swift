@@ -139,6 +139,8 @@ struct InGamePage: View {
             let angleInRadians = (
                 -90 + 360 * controller.timer.progress
             ) * .pi / 180
+            
+            // Jam
             ZStack {
                 Image("indicator_line")
                     .resizable()
