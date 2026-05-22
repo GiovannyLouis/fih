@@ -41,7 +41,7 @@ struct MainMenuPage: View {
                 
                 
                 Button(action: {
-                    audio.playSFX(filename: "play")
+                    audio.playSFX(filename: "play", volume: 0.4)
                     audio.haptic()
                     appState.currentScreen = .weatherForecastPage
                 }) {

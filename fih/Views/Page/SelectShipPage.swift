@@ -73,6 +73,7 @@ struct SelectShipPage: View {
                             action: {
                                 // Selects the ship (triggers the animation)
                                 audio.haptic(style: .light)
+                                audio.playSFX(filename: "tap", volume: 0.15)
                                 appState.selectedShip = ship
                                 //shipController.selectedShip = ship
                             }
@@ -89,7 +90,7 @@ struct SelectShipPage: View {
                 Button(action: {
                     appState.isMovingForward = true
                     audio.haptic(style: .medium)
-                    audio.playSFX(filename: "play")
+                    audio.playSFX(filename: "play", volume: 0.5)
                     appState.currentScreen = .selectEquipmentPage
                 }) {
                     ZStack {
