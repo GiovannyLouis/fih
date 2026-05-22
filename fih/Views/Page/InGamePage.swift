@@ -22,6 +22,7 @@ struct InGamePage: View {
     
     @State private var scene: GameScene? = nil
     @State private var showShipPanel: Bool = false
+    @State private var activeTooltipIndex: Int? = nil
     
     var body: some View {
         ZStack {
@@ -138,6 +139,8 @@ struct InGamePage: View {
             let angleInRadians = (
                 -90 + 360 * controller.timer.progress
             ) * .pi / 180
+            
+            // Jam
             ZStack {
                 Image("indicator_line")
                     .resizable()
@@ -301,6 +304,7 @@ struct InGamePage: View {
                         equipmentSlot(index: index)
                     }
                 }
+                .zIndex(1)
                 
                 Spacer(minLength: 0)
                 
@@ -506,6 +510,8 @@ struct InGamePage: View {
             
             if index < controller.equippedItems.count {
                 let item = controller.equippedItems[index]
+                
+                // Gambar Equipment
                 Image(item.imageName)
                     .resizable()
                     .scaledToFit()
@@ -517,9 +523,53 @@ struct InGamePage: View {
                     .foregroundColor(Color("color_dark_blue").opacity(0.25))
             }
         }
+        .overlay(
+            Group {
+                if index < controller.equippedItems.count && activeTooltipIndex == index {
+                    let item = controller.equippedItems[index]
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(item.name)
+                            .font(.custom("Cause-Bold", size: 14))
+                            .foregroundColor(Color("color_dark_blue"))
+                        
+                        Text(item.description)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Color("color_dark_blue").opacity(0.8))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .frame(width: 180, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color("color_dark_blue"), lineWidth: 2))
+                            .shadow(color: .black.opacity(0.15), radius: 4, x: 2, y: 4)
+                    )
+                    // Menggeser pop-up ke kanan kotak equipment
+                    .offset(x: 135)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
+            }
+        )
+        .onTapGesture {
+            if index < controller.equippedItems.count {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    // Toggle logika
+                    if activeTooltipIndex == index {
+                        activeTooltipIndex = nil
+                    } else {
+                        activeTooltipIndex = index
+                    }
+                }
+            }
+        }
+        .zIndex(activeTooltipIndex == index ? 100 : 0)
     }
     
     private func closePanel() {
+        activeTooltipIndex = nil
         withAnimation(.spring(response: 0.35)) { showShipPanel = false }
         scene?.resumeGame()
         controller.resumeExpedition()
