@@ -84,13 +84,13 @@ class ObstacleController {
                 damage = 0
                 gameController.gameScene?.spawnObstacleVisual(.predatorBaited)
                 
-                try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
                 gameController.hapticStyle?(.light)
                 gameController.showEvent("Predator took the bait and left!")
             } else {
                 gameController.gameScene?.spawnObstacleVisual(.predator)
                 
-                try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
                 
                 damage = Double(ship.maxDurability) * 0.2
                 gameController.gameScene?.shakeScreen(intensity: "heavy")
