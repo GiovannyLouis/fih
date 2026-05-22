@@ -346,9 +346,9 @@ struct InGamePage: View {
         ) // KUNCI: Mengikuti batas parent
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .overlay(
-            Rectangle()
-                .stroke(Color("color_dark_blue"), lineWidth: 2)
+        .background (
+            Image("card_background_cream")
+                .resizable()
         )
     }
     
@@ -418,9 +418,9 @@ struct InGamePage: View {
         ) // KUNCI: Mengikuti batas parent
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .overlay(
-            Rectangle()
-                .stroke(Color("color_dark_blue"), lineWidth: 2)
+        .background (
+            Image("card_background_cream")
+                .resizable()
         )
     }
     
@@ -463,16 +463,17 @@ struct InGamePage: View {
             
             // LAYER 2 (PALING DEPAN): Judul Melayang
             Text("Expedition Details")
-                .font(.custom("Cause-Bold", size: 20))
+                .font(.custom("Cause-Bold", size: 28))
                 .foregroundColor(Color("color_dark_blue"))
                 .padding(.horizontal, 36)
-                .padding(.vertical, 14)
+                .padding(.vertical, 2)
                 .background(
-                    Capsule().fill(Color(red: 0.98, green: 0.97, blue: 0.91))
+                    Image("cream_button")
+                        .resizable()
+                        .frame(width: 420, height: 60)
+                    //Capsule().fill(Color(red: 0.98, green: 0.97, blue: 0.91))
                 )
-                .overlay(
-                    Capsule().stroke(Color("color_dark_blue"), lineWidth: 2.5)
-                )
+                //
         }
         .padding(.top, 28)
     }
