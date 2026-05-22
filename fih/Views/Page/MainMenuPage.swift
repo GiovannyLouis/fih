@@ -67,6 +67,16 @@ struct MainMenuPage: View {
                             .font(.custom("cause-bold", size: 20))
                             .foregroundStyle(.colorDarkBlue)
                     }
+                    .overlay(alignment: .topTrailing) {
+                        if playerController.isNewFishUnlocked {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 16, height: 16)
+                                .overlay(Circle().stroke(Color("color_dark_blue"), lineWidth: 2))
+                                .offset(x: 2, y: 0)
+                                
+                        }
+                    }
                 }
                 .padding(.top, -12)
                 
@@ -79,6 +89,7 @@ struct MainMenuPage: View {
         .onAppear {
             audio.playBGM_Menu()
             playerController.getDays(context: context)
+            playerController.getNewFishUnlocked(context: context)
         }
     }
 }

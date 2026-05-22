@@ -678,8 +678,8 @@ struct InGamePage: View {
 
                     // MARK: - Return to Home Button
                     Button(action: {
-                        playerController.incrementDays(context: context)
                         playerController.collectFish(context: context, catchFish: controller.catchLog)
+                        playerController.incrementDays(context: context)
                         appState.currentScreen = .mainMenuPage
                         appState.resetForecast()
                     }) {

@@ -25,6 +25,8 @@ class PlayerController {
     
     var totalUnlockedFish: Int = 0
     
+    var isNewFishUnlocked = false
+    
     @MainActor
     static func seedInitialData(context: ModelContext) {
         
@@ -69,6 +71,10 @@ class PlayerController {
                 // 6. Masukkan hasilnya ke variabel yang ditampilkan di layar
                 self.filteredFishes = sortedFishes
                 
+                currentPlayer.isNewFishUnlocked = false
+                
+                try context.save()
+                
                 print("Ditemukan \(filteredFishes.count) ikan di Zona \(zone).")
             } else {
                 print("Data Player tidak ditemukan di database.")
@@ -96,6 +102,19 @@ class PlayerController {
             print("Gagal mengambil data hari: \(error.localizedDescription)")
         }
         
+    }
+    
+    func getNewFishUnlocked(context: ModelContext) {
+        let descriptor = FetchDescriptor<Player>()
+        
+        do {
+            let players = try context.fetch(descriptor)
+            if let currentPlayer = players.first {
+                self.isNewFishUnlocked = currentPlayer.isNewFishUnlocked
+            }
+        } catch {
+            self.isNewFishUnlocked = false
+        }
     }
     
     
@@ -128,7 +147,6 @@ class PlayerController {
         do {
             let players = try context.fetch(descriptor)
             guard let currentPlayer = players.first else {
-                print("Player tidak ditemukan!")
                 return
             }
             
@@ -149,6 +167,7 @@ class PlayerController {
             // 4. SIMPAN PERUBAHAN:
             // hanya akan save jika minimal ada 1 ikan yang berubah/terbuka
             if isDataChanged {
+                currentPlayer.isNewFishUnlocked = true
                 try context.save()
             } else {
                 return
@@ -158,6 +177,7 @@ class PlayerController {
             print("Gagal meng-update koleksi ikan: \(error.localizedDescription)")
         }
     }
+    
     func getTotalUnlockedFish(context: ModelContext) {
         let descriptor = FetchDescriptor<Player>()
         
