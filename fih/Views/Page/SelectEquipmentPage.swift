@@ -85,6 +85,7 @@ struct SelectEquipmentPage: View {
                                 EquipmentRowView(item: item, isSelected: isSelected) {
                                     if let selectedShip = appState.selectedShip {
                                         audio.haptic(style: .light)
+                                        audio.playSFX(filename: "tap", volume: 0.2)
                                         controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
                                     }
                                 }
@@ -120,6 +121,7 @@ struct SelectEquipmentPage: View {
                                         if equippedCount > 0 {
                                             let itemToRemove = controller.equippedItems[0]
                                             audio.haptic(style: .light)
+                                            audio.playSFX(filename: "tap", volume: 0.2)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -133,6 +135,7 @@ struct SelectEquipmentPage: View {
                                         if equippedCount > 1 {
                                             let itemToRemove = controller.equippedItems[1]
                                             audio.haptic(style: .light)
+                                            audio.playSFX(filename: "tap", volume: 0.3)
                                             controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
                                         }
                                     }
@@ -153,7 +156,7 @@ struct SelectEquipmentPage: View {
                                     actualWeather: appState.currentForecast!.actualWeather
                                 )
                             }
-                            audio.playSFX(filename: "play")
+                            audio.playSFX(filename: "play", volume: 0.2)
                             audio.stopBGM_Menu()
                             audio.haptic(style: .medium)
                             appState.isMovingForward = true
