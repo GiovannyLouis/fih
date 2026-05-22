@@ -567,6 +567,7 @@ struct InGamePage: View {
     }
     
     private func closePanel() {
+        activeTooltipIndex = nil
         withAnimation(.spring(response: 0.35)) { showShipPanel = false }
         scene?.resumeGame()
         controller.resumeExpedition()
