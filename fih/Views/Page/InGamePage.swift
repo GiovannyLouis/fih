@@ -173,11 +173,31 @@ struct InGamePage: View {
                             .scaledToFit()
                             .frame(width: 40, height: 40)
                     }
+                    
                     ZStack(alignment: .leading) {
-                        Image("health_frame")
+                        
+                        let maxHealth: Double = Double(controller.selectedShip.maxDurability) // Ganti dengan
+                        let healthRatio = max(0, controller.currentHealth / maxHealth)
+                        
+                        // LAYER 1 (Bawah): Aset Isi (Fill)
+                        Image("health_frame_fill")
+                            .resizable()
+                            .frame(width: 110, height: 40)
+                            .mask(
+                                HStack(spacing: 0) {
+                                    Rectangle()
+                                        .frame(width: 110 * healthRatio)
+                                    Spacer(minLength: 0)
+                                }
+                            )
+                            .animation(.easeInOut(duration: 0.3), value: controller.currentHealth)
+                        
+                        // LAYER 2 (Tengah): Aset Outline (Statis / Tidak berubah ukuran)
+                        Image("health_frame_outline") // TODO: Ganti dengan nama aset bingkai Anda
                             .resizable()
                             .frame(width: 110, height: 40)
                         
+                        // LAYER 3 (Atas): Teks Angka Health
                         Text("\(Int(controller.currentHealth))")
                             .frame(width: 110)
                             .font(.custom("Cause-Bold", size: 16))
