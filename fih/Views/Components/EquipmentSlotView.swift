@@ -39,9 +39,9 @@ struct EquipmentSlotView: View {
                 Button(action: {
                     onRemove?()
                 }) {
-                    Image(systemName: "xmark.circle.fill")
+                    Image("icon_close_red")
                         .resizable()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 25, height: 25)
                         .foregroundColor(.red)
                         .background(Circle().fill(Color.white)) 
                 }
