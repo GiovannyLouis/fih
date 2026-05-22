@@ -85,10 +85,7 @@ class ObstacleController {
                 gameController.gameScene?.spawnObstacleVisual(.predatorBaited)
                 
                 try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
-<<<<<<< HEAD
-                
-=======
->>>>>>> 14a7384 (feat: finished predator animation)
+
                 gameController.hapticStyle?(.light)
                 gameController.showEvent("Predator took the bait and left!")
             } else {
