@@ -135,34 +135,40 @@ struct InGamePage: View {
     
     // MARK: - Jam + Health + Speed (kiri atas)
     private var clockAndStats: some View {
-        HStack(alignment: .center, spacing: 10) {
-            let angleInRadians = (
-                -90 + 360 * controller.timer.progress
-            ) * .pi / 180
+        HStack(alignment: .center, spacing: 15) {
             
             // Jam
             ZStack {
+                let angleInDegrees = 90.0 - (180.0 * controller.timer.progress)
+                let angleInRadians = angleInDegrees * .pi / 180.0
+                
+                let radius: CGFloat = 43.0
+                
                 Image("indicator_line")
                     .resizable()
-                    .frame(width: 64, height: 100)
+                    .frame(width: 43, height: 86)
+                    .offset(x: 21.5)
                 
                 Image("indicator_dot")
                     .resizable()
                     .frame(width: 15, height: 15)
                     .offset(
-                        x: 32 * cos(angleInRadians),
-                        y: 50 * sin(angleInRadians)
+                        x: radius * cos(angleInRadians),
+                        y: -radius * sin(angleInRadians)
                     )
                     .animation(
                         .linear(duration: 1),
                         value: controller.timer.progress
                     )
+                
                 Text(clockText)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundColor(Color(red: 0.08, green: 0.18, blue: 0.45))
+                    .font(.custom("Cause-Extrabold", size: 24))
+                    .foregroundColor(Color("color_dark_blue"))
+                    .offset(x: -12)
             }
-            .frame(width: 64, height: 64)
+            .frame(width: 86, height: 86)
             
+            // Health bar and speed
             VStack(alignment: .leading, spacing: 6) {
                 
                 // Health bar
@@ -175,11 +181,9 @@ struct InGamePage: View {
                     }
                     
                     ZStack(alignment: .leading) {
-                        
-                        let maxHealth: Double = Double(controller.selectedShip.maxDurability) // Ganti dengan
+                        let maxHealth: Double = Double(controller.selectedShip.maxDurability)
                         let healthRatio = max(0, controller.currentHealth / maxHealth)
                         
-                        // LAYER 1 (Bawah): Aset Isi (Fill)
                         Image("health_frame_fill")
                             .resizable()
                             .frame(width: 110, height: 40)
@@ -192,12 +196,10 @@ struct InGamePage: View {
                             )
                             .animation(.easeInOut(duration: 0.3), value: controller.currentHealth)
                         
-                        // LAYER 2 (Tengah): Aset Outline (Statis / Tidak berubah ukuran)
-                        Image("health_frame_outline") // TODO: Ganti dengan nama aset bingkai Anda
+                        Image("health_frame_outline")
                             .resizable()
                             .frame(width: 110, height: 40)
                         
-                        // LAYER 3 (Atas): Teks Angka Health
                         Text("\(Int(controller.currentHealth))")
                             .frame(width: 110)
                             .font(.custom("Cause-Bold", size: 16))
