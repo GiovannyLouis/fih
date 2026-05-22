@@ -11,7 +11,8 @@ import SwiftUI
 class AppStateManager {
     
     // enum currentScreen untuk mengatur screen apa yang muncul berdasarkan statenya, state awal diset di SelectShipPage
-    var currentScreen: GameScreen = .weatherForecastPage
+
+    var currentScreen: GameScreen = .mainMenuPage
     
     var isMovingForward: Bool = true
     
@@ -21,6 +22,7 @@ class AppStateManager {
     
     // variable menyimpan weather prediction
     var currentForecast: DailyForecast? = nil
+    var inGameController: InGameController? = nil
     
     func resetForecast() {
         currentForecast = nil

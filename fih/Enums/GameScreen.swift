@@ -10,6 +10,7 @@ import SwiftUI
 
 // 1. Define all the screens in your game
 enum GameScreen: Equatable {
+    case settingsPage
     case fishAlbumPage
     case mainMenuPage
     case weatherForecastPage

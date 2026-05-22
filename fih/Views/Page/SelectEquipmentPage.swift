@@ -6,72 +6,98 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct SelectEquipmentPage: View {
 
     @State private var controller: EquipmentController = EquipmentController()
-    
     @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
+    
+    var equipmentCreamBackground: SKScene {
+        if let scene = SKScene(fileNamed: "EquipmentCreamBackground") {
+            scene.scaleMode = .aspectFill
+            scene.backgroundColor = .clear
+            return scene
+        }
+        return SKScene()
+    }
+    
+    var bgScene: SKScene {
+        let scene = CreamBackgroundScene()
+        scene.scaleMode = .resizeFill
+        return scene
+    }
+    
+    var fishBackgroundScene: SKScene {
+        if let scene = SKScene(fileNamed: "FishBackground") {
+            scene.scaleMode = .aspectFill
+            return scene
+        }
+        return SKScene()
+    }
     
     var body: some View {
         ZStack {
             Color.white.ignoresSafeArea()
             
+            // LAYER 1: Background Ikan Animasi
+            SpriteView(scene: fishBackgroundScene, options: [.allowsTransparency])
+                .ignoresSafeArea()
+                .opacity(0.075)
+            
+            SpriteView(scene: equipmentCreamBackground, options: [.allowsTransparency])
+                .ignoresSafeArea()
+            
+            // LAYER 2: Layout Utama
             HStack(spacing: 0) {
-                // LEFT SIDE: Equipment List
-                VStack(spacing: 0) {
-                    // Header Area
-                    HStack {
-                        // 2. FIXED: Use appState to go back, not dismiss() or onBack
-                        Button(action: {
-                            appState.isMovingForward = false
-                            appState.currentScreen = .selectShipPage
-                        }) {
-                            Image(systemName: "chevron.left.circle.fill")
-                                .resizable()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.gray.opacity(0.3))
-                        }
-                        .padding(.leading, 20)
-                        
-                        Spacer()
-                        
-                        VStack {
-                            Text("Select Equipment")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.5))
-                            Text("Choose your equipments wisely")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
+                
+                // 1. KOLOM TOMBOL BACK
+                VStack {
+                    Button(action: {
+                        appState.isMovingForward = false
+                        audio.haptic(style: .light)
+                        appState.currentScreen = .selectShipPage
+                    }) {
+                        Image("icon_back")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.6))
                     }
-                    .padding(.top, 20)
-                    .padding(.bottom, 10)
+                    Spacer()
+                }
+                .padding(.top, 32)
+                .padding(.trailing, 32)
+                
+                // 2. PANEL EQUIPMENT LIST (Background Krem)
+                VStack(spacing: 0) {
+                    Text("Select Equipment")
+                        .font(.custom("Cause-Bold", size: 32))
+                        .foregroundColor(Color("color_dark_blue"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 20)
                     
-                    Divider().padding(.horizontal, 40)
-                    
-                    // Scrollable List
                     ScrollView {
-                        VStack(spacing: 15) {
+                        VStack(spacing: 5) {
                             ForEach(controller.availableEquipment) { item in
                                 let isSelected = controller.equippedItems.contains(where: { $0.id == item.id })
                                 
                                 EquipmentRowView(item: item, isSelected: isSelected) {
                                     if let selectedShip = appState.selectedShip {
+                                        audio.haptic(style: .light)
                                         controller.toggleEquipment(item, maxEquipmentSlots: selectedShip.equipmentSlots)
                                     }
                                 }
                             }
                         }
-                        .padding(20)
+                        .padding(.horizontal, 10)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(Color(red: 1.0, green: 0.98, blue: 0.9)) // Light yellow background
+                .frame(maxHeight: .infinity)
+                .padding(.top, 4)
                 
                 if let selectedShip = appState.selectedShip {
-                    // RIGHT SIDE: Ship Preview & Slots
                     VStack {
                         Spacer()
                         
@@ -80,47 +106,75 @@ struct SelectEquipmentPage: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 150)
+                            .frame(width: 200)
                         
-                        // DYNAMIC EQUIPMENT SLOTS (No ForEach Approach!)
+                        // DYNAMIC EQUIPMENT SLOTS
                         HStack(spacing: 15) {
-                            
                             let slotCount = selectedShip.equipmentSlots
                             let equippedCount = controller.equippedItems.count
                             
-                            // Slot 1
                             if slotCount > 0 {
-                                EquipmentSlotView(iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil)
+                                EquipmentSlotView(
+                                    iconName: equippedCount > 0 ? controller.equippedItems[0].imageName : nil,
+                                    onRemove: {
+                                        if equippedCount > 0 {
+                                            let itemToRemove = controller.equippedItems[0]
+                                            audio.haptic(style: .light)
+                                            controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                        }
+                                    }
+                                )
                             }
-                            
-                            // Slot 2
+                                                                                                    
                             if slotCount > 1 {
-                                EquipmentSlotView(iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil)
+                                EquipmentSlotView(
+                                    iconName: equippedCount > 1 ? controller.equippedItems[1].imageName : nil,
+                                    onRemove: {
+                                        if equippedCount > 1 {
+                                            let itemToRemove = controller.equippedItems[1]
+                                            audio.haptic(style: .light)
+                                            controller.toggleEquipment(itemToRemove, maxEquipmentSlots: slotCount)
+                                        }
+                                    }
+                                )
                             }
-                            
                         }
-                        .padding(.top, 20)
+                        .padding(.top, 10)
                         
                         Spacer()
                         
                         // Start Button
-                        // menyimpan kapal beserta equipment nya agar dapat dibawa ke ingame
-                        // mengubah state currentScreen menjadi InGamePage
                         Button(action: {
                             appState.equippedItems = controller.equippedItems
+                            if let ship = appState.selectedShip {
+                                appState.inGameController = InGameController(
+                                    ship: ship,
+                                    equippedItems: controller.equippedItems,
+                                    actualWeather: appState.currentForecast!.actualWeather
+                                )
+                            }
+                            audio.playSFX(filename: "play")
+                            audio.stopBGM_Menu()
+                            audio.haptic(style: .medium)
                             appState.isMovingForward = true
                             appState.currentScreen = .inGamePage
                         }) {
-                            Text("Start")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .frame(width: 150, height: 50)
-                                .background(Color.green)
-                                .cornerRadius(25)
+                            ZStack {
+                                Image("green_button")
+                                    .resizable()
+                                    .frame(width: 180, height: 56)
+                                
+                                Text("Start")
+                                    .font(.custom("Cause-Bold", size: 32))
+                                    .foregroundColor(Color("color_dark_blue"))
+                            }
                         }
-                        .padding(.bottom, 30)
+                        .padding(.bottom, 16)
                     }
                     .frame(maxWidth: .infinity)
+                    
+                } else {
+                    Spacer().frame(maxWidth: .infinity)
                 }
             }
         }
@@ -132,4 +186,5 @@ struct SelectEquipmentPage: View {
     
     SelectEquipmentPage()
         .environment(AppStateManager())
+        .environment(AudioManager())
 }

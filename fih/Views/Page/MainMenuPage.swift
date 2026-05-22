@@ -6,13 +6,85 @@
 //
 
 import SwiftUI
+import SwiftData
+import SpriteKit
 
 struct MainMenuPage: View {
+    @Environment(AppStateManager.self) private var appState
+    @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
+
+    
+    @State private var playerController = PlayerController()
+
+    
+    @State private var mainMenuScene: SKScene = {
+        if let scene = MainMenuScene(fileNamed: "MainScreen") {
+            scene.scaleMode = .aspectFill
+            return scene
+        }
+        return SKScene()
+    }()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            SpriteView(scene: mainMenuScene)
+                .ignoresSafeArea()
+            
+            VStack(alignment: .center) {
+                
+                Text("DAY \(playerController.currentDays)")
+                    .font(.custom("cause-bold", size: 24))
+                    .foregroundStyle(.colorDarkBlue)
+                    .padding(.top, 40)
+                    .padding(.bottom, 32)
+                
+                
+                Button(action: {
+                    audio.playSFX(filename: "play")
+                    audio.haptic()
+                    appState.currentScreen = .weatherForecastPage
+                }) {
+                    ZStack {
+                        Image("green_button")
+                            .resizable()
+                            .frame(width: 200, height: 60)
+                        Text("Play")
+                            .font(.custom("cause-bold", size: 36))
+                            .foregroundStyle(.colorDarkBlue)
+                    }
+                }
+                
+                Button(action: {
+                    audio.playSFX(filename: "turning_book", volume: 6.0)
+                    appState.currentScreen = .fishAlbumPage
+                }) {
+                    ZStack {
+                        Image("cream_button")
+                            .resizable()
+                            .frame(width: 160, height: 48)
+                        Text("Collection")
+                            .font(.custom("cause-bold", size: 20))
+                            .foregroundStyle(.colorDarkBlue)
+                    }
+                }
+                .padding(.top, -12)
+                
+                Spacer()
+
+
+            }
+                
+        }
+        .onAppear {
+            audio.playBGM_Menu()
+            playerController.getDays(context: context)
+        }
     }
 }
 
 #Preview {
     MainMenuPage()
+        .environment(AppStateManager())
+        .environment(AudioManager())
 }

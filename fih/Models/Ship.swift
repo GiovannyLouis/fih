@@ -27,7 +27,7 @@ extension Ship {
         Ship(
             name: "Speed Boat",
             imageName: "ship_speedboat",
-            maxSpeed: 500,
+            maxSpeed: 55,
             maxDurability: 100,
             equipmentSlots: 1,
             shipType: .speedBoat
@@ -35,7 +35,7 @@ extension Ship {
         Ship(
             name: "Fishing Boat",
             imageName: "ship_fishingboat",
-            maxSpeed: 200,
+            maxSpeed: 22,
             maxDurability: 300,
             equipmentSlots: 1,
             shipType: .fishingBoat
@@ -43,7 +43,7 @@ extension Ship {
         Ship(
             name: "Cargo Ship",
             imageName: "ship_cargoboat",
-            maxSpeed: 100,
+            maxSpeed: 18,
             maxDurability: 800,
             equipmentSlots: 2,
             shipType: .cargoBoat
