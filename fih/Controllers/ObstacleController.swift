@@ -18,6 +18,7 @@ class ObstacleController {
         var speedPenalty: Double = 0
         var teleportDistance: Double = 0
         var shouldStealFish = false
+        var shouldKrakenAttack = false
         var speedText = ""
         var shieldtext = ""
         
@@ -27,10 +28,11 @@ class ObstacleController {
             shouldStealFish = true
             
         case .iceberg:
-            gameController.onPlaySFX?("glacier")
             gameController.gameScene?.spawnObstacleVisual(.iceberg)
             
             try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+            gameController.onPlaySFX?("glacier")
+            gameController.hapticStyle?(.heavy)
             switch ship.shipType {
             case .speedBoat:    damage = 30; speedPenalty = 30
             case .fishingBoat:  damage = 20; speedPenalty = 20
@@ -62,15 +64,9 @@ class ObstacleController {
                 gameController.showEvent("Tornado threw you \(Int(distance))km \(dir)!")
             }
             
-        case .predator:
+        case .predator, .predatorBaited:
             gameController.onPlaySFX?("kraken")
-            gameController.hapticStyle?(.heavy)
-            gameController.gameScene?.spawnObstacleVisual(.predator)
-            
-            try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
-            
-            damage = Double(ship.maxDurability) * 0.2
-            gameController.gameScene?.shakeScreen(intensity: "heavy")
+            shouldKrakenAttack = true
             
         case .shipFailure:
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
@@ -83,11 +79,24 @@ class ObstacleController {
             return
         }
         
-        // PREDATOR BAIT vs Predator
-        if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
-            damage = 0
-            gameController.hapticStyle?(.heavy)
-            gameController.showEvent("Predator took the bait and left!")
+        if shouldKrakenAttack {
+            if equipment.contains(where: { $0.type == .predatorBait}) {
+                damage = 0
+                gameController.gameScene?.spawnObstacleVisual(.predatorBaited)
+                
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+
+                gameController.hapticStyle?(.light)
+                gameController.showEvent("Predator took the bait and left!")
+            } else {
+                gameController.gameScene?.spawnObstacleVisual(.predator)
+                
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+                
+                damage = Double(ship.maxDurability) * 0.2
+                gameController.gameScene?.shakeScreen(intensity: "heavy")
+                gameController.hapticStyle?(.heavy)
+            }
         }
         
         // Apply Speed Drop

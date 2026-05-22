@@ -255,8 +255,8 @@ class GameScene: SKScene {
         case .iceberg:
             handleIcebergAnimation()
             
-        case .predator:
-            handlePredatorAnimation()
+        case .predator, .predatorBaited:
+            handlePredatorAnimation(isAttacking: type == .predator)
 
         default:
             break
@@ -305,6 +305,32 @@ class GameScene: SKScene {
             if isStealing {
                 bird?.removeAction(forKey: "flapAction")
                 bird?.run(flapFish, withKey: "flapAction")
+            } else {
+                let scarecrow = SKSpriteNode(imageNamed: "icon_scarecrow")
+                scarecrow.position = CGPoint(x: shipPos.x, y: shipPos.y)
+                scarecrow.setScale(0.1) // Start small for the "pop"
+                scarecrow.alpha = 0
+                scarecrow.zPosition = 11
+                self.addChild(scarecrow)
+                
+                let popIn = SKAction.group([
+                    SKAction.scale(to: 0.4, duration: 0.3),
+                    SKAction.fadeIn(withDuration: 0.2),
+                    SKAction.moveBy(x: 0, y: 20, duration: 0.3)
+                ])
+                popIn.timingMode = .easeOut
+                
+                let fadeOut = SKAction.group([
+                    SKAction.fadeOut(withDuration: 0.5),
+                    SKAction.moveBy(x: 0, y: 10, duration: 0.5)
+                ])
+                
+                scarecrow.run(.sequence([
+                    popIn,
+                    .wait(forDuration: 0.8),
+                    fadeOut,
+                    .removeFromParent()
+                ]))
             }
         }
         
@@ -377,78 +403,133 @@ class GameScene: SKScene {
         iceberg.run(.sequence([move, .removeFromParent()]))
     }
     
-    private func handlePredatorAnimation() {
+    private func handlePredatorAnimation(isAttacking: Bool) {
         let shipPos = shipNode.position
         
         // Helper to create a tentacle
-        func createTentacle(name: String, isLeft: Bool) -> SKSpriteNode {
-            let tentacle = SKSpriteNode(imageNamed: name)
+        func createTentacle(isLeft: Bool) -> SKSpriteNode {
+            let sideStr = isLeft ? "left" : "right"
+            // Start with the 'Lean' asset
+            let tentacle = SKSpriteNode(imageNamed: "obs_kraken_\(sideStr)_1")
             tentacle.setScale(0.6)
-            tentacle.zPosition = 1 // Just in front of the ship
-            
-            // CRITICAL: Set anchor point to bottom middle so it rotates from the base
+            tentacle.zPosition = 1
             tentacle.anchorPoint = CGPoint(x: 0.5, y: 0)
             
-            // Start position: Under the sea level (seaY)
-            let sideOffset: CGFloat = isLeft ? -120 : 120
-            tentacle.position = CGPoint(x: shipPos.x + sideOffset, y: seaY-300)
+            let sideOffset: CGFloat = isAttacking ? (isLeft ? -120 : 120) : (isLeft ? -180 : 180)
+            tentacle.position = CGPoint(x: shipPos.x + sideOffset, y: seaY - 300)
             
             return tentacle
         }
-
-        let leftTentacle = createTentacle(name: "obs_kraken_1", isLeft: true)
-        let rightTentacle = createTentacle(name: "obs_kraken_2", isLeft: false)
         
+        let krakenHead = SKSpriteNode(imageNamed: isAttacking ? "obs_kraken_head_grumpy" : "obs_kraken_head_smile")
+        krakenHead.setScale(0.4)
+        krakenHead.zPosition = 1 // Slightly behind the tentacles
+        krakenHead.position = CGPoint(x: isAttacking ? shipPos.x + 240 : shipPos.x + 200, y: seaY - 140)
+
+        let leftTentacle = createTentacle(isLeft: true)
+        let rightTentacle = createTentacle(isLeft: false)
+        
+        addChild(krakenHead)
         addChild(leftTentacle)
         addChild(rightTentacle)
+        
+        let headRise = SKAction.moveBy(x: 0, y: 120, duration: 0.6)
+        headRise.timingMode = .easeOut
 
-        // --- ANIMATION SEQUENCE ---
-        
-        // 1. Rise from the depths
-        let rise = SKAction.moveBy(x: 0, y: 160, duration: 0.8)
-        rise.timingMode = .easeOut
-        
-        // 2. Anticipation (tilt slightly back before the slap)
-        let tiltBackLeft = SKAction.rotate(toAngle: .pi/6, duration: 0.4)
-        let tiltBackRight = SKAction.rotate(toAngle: -.pi/6, duration: 0.4)
-        
-        // 3. THE SLAP (Aggressive rotation + hard ease out)
-        // Left rotates clockwise (negative), Right rotates counter-clockwise (positive)
-        let slapLeft = SKAction.rotate(toAngle: -.pi/6, duration: 0.2)
-        let slapRight = SKAction.rotate(toAngle: .pi/6, duration: 0.2)
-        let scaleDown = SKAction.scale(to: 0.4, duration: 0.2)
-        slapLeft.timingMode = .easeIn
-        slapRight.timingMode = .easeIn
-        
-        let impactLeft = SKAction.group([slapLeft, scaleDown])
-        let impactRight = SKAction.group([slapRight, scaleDown])
-        
-        // 4. Retreat
-        let wait = SKAction.wait(forDuration: 0.5)
-        let sink = SKAction.moveBy(x: 0, y: -200, duration: 0.6)
-        sink.timingMode = .easeIn
+        let headWait = SKAction.wait(forDuration: isAttacking ? 1.2 : 0.4)
 
-        // Run Left Sequence
-        leftTentacle.run(.sequence([
-            rise,
-            tiltBackLeft,
-            impactLeft,
-            slapLeft,
-            wait,
-            sink,
+        let headSink = SKAction.moveBy(x: 0, y: -250, duration: 0.6)
+        headSink.timingMode = .easeIn
+        
+        krakenHead.run(.sequence([
+            headRise,
+            headWait,
+            headSink,
             .removeFromParent()
         ]))
-        
-        // Run Right Sequence
-        rightTentacle.run(.sequence([
-            rise,
-            tiltBackRight,
-            impactRight,
-            slapRight,
-            wait,
-            sink,
-            .removeFromParent()
-        ]))
+
+        if isAttacking {
+            // --- ATTACK: Rise -> Lean Back -> Slap -> Sink ---
+            func runAttack(node: SKSpriteNode, isLeft: Bool) {
+                let s = isLeft ? "left" : "right"
+                let leanAngle: CGFloat = isLeft ? .pi/20 : -.pi/20
+                
+                let riseAndLean = SKAction.group([
+                    SKAction.moveBy(x: 0, y: 160, duration: 0.8),
+                    SKAction.rotate(toAngle: leanAngle, duration: 0.8)
+                ])
+                riseAndLean.timingMode = .easeOut
+                
+                let switchToSlap = SKAction.setTexture(SKTexture(imageNamed: "obs_kraken_\(s)_2"))
+                
+                let slap = SKAction.group([
+                    SKAction.rotate(toAngle: -leanAngle, duration: 0.2),
+                    SKAction.scale(to: 0.5, duration: 0.2)
+                ])
+                slap.timingMode = .easeIn
+                
+                let sink = SKAction.moveBy(x: 0, y: -250, duration: 0.5)
+                sink.timingMode = .easeIn
+
+                node.run(.sequence([
+                    riseAndLean,
+                    .wait(forDuration: 0.1), // Moment of tension
+                    switchToSlap,
+                    slap,
+                    .wait(forDuration: 0.4),
+                    sink,
+                    .removeFromParent()
+                ]))
+            }
+            
+            runAttack(node: leftTentacle, isLeft: true)
+            runAttack(node: rightTentacle, isLeft: false)
+
+        } else {
+            // --- BAITED: Rise & Grab centrally in one fluid motion ---
+            let bait = SKSpriteNode(imageNamed: "icon_predator_bait")
+            bait.setScale(0.3)
+            bait.position = CGPoint(x: shipPos.x, y: seaY - 20)
+            bait.alpha = 0
+            bait.zPosition = 1
+            addChild(bait)
+
+            func runBaited(node: SKSpriteNode, isLeft: Bool) {
+                let s = isLeft ? "left" : "right"
+                let grabAngle: CGFloat = isLeft ? -.pi/5 : .pi/5
+                let moveInX: CGFloat = isLeft ? 60 : -60
+                
+                // Switch to Asset 2 almost immediately for a reaching look
+                let switchToReach = SKAction.setTexture(SKTexture(imageNamed: "obs_kraken_\(s)_1"))
+                
+                let grabMotion = SKAction.group([
+                    SKAction.moveBy(x: moveInX, y: 140, duration: 0.8),
+                    SKAction.rotate(toAngle: grabAngle, duration: 0.8)
+                ])
+                grabMotion.timingMode = .easeInEaseOut
+                
+                let sink = SKAction.moveBy(x: 0, y: -300, duration: 0.6)
+                
+                node.run(.sequence([
+                    switchToReach,
+                    grabMotion,
+                    .wait(forDuration: 0.1),
+                    sink,
+                    .removeFromParent()
+                ]))
+            }
+
+            bait.run(.sequence([
+                .wait(forDuration: 0.3),
+                .group([.moveBy(x: 0, y: 10, duration: 0.3), .fadeIn(withDuration: 0.3)]),
+                .wait(forDuration: 0.3),
+                .group([.moveBy(x: 0, y: -120, duration: 0.3), .fadeOut(withDuration: 0.3)]),
+                .removeFromParent()
+            ]))
+            
+            runBaited(node: leftTentacle, isLeft: true)
+            runBaited(node: rightTentacle, isLeft: false)
+        }
     }
     
     func shakeScreen(intensity: String) {
