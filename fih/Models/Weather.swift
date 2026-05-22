@@ -48,7 +48,7 @@ enum WeatherType: CaseIterable {
         case .snowy:
             return [("SnowyCloudParticle.sks", .rightEdge), ("SnowParticle.sks", .top)]
         case .windy:
-            return [("WindyCloudParticle.sks", .rightEdge)]
+            return [("WindyCloudParticle.sks", .rightEdge), ("WindyCloudParticle2.sks", .rightEdge)]
         }
     }
     
