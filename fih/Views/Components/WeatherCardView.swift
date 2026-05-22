@@ -34,10 +34,19 @@ final class WeatherCardScene: SKScene {
 
         // Compute normalized insets for 9-slicing
         let texSize = texture.size()
-        // Avoid divide-by-zero and clamp to < 0.5 for safety
-        let nx = min(max(cornerInset / max(texSize.width, 1), 0), 0.49)
-        let ny = min(max(cornerInset / max(texSize.height, 1), 0), 0.49)
-        node.centerRect = CGRect(x: nx, y: ny, width: 1 - (2 * nx), height: 1 - (2 * ny))
+        let width = texSize.width - 500
+        let height = texSize.height + 350
+
+        // Ensure normalized inset is clamped between 0 and 0.5 to prevent overlapping margins
+        let nx = min(max(cornerInset / width, 0), 0.5)
+        let ny = min(max(cornerInset / height, 0), 0.5)
+
+        node.centerRect = CGRect(
+            x: nx,
+            y: ny,
+            width: 1.0 - (2.0 * nx),
+            height: 1.0 - (2.0 * ny)
+        )
 
         node.size = size
         addChild(node)
@@ -51,4 +60,3 @@ final class WeatherCardScene: SKScene {
         cardNode?.position = CGPoint(x: size.width / 2, y: size.height / 2)
     }
 }
-
