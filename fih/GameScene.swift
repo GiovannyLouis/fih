@@ -395,10 +395,10 @@ class GameScene: SKScene {
             return tentacle
         }
         
-        let krakenHead = SKSpriteNode(imageNamed: "icon_mackerel") //P ubah
-        krakenHead.setScale(0.5)
+        let krakenHead = SKSpriteNode(imageNamed: isAttacking ? "obs_kraken_head_grumpy" : "obs_kraken_head_smile")
+        krakenHead.setScale(0.4)
         krakenHead.zPosition = 1 // Slightly behind the tentacles
-        krakenHead.position = CGPoint(x: shipPos.x + 240, y: seaY - 120)
+        krakenHead.position = CGPoint(x: isAttacking ? shipPos.x + 240 : shipPos.x + 200, y: seaY - 140)
 
         let leftTentacle = createTentacle(isLeft: true)
         let rightTentacle = createTentacle(isLeft: false)
@@ -409,7 +409,7 @@ class GameScene: SKScene {
         
         let headRise = SKAction.moveBy(x: 0, y: 120, duration: 0.6)
         headRise.timingMode = .easeOut
-        let headWait = SKAction.wait(forDuration: isAttacking ? 1.5 : 0.4)
+        let headWait = SKAction.wait(forDuration: isAttacking ? 1.2 : 0.4)
         let headSink = SKAction.moveBy(x: 0, y: -250, duration: 0.6)
         headSink.timingMode = .easeIn
         
