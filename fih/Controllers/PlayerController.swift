@@ -71,10 +71,11 @@ class PlayerController {
                 // 6. Masukkan hasilnya ke variabel yang ditampilkan di layar
                 self.filteredFishes = sortedFishes
                 
-                currentPlayer.isNewFishUnlocked = false
-                
-                try context.save()
-                
+                if currentPlayer.isNewFishUnlocked {
+                    currentPlayer.isNewFishUnlocked = false
+                    try context.save()
+                }
+                                
                 print("Ditemukan \(filteredFishes.count) ikan di Zona \(zone).")
             } else {
                 print("Data Player tidak ditemukan di database.")
