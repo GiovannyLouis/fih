@@ -305,6 +305,32 @@ class GameScene: SKScene {
             if isStealing {
                 bird?.removeAction(forKey: "flapAction")
                 bird?.run(flapFish, withKey: "flapAction")
+            } else {
+                let scarecrow = SKSpriteNode(imageNamed: "icon_scarecrow")
+                scarecrow.position = CGPoint(x: shipPos.x, y: shipPos.y)
+                scarecrow.setScale(0.1) // Start small for the "pop"
+                scarecrow.alpha = 0
+                scarecrow.zPosition = 11
+                self.addChild(scarecrow)
+                
+                let popIn = SKAction.group([
+                    SKAction.scale(to: 0.4, duration: 0.3),
+                    SKAction.fadeIn(withDuration: 0.2),
+                    SKAction.moveBy(x: 0, y: 20, duration: 0.3)
+                ])
+                popIn.timingMode = .easeOut
+                
+                let fadeOut = SKAction.group([
+                    SKAction.fadeOut(withDuration: 0.5),
+                    SKAction.moveBy(x: 0, y: 10, duration: 0.5)
+                ])
+                
+                scarecrow.run(.sequence([
+                    popIn,
+                    .wait(forDuration: 0.8),
+                    fadeOut,
+                    .removeFromParent()
+                ]))
             }
         }
         
