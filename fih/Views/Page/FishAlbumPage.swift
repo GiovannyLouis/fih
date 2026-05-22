@@ -116,10 +116,9 @@ struct FishAlbumPage: View {
                     Button(action: {
                         appState.currentScreen = .settingsPage
                     }) {
-                        Image(systemName: "gear")
+                        Image("icon_settings")
                             .resizable()
                             .frame(width: 40, height: 40)
-                            .foregroundStyle(Color("color_dark_blue"))
                     }
                     
                 }
