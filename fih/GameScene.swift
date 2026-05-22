@@ -435,7 +435,9 @@ class GameScene: SKScene {
         
         let headRise = SKAction.moveBy(x: 0, y: 120, duration: 0.6)
         headRise.timingMode = .easeOut
+
         let headWait = SKAction.wait(forDuration: isAttacking ? 1.2 : 0.4)
+
         let headSink = SKAction.moveBy(x: 0, y: -250, duration: 0.6)
         headSink.timingMode = .easeIn
         
