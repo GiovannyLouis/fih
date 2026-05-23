@@ -27,9 +27,9 @@ struct EquipmentSlotView: View {
             }
             .frame(width: 60, height: 60)
             .background(
-                Image("card_background_white")
+                Image("card_background_cream")
                     .resizable(
-                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            capInsets: EdgeInsets(top: 70, leading: 70, bottom: 70, trailing: 70),
                             resizingMode: .stretch
                     )
                     .frame(width: 60, height: 60)

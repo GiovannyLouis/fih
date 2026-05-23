@@ -102,6 +102,9 @@ struct SelectEquipmentPage: View {
                             capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
                             resizingMode: .stretch
                         )
+                        .frame(width: 660, height: 1000)
+                        .scaleEffect(0.5)
+                        .frame(width: 330, height: 500)
                 )
                 .padding(.top, 4)
                 
