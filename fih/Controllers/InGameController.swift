@@ -42,8 +42,12 @@ class InGameController {
     var isExpeditionOver : Bool = false
     var expeditionResults : ExpeditionResult = .inProgress
     
-    var latestEventMessage : String = ""
-    var showEventPopup: Bool = false
+    var showCatchFishPopup: Bool = false
+    var showObstaclePopup: Bool = false
+    var latestFishMessage: String = ""
+    var latestCatchedFishIcon: String? = nil
+    var latestObstacleMessage: String = ""
+
     var onPlaySFX: ((String) -> Void)?
     var hapticStyle: ((UIImpactFeedbackGenerator.FeedbackStyle) -> Void)?
     
@@ -191,7 +195,10 @@ class InGameController {
             let heal = Double(selectedShip.maxDurability) * 0.03
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
         }
-        showEvent(" Caught \(catchedFish.name)!")
+        triggerFishPopUp(
+            "+1 \(catchedFish.name)!",
+            iconName: catchedFish.iconName
+        )
     }
     
     func triggerObstacle() {
@@ -238,12 +245,38 @@ class InGameController {
 //        }
 //    }
     
-    func showEvent(_ message: String) {
-        latestEventMessage = message
-        showEventPopup = true
-        // AutoHide popup 2 detik
+    
+    func triggerFishPopUp(_ message: String, iconName: String?) {
+        self.latestFishMessage = message
+        self.latestCatchedFishIcon = iconName
+        
+        // Nyalakan popup ikan
+        withAnimation(.easeOut(duration: 0.3)) {
+            self.showCatchFishPopup = true
+        }
+        
+        // Auto-hide khusus untuk ikan (2 detik)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.showEventPopup = false
+            withAnimation(.easeIn(duration: 0.5)) {
+                self?.showCatchFishPopup = false
+            }
+        }
+    }
+        
+    // MARK: - EVENT KHUSUS OBSTACLE
+    func triggerObstaclePopUp(_ message: String) {
+        self.latestObstacleMessage = message
+        
+        // Nyalakan popup obstacle
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            self.showObstaclePopup = true
+        }
+        
+        // Auto-hide khusus untuk obstacle (2 detik)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            withAnimation(.easeIn(duration: 0.3)) {
+                self?.showObstaclePopup = false
+            }
         }
     }
     
