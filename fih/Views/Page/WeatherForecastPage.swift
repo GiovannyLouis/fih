@@ -58,15 +58,15 @@ struct WeatherForecastPage: View {
                 Spacer()
                 
                 // MARK: Weather Card
-//                SpriteView(scene: WeatherCardScene(
-//                    size: CGSize(width: 320, height: 140),
-//                    textureName: "frame_normal.png",
-//                    cornerInset: 12),
-//                           options: [.allowsTransparency])
-//                .frame(width: 400, height: 128)
                 Image("frame_weather")
-                    .resizable()
+                    .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                    )
+                    .frame(width: 800, height: 256)
+                    .scaleEffect(0.5)
                     .frame(width: 400, height: 128)
+                
                 .overlay(
                     ZStack(alignment: .leading) {
                         if let forecast = appState.currentForecast {
