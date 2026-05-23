@@ -46,8 +46,8 @@ struct SelectEquipmentPage: View {
                 .ignoresSafeArea()
                 .opacity(0.075)
             
-            SpriteView(scene: equipmentCreamBackground, options: [.allowsTransparency])
-                .ignoresSafeArea()
+//            SpriteView(scene: equipmentCreamBackground, options: [.allowsTransparency])
+//                .ignoresSafeArea()
             
             // LAYER 2: Layout Utama
             HStack(spacing: 0) {
