@@ -61,7 +61,7 @@ class ObstacleController {
                 gameController.distanceTravelledKm = max(0, gameController.distanceTravelledKm + teleportDistance)
                 gameController.gameScene?.shakeScreen(intensity: "heavy")
                 let dir = teleportDistance > 0 ? "forward" : "backward"
-                gameController.showEvent("Tornado threw you \(Int(distance))km \(dir)!")
+                gameController.triggerObstaclePopUp("Tornado threw you \(Int(distance))km \(dir)!")
             }
             
         case .predator, .predatorBaited:
@@ -74,7 +74,7 @@ class ObstacleController {
                 gameController.onPlaySFX?("engine_fail")
                 gameController.hapticStyle?(.heavy)
                 gameController.isEngineFailing = true
-                gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
+                gameController.triggerObstaclePopUp("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
         }
@@ -87,7 +87,7 @@ class ObstacleController {
                 try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
 
                 gameController.hapticStyle?(.light)
-                gameController.showEvent("Predator took the bait and left!")
+                gameController.triggerObstaclePopUp("Predator took the bait and left!")
             } else {
                 gameController.gameScene?.spawnObstacleVisual(.predator)
                 
@@ -109,10 +109,10 @@ class ObstacleController {
             if gameController.guardianAngelHitsRemaining > 0 && equipment.contains(where: { $0.type == .guardianAngel }) {
                 damage = 0
                 gameController.guardianAngelHitsRemaining -= 1
-                gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
+                gameController.triggerObstaclePopUp("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
                 
                 if gameController.guardianAngelHitsRemaining == 0 {
-                    gameController.showEvent("Your Guardian Angel has broken!")
+                    gameController.triggerObstaclePopUp("Your Guardian Angel has broken!")
                 }
             } else if equipment.contains(where: { $0.type == .shield }) {
                 damage *= 0.7
@@ -121,7 +121,7 @@ class ObstacleController {
             
             if damage > 0 {
                 gameController.currentHealth = max(0, gameController.currentHealth - damage)
-                gameController.showEvent("\(obstacleType.displayName), -\(Int(damage.rounded())) HP!\(shieldtext)\(speedText)")
+                gameController.triggerObstaclePopUp("\(obstacleType.displayName), -\(Int(damage.rounded())) HP!\(shieldtext)\(speedText)")
                 if gameController.currentHealth <= 0 {
                     gameController.endExpedition(result: .shipDestroyed)
                 }
@@ -134,21 +134,21 @@ class ObstacleController {
                 if equipment.contains(where: { $0.type == .scarecrow }) {
                     gameController.gameScene?.spawnObstacleVisual(.albatros)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.showEvent("Scarecrow protected your fish!")
+                        gameController.triggerObstaclePopUp("Scarecrow protected your fish!")
                     }
                 } else {
                     let stolenFish = gameController.catchLog.remove(at: randomIndex)
                     gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.showEvent("Albatross stole your \(stolenFish.name)!")
+                        gameController.triggerObstaclePopUp("Albatross stole your \(stolenFish.name)!")
                     }
                 }
             } else {
                 gameController.gameScene?.spawnObstacleVisual(.albatros)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    gameController.showEvent("Albatross circled, but you have no fish!")
+                    gameController.triggerObstaclePopUp("Albatross circled, but you have no fish!")
                 }
             }
         }

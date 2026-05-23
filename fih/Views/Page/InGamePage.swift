@@ -50,27 +50,45 @@ struct InGamePage: View {
             }
             
             // MARK: - EVENT POPUP
-            if controller.showEventPopup {
-                VStack {
-                    Spacer()
-                    Text(controller.latestEventMessage)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 9)
-                        .background(Color.black.opacity(0.72))
-                        .cornerRadius(18)
-                        .padding(.bottom, 30)
-                        .transition(
-                            .move(edge: .bottom).combined(with: .opacity)
+            VStack(spacing: 20) {
+                // 1. Popup Ikan
+                if controller.showCatchFishPopup {
+                    HStack(spacing: 12) {
+                        if let iconName = controller.latestCatchedFishIcon {
+                            Image(iconName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 42)
+                        }
+                        Text(controller.latestFishMessage)
+                            .font(.custom("Cause-Bold", size: 24))
+                            .foregroundColor(Color("color_dark_blue"))
+                    }
+                    // Gunakan transisi asimetris mandiri untuk ikan
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .top).combined(with: .opacity)
+                    )
+                    )
+                }
+                
+                // 2. Popup Obstacle
+                if controller.showObstaclePopup {
+                    Text(controller.latestObstacleMessage)
+                        .font(.custom("Cause-Bold", size: 24))
+                        .foregroundColor(Color("color_dark_blue"))
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .move(edge: .top).combined(with: .opacity)
+                        )
                         )
                 }
-                .animation(
-                    .spring(response: 0.4),
-                    value: controller.showEventPopup
-                )
             }
-            
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .ignoresSafeArea()
+            .animation(.spring(response: 0.4), value: controller.showCatchFishPopup)
+            .animation(.spring(response: 0.4), value: controller.showObstaclePopup)
+    
             // MARK: - SHIP PANEL (muncul saat kapal di-tap)
             if showShipPanel {
                 shipPanel
