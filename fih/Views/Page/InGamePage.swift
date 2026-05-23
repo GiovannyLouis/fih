@@ -316,7 +316,7 @@ struct InGamePage: View {
                 .onTapGesture { closePanel() }
             
             // Kumpulan Komponen UI
-            VStack(spacing: 16) { // Jarak antar kotak atas dan bawah
+            VStack(spacing: 4) { // Jarak antar kotak atas dan bawah
                 
                 // --- COMPONENT 3 (Di dalamnya sudah ada C1, C2, dan Tombol Play) ---
                 component3_ExpeditionBox
@@ -344,7 +344,58 @@ struct InGamePage: View {
                         0..<max(controller.selectedShip.equipmentSlots, 2),
                         id: \.self
                     ) { index in
-                        equipmentSlot(index: index)
+                        
+                        // 1. Cek apakah slot ini ada isinya atau kosong
+                        let isEquipped = index < controller.equippedItems.count
+                        let item = isEquipped ? controller.equippedItems[index] : nil
+                        
+                        // 2. Panggil View eksternal Anda (onRemove dikosongkan agar tombol merah hilang)
+                        EquipmentSlotView(
+                            iconName: item?.imageName,
+                            onRemove: nil
+                        )
+                        // 3. Tempelkan modifier overlay & tap gesture khusus untuk InGamePage
+                        .overlay(
+                            Group {
+                                // Tampilkan Tooltip hanya jika ada item dan sedang aktif
+                                if let validItem = item, activeTooltipIndex == index {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(validItem.name)
+                                            .font(.custom("Cause-Bold", size: 14))
+                                            .foregroundColor(Color("color_dark_blue"))
+                                        
+                                        Text(validItem.description)
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(Color("color_dark_blue").opacity(0.8))
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .frame(width: 180, alignment: .leading)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.white)
+                                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color("color_dark_blue"), lineWidth: 2))
+                                            .shadow(color: .black.opacity(0.15), radius: 4, x: 2, y: 4)
+                                    )
+                                    .offset(x: 135)
+                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                }
+                            }
+                        )
+                        .onTapGesture {
+                            // Tap hanya berfungsi jika ada itemnya
+                            if isEquipped {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    if activeTooltipIndex == index {
+                                        activeTooltipIndex = nil
+                                    } else {
+                                        activeTooltipIndex = index
+                                    }
+                                }
+                            }
+                        }
+                        .zIndex(activeTooltipIndex == index ? 100 : 0)
                     }
                 }
                 .zIndex(1)
@@ -359,6 +410,7 @@ struct InGamePage: View {
                 Spacer()
             }
             .padding(.horizontal, 4)
+            .padding(.vertical, 4)
             .frame(
                 maxHeight: .infinity
             ) // Memaksa konten HStack mengambil sisa ruang box biru
@@ -456,7 +508,13 @@ struct InGamePage: View {
                 
                 // Background Kertas Krem
                 Image("card_background_cream")
-                    .resizable()
+                    .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                    )
+                    .frame(width: 1400, height: 550)
+                    .scaleEffect(0.5)
+                    .frame(width: 700, height: 275)
                     
                 
                 // Konten (C1 & C2)
@@ -464,8 +522,8 @@ struct InGamePage: View {
                     component1_ShipDetails
                     component2_FishCollected
                 }
-                .padding(.leading, 48)
-                .padding(.trailing, 48)
+                .padding(.leading, 50)
+                .padding(.trailing, 50)
                 .padding(
                     .top,
                     48
@@ -481,9 +539,8 @@ struct InGamePage: View {
                 }
                 .offset(x: 36)
             }
-            // 💡 KUNCI FIX UTAMA: Kunci frame pembungkus luar ZStack-nya di sini setelah padding top selesai dihitung!
-            .frame(width: 700, height: 250)
-            .padding(.top, 24)
+            .frame(width: 700, height: 275)
+            .padding(.top, 16)
             
             // LAYER 2 (PALING DEPAN): Judul Melayang
             Text("Expedition Details")
@@ -493,13 +550,17 @@ struct InGamePage: View {
                 .padding(.vertical, 2)
                 .background(
                     Image("cream_button")
-                        .resizable()
-                        .frame(width: 420, height: 60)
-                    //Capsule().fill(Color(red: 0.98, green: 0.97, blue: 0.91))
+                        .resizable(
+                                capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                                resizingMode: .stretch
+                        )
+                        .frame(width: 840, height: 40)
+                        .scaleEffect(0.5)
+                        .frame(width: 420, height: 20)
                 )
                 //
         }
-        .padding(.top, 28)
+        .padding(.top, 32)
     }
     
     // MARK: - COMPONENT 4: Finish Early Box
@@ -509,7 +570,12 @@ struct InGamePage: View {
             
             // LAYER 1: Background Kertas Krem
             Image("card_background_cream")
-                .resizable()
+                .resizable(
+                        capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                        resizingMode: .stretch
+                )
+                .frame(width: 1400, height: 160)
+                .scaleEffect(0.5)
                 .frame(width: 700, height: 80)
             
             // LAYER 2: Teks
@@ -540,77 +606,6 @@ struct InGamePage: View {
             }
             .frame(width: 700, height: 80)
         }
-    }
-    
-    // MARK: - Equipment slot helper
-    private func equipmentSlot(index: Int) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.93, green: 0.91, blue: 0.82))
-                .frame(width: 65, height: 65)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color("color_dark_blue"), lineWidth: 2)
-                )
-            
-            if index < controller.equippedItems.count {
-                let item = controller.equippedItems[index]
-                
-                // Gambar Equipment
-                Image(item.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 46, height: 46)
-            } else {
-                // Slot kosong
-                Image(systemName: "square.dashed")
-                    .font(.system(size: 26))
-                    .foregroundColor(Color("color_dark_blue").opacity(0.25))
-            }
-        }
-        .overlay(
-            Group {
-                if index < controller.equippedItems.count && activeTooltipIndex == index {
-                    let item = controller.equippedItems[index]
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(item.name)
-                            .font(.custom("Cause-Bold", size: 14))
-                            .foregroundColor(Color("color_dark_blue"))
-                        
-                        Text(item.description)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Color("color_dark_blue").opacity(0.8))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .frame(width: 180, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color("color_dark_blue"), lineWidth: 2))
-                            .shadow(color: .black.opacity(0.15), radius: 4, x: 2, y: 4)
-                    )
-                    // Menggeser pop-up ke kanan kotak equipment
-                    .offset(x: 135)
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                }
-            }
-        )
-        .onTapGesture {
-            if index < controller.equippedItems.count {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    // Toggle logika
-                    if activeTooltipIndex == index {
-                        activeTooltipIndex = nil
-                    } else {
-                        activeTooltipIndex = index
-                    }
-                }
-            }
-        }
-        .zIndex(activeTooltipIndex == index ? 100 : 0)
     }
     
     private func closePanel() {
