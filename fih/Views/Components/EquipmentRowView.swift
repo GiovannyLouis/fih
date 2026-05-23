@@ -12,13 +12,7 @@ struct EquipmentRowView: View {
     let item: Equipment
     let isSelected: Bool
     let action: () -> Void
-    
-    var bgScene: SKScene {
-        let scene = WhiteBackgroundScene()
-        scene.scaleMode = .resizeFill
-        return scene
-    }
-    
+        
     var body: some View {
         Button(action: action) {
             HStack {
@@ -43,7 +37,11 @@ struct EquipmentRowView: View {
             .padding()
             .frame(width: 300, height: 90)
             .background(
-                SpriteView(scene: bgScene, options: [.allowsTransparency])
+                Image("card_background_white")
+                    .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                    )
                     .frame(width: 600, height: 180)
                     .scaleEffect(0.5)
                     .frame(width: 300, height: 90)
