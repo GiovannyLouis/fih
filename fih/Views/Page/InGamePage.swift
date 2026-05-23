@@ -457,6 +457,7 @@ struct InGamePage: View {
                 // Background Kertas Krem
                 Image("card_background_cream")
                     .resizable()
+                    
                 
                 // Konten (C1 & C2)
                 HStack(spacing: 36) {

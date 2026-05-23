@@ -47,9 +47,10 @@ struct EquipmentRowView: View {
                     .frame(width: 300, height: 90)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 10)
                     // Gunakan strokeBorder agar garisnya menggambar ke arah dalam frame
                     .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 4)
+                    .padding(-1)
             )
         }
         .buttonStyle(PlainButtonStyle())
