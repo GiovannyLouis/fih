@@ -96,6 +96,13 @@ struct SelectEquipmentPage: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(maxHeight: .infinity)
+                .background(
+                    Image("card_background_cream")
+                        .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                        )
+                )
                 .padding(.top, 4)
                 
                 if let selectedShip = appState.selectedShip {

@@ -13,18 +13,10 @@ struct EquipmentSlotView: View {
     
     var onRemove: (() -> Void)? = nil
     
-    var bgScene: SKScene {
-        let scene = CreamBackgroundScene()
-        scene.scaleMode = .fill
-        return scene
-    }
-    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             
             ZStack {
-                SpriteView(scene: bgScene, options: [.allowsTransparency])
-                
                 if let icon = iconName {
                     Image(icon)
                         .resizable()
@@ -34,6 +26,16 @@ struct EquipmentSlotView: View {
                 }
             }
             .frame(width: 60, height: 60)
+            .background(
+                Image("card_background_white")
+                    .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                    )
+                    .frame(width: 60, height: 60)
+                    .scaleEffect(0.5)
+                    .frame(width: 30, height: 30)
+            )
             
             if iconName != nil {
                 Button(action: {

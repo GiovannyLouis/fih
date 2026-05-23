@@ -56,21 +56,18 @@ struct ShipCardView: View {
             .background(
                 //SpriteView(scene: bgScene, options: [.allowsTransparency])
                 Image("card_background_cream")
-                    // 1. Slice Lines (31 px): Tells SwiftUI to protect 31 pixels from every edge
                     .resizable(
                         capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
                         resizingMode: .stretch // Can also be .tile
                     )
-                    // 2. Output Width & Height: 600x239 px
-                    .frame(width: 347, height: 383)
-                        // Lalu di-scale down agar bingkai 71px terlihat seperti 37px
-                        .scaleEffect(37.0 / 71.0)
-                        // Kembalikan ukuran frame pembungkus agar layout lain tidak berantakan
-                        .frame(width: 200, height: 180)            )
+                    .frame(width: 400, height: 360)
+                    .scaleEffect(0.5)
+                    .frame(width: 200, height: 180)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .strokeBorder(isSelected ? Color("color_green") : Color.clear, lineWidth: 8)
-                    //.padding(-4)
+                    .padding(-6)
             )
             .offset(y: isFloating ? -2 : 2)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
