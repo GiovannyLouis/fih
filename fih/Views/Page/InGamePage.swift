@@ -164,6 +164,11 @@ struct InGamePage: View {
                     .scaledToFit()
                     .overlay(
                         GeometryReader { geometry in
+                            
+                            // 1. Hitung persentase perjalanan (Rasio 0.0 sampai 1.0)
+                            // Pastikan Anda menyesuaikan 'targetDistanceKm' dengan variabel di controller Anda
+                            let safeRatio = getVisualProgressRatio(currentDistKm: controller.distanceTravelledKm)
+                            
                             Image("zone_indicator_fill")
                                 .resizable()
                                 .scaledToFit()
@@ -171,16 +176,13 @@ struct InGamePage: View {
                                     HStack(spacing: 0) {
                                         Rectangle()
                                             .frame(
-                                                width: geometry.size
-                                                    .width * (
-                                                        CGFloat(
-                                                            currentZoneNumber
-                                                        ) / 4.0
-                                                    )
+                                                width: geometry.size.width * CGFloat(safeRatio)
                                             )
                                         Spacer(minLength: 0)
                                     }
                                 )
+                                // 3. Tambahkan animasi agar pengisian bar terlihat mulus seperti air mengalir
+                                .animation(.linear(duration: 0.5), value: controller.distanceTravelledKm)
                         }
                     )
                     .frame(width: 200, height: 100)
@@ -203,6 +205,48 @@ struct InGamePage: View {
         case "Zone 4": return 4
         default:       return 0
         }
+    }
+    
+    // MARK: - Helper Pengukur Visual Zona
+    private func getVisualProgressRatio(currentDistKm: Double) -> Double {
+        // 1. Definisikan mapping jarak (Data) ke visual layar (Gambar)
+        // Asumsi: Gambar dibagi 4 kotak sama besar (0.25, 0.50, 0.75, 1.0)
+        let zoneMappings: [(distStartKm: Double, distEndKm: Double, visStart: Double, visEnd: Double)] = [
+            
+            // z/675
+            // CONTOH: Zona 1 sangat panjang (0 - 50 km), mengambil 25% pertama lebar gambar
+            (distStartKm: 0.0, distEndKm: 30.0, visStart: 0.0, visEnd: 0.16), // 109/725
+            
+            // CONTOH: Zona 2 sangat pendek (50 - 60 km), mengambil 25% kedua lebar gambar
+            (distStartKm: 30.0, distEndKm: 80.0, visStart: 0.16, visEnd: 0.22), // 166/725
+            
+            // CONTOH: Zona 3 sedang (60 - 85 km), mengambil 25% ketiga lebar gambar
+            (distStartKm: 80.0, distEndKm: 150.0, visStart: 0.22, visEnd: 0.25), // 186/725
+            
+            // CONTOH: Zona 4 pendek (85 - 100 km), mengambil 25% terakhir lebar gambar
+            (distStartKm: 150.0, distEndKm: 1000.0, visStart: 0.25, visEnd: 1.0)
+        ]
+        
+        let safeDist = max(0.0, currentDistKm) // Cegah nilai minus
+        
+        // 2. Cari kita sedang berada di zona yang mana
+        for zone in zoneMappings {
+            if safeDist >= zone.distStartKm && safeDist <= zone.distEndKm {
+                
+                // 3. Hitung persentase progress HANYA di dalam zona tersebut
+                let distRange = zone.distEndKm - zone.distStartKm
+                let progressInZone = (safeDist - zone.distStartKm) / distRange
+                
+                // 4. Terjemahkan ke persentase ukuran gambar
+                let visRange = zone.visEnd - zone.visStart
+                let finalVisualRatio = zone.visStart + (progressInZone * visRange)
+                
+                return finalVisualRatio
+            }
+        }
+        
+        // Jika jarak sudah melebihi batas akhir (misal > 100 km), bar otomatis penuh 100% (1.0)
+        return 1.0
     }
     
     private func closePanel() {
