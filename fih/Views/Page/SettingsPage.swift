@@ -75,7 +75,12 @@ struct SettingsPage: View {
                 ZStack {
                     // Background Kertas Krem
                     Image("card_background_cream")
-                        .resizable()
+                        .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch 
+                        )
+                        .frame(width: 900, height: 520)
+                        .scaleEffect(0.5)
                         .frame(width: 450, height: 260)
                     
                     HStack(spacing: 30) {
