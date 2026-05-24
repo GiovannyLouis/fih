@@ -16,12 +16,6 @@ struct ShipCardView: View {
     
     @State private var isFloating: Bool = false
     
-    var bgScene: SKScene {
-        let scene = CreamBackgroundScene()
-        scene.scaleMode = .resizeFill
-        return scene
-    }
-    
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
@@ -54,7 +48,6 @@ struct ShipCardView: View {
             .padding(.vertical, 20)
             .frame(width: 200, height: 180)
             .background(
-                //SpriteView(scene: bgScene, options: [.allowsTransparency])
                 Image("card_background_cream")
                     .resizable(
                         capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
