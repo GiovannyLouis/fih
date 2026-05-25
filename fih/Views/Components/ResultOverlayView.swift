@@ -6,115 +6,125 @@
 //
 
 import SwiftUI
-import SwiftData 
+import SwiftData
 
-/// untuk menampilkan alert saat waktu habis, pulang lebih awal, dan kapal hancur
 struct ResultOverlayView: View {
-    
+
     @Environment(AppStateManager.self) private var appState
     @Environment(\.modelContext) private var context
 
     let controller: InGameController
     let playerController: PlayerController
-    
-    
+
     var body: some View {
         ZStack {
-            // Background blur/dim
             Color.black.opacity(0.55).ignoresSafeArea()
-            // Card
-            VStack(spacing: 0) {
 
-                // MARK: - Title
-                Text(resultTitle.uppercased())
-                    .font(.custom("Cause-Bold", size: 28))
-                    .foregroundColor(Color("color_dark_blue"))
-                    .padding(.top, 28)
-                    .padding(.bottom, 20)
+            ZStack {
+                // LAYER 1: Background — scaleEffect supaya ukuran terkontrol
+                Image("card_background_cream")
+                    .resizable(
+                        capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                        resizingMode: .stretch
+                    )
+                    .frame(width: 1100, height: 640)
+                    .scaleEffect(0.5)
+                    .frame(width: 550, height: 320)
 
-                // MARK: - Divider
-                Rectangle()
-                    .fill(Color("color_dark_blue").opacity(0.2))
-                    .frame(height: 1)
-                    .padding(.horizontal, 24)
+                // LAYER 2: Konten
+                VStack(spacing: 0) {
 
-                // MARK: - Fish List
-                if controller.expeditionResults != .shipDestroyed && !controller.catchLog.isEmpty {
-                    ScrollView(.vertical, showsIndicators: true) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            ForEach(Array(controller.catchLog.enumerated()), id: \.offset) { _, fish in
-                                HStack(spacing: 12) {
-                                    Image(fish.iconName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 44, height: 30)
-                                    Text(fish.name)
-                                        .font(.custom("Cause-Bold", size: 16))
-                                        .foregroundColor(Color("color_dark_blue"))
-                                    Spacer()
+                    // Title
+                    Text(resultTitle.uppercased())
+                        .font(.custom("Cause-Bold", size: 22))
+                        .foregroundColor(Color("color_dark_blue"))
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
+
+                    // Divider
+                    Rectangle()
+                        .fill(Color("color_dark_blue").opacity(0.2))
+                        .frame(height: 1)
+                        .padding(.horizontal, 24)
+
+                    // Fish list / pesan
+                    if controller.expeditionResults != .shipDestroyed && !controller.catchLog.isEmpty {
+                        ScrollView(.vertical, showsIndicators: true) {
+                            let groupedFish = Dictionary(
+                                grouping: controller.catchLog,
+                                by: { $0.name }
+                            )
+                            let sortedKeys = groupedFish.keys.sorted()
+                            
+                            VStack(spacing: 8) {
+                                ForEach(sortedKeys, id: \.self) { fishName in
+                                    if let sampleFish = groupedFish[fishName]?.first,
+                                       let fishCount  = groupedFish[fishName]?.count {
+                                        HStack(spacing: 10) {
+                                            Image(sampleFish.iconName)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 40, height: 28)
+                                            Text(fishName)
+                                                .font(.custom("Cause-Bold", size: 14))
+                                                .foregroundColor(Color("color_dark_blue"))
+                                            Spacer()
+                                            Text("x\(fishCount)")
+                                                .font(.custom("Cause-Bold", size: 14))
+                                                .foregroundColor(Color("color_dark_blue"))
+                                                .padding(.trailing, 4)
+                                        }
+                                        .padding(.horizontal, 90)
+                                    }
                                 }
-                                .padding(.horizontal, 28)
                             }
+                            .padding(.vertical, 8)
                         }
-                        .padding(.vertical, 16)
-                    }
-                    .frame(height: 200)
+                        .frame(height: 170) // fixed supaya tidak overflow ke luar card
 
-                } else if controller.expeditionResults == .shipDestroyed {
-                    // Ship destroyed — tampilkan pesan
-                    VStack(spacing: 8) {
+                    } else if controller.expeditionResults == .shipDestroyed {
                         Text(resultSubtitle)
-                            .font(.custom("Cause-Bold", size: 16))
+                            .font(.custom("Cause-Bold", size: 14))
                             .foregroundColor(Color("color_dark_blue").opacity(0.6))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 28)
+                            .frame(height: 100)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("No fish collected.")
+                            .font(.custom("Cause-Bold", size: 14))
+                            .foregroundColor(Color("color_dark_blue").opacity(0.4))
+                            .frame(height: 160)
                     }
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
 
-                } else {
-                    // No fish
-                    Text("No fish collected.")
-                        .font(.custom("Cause-Bold", size: 16))
-                        .foregroundColor(Color("color_dark_blue").opacity(0.4))
-                        .frame(height: 200)
+                    // Button
+                    Button(action: {
+                        playerController.collectFish(context: context, catchFish: controller.catchLog)
+                        playerController.incrementDays(context: context)
+                        appState.currentScreen = .mainMenuPage
+                        appState.resetForecast()
+                    }) {
+                        Text("Return to Home")
+                            .font(.custom("Cause-Bold", size: 16))
+                            .foregroundColor(Color("color_dark_blue"))
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 12)
+                            .background(
+                                Image("green_button")
+                                    .resizable()
+                                    .scaledToFill()
+                            )
+                    }
+                    .padding(.top, 8)
+                    .padding(.bottom, 10)
                 }
-
-                // MARK: - Return to Home Button
-                Button(action: {
-                    playerController.collectFish(context: context, catchFish: controller.catchLog)
-                    playerController.incrementDays(context: context)
-                    appState.currentScreen = .mainMenuPage
-                    appState.resetForecast()
-                }) {
-                    Text("Return to Home")
-                        .font(.custom("Cause-Bold", size: 18))
-                        .foregroundColor(Color("color_dark_blue"))
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 14)
-                        .background(
-                            Image("green_button")
-                                .resizable()
-                                .scaledToFill()
-                        )
-                }
-                .padding(.top, 30)
-                .padding(.bottom, 28)
+                .frame(width: 550, height: 320) // sama dengan frame scaleEffect
             }
-            .frame(width: 560)
-            .background(
-                Image("card_background_cream")
-                    .resizable()
-                    .scaledToFill()
-            )
-            .cornerRadius(16)
-            .padding(.bottom, 50)
-            .padding(.top, 70)
         }
         .transition(.opacity)
         .animation(.easeIn(duration: 0.3), value: controller.isExpeditionOver)
     }
-    
+
     private var resultTitle: String {
         switch controller.expeditionResults {
         case .shipDestroyed: return "Shipwrecked!"
@@ -123,7 +133,7 @@ struct ResultOverlayView: View {
         case .inProgress:    return ""
         }
     }
-    
+
     private var resultSubtitle: String {
         switch controller.expeditionResults {
         case .shipDestroyed: return "Your ship sank.\nAll fish were lost."
@@ -135,5 +145,5 @@ struct ResultOverlayView: View {
 }
 
 #Preview {
-    //ResultOverlayView()
+    // ResultOverlayView()
 }

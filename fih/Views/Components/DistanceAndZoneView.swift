@@ -69,9 +69,10 @@ struct DistanceAndZoneView: View {
                         }
                     )
                 
-                Text(controller.currentZone?.name ?? "")
-                    .font(.system(size: 10))
-                    .foregroundColor(Color("color_dark_blue").opacity(0.6))
+                Text("ZONE")
+                    .font(.custom("Cause-Bold", size: 16))
+                    .offset(x: 0, y: -24)
+                    .foregroundColor(Color("color_dark_blue").opacity(1))
             }
         }
     }

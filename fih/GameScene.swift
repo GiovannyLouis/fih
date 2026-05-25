@@ -411,7 +411,6 @@ class GameScene: SKScene {
         tornado.setScale(0.5)
         tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
         tornado.zPosition = 8
-        tornado.speed = shipNode.speed
         addChild(tornado)
         
         let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
