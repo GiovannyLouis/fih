@@ -13,22 +13,7 @@ struct SelectEquipmentPage: View {
     @State private var controller: EquipmentController = EquipmentController()
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
-    
-    var equipmentCreamBackground: SKScene {
-        if let scene = SKScene(fileNamed: "EquipmentCreamBackground") {
-            scene.scaleMode = .aspectFill
-            scene.backgroundColor = .clear
-            return scene
-        }
-        return SKScene()
-    }
-    
-    var bgScene: SKScene {
-        let scene = CreamBackgroundScene()
-        scene.scaleMode = .resizeFill
-        return scene
-    }
-    
+            
     var fishBackgroundScene: SKScene {
         if let scene = SKScene(fileNamed: "FishBackground") {
             scene.scaleMode = .aspectFill
@@ -45,9 +30,6 @@ struct SelectEquipmentPage: View {
             SpriteView(scene: fishBackgroundScene, options: [.allowsTransparency])
                 .ignoresSafeArea()
                 .opacity(0.075)
-            
-            SpriteView(scene: equipmentCreamBackground, options: [.allowsTransparency])
-                .ignoresSafeArea()
             
             // LAYER 2: Layout Utama
             HStack(spacing: 0) {
@@ -96,6 +78,16 @@ struct SelectEquipmentPage: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(maxHeight: .infinity)
+                .background(
+                    Image("card_background_cream")
+                        .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                        )
+                        .frame(width: 660, height: 1000)
+                        .scaleEffect(0.5)
+                        .frame(width: 330, height: 500)
+                )
                 .padding(.top, 4)
                 
                 if let selectedShip = appState.selectedShip {
