@@ -19,6 +19,9 @@ class GameScene: SKScene {
     private var seaNode: SKSpriteNode!
     private var mainCamera: SKCameraNode!
     
+    // ADD THIS: Keep track of nodes that should be affected by ship speed
+    private var speedAffectedNodes: [SKNode] = []
+    
     private var seaY: CGFloat {size.height * 0.42}
     private var shipY: CGFloat {seaY}
     private var fishMinY: CGFloat {size.height * 0.05}
@@ -43,11 +46,25 @@ class GameScene: SKScene {
         addChild(mainCamera)
     }
     
+    // ADD THIS: Method to synchronize visual speed
+    func updateVisualSpeed(currentSpeed: Double, maxSpeed: Double) {
+        let ratio = CGFloat(currentSpeed / maxSpeed)
+        let multiplier = ratio * ratio
+        
+        // Update all registered nodes (waves, etc.)
+        for node in speedAffectedNodes {
+            node.speed = multiplier
+        }
+        
+        // Optionally slow down the ship's bobbing animation too
+        shipNode.speed = max(multiplier, 0.2)
+    }
+    
     private func setupSea() {
         let seaTexture = SKTexture(imageNamed: "ocean")
         let seaNode = SKSpriteNode(texture: seaTexture)
         seaNode.setScale(0.5)
-        let seaWidth = seaNode.size.width - 3
+        let seaWidth = SKSpriteNode(texture: seaTexture).size.width * 0.5 - 3 // Corrected for scale 0.5
         let duration: TimeInterval = 4.0
 
         for i in 0..<8 {
@@ -65,6 +82,9 @@ class GameScene: SKScene {
             underSeaRect.position = CGPoint(x: seaWidth / 2, y: -100)
             seaNode.addChild(underSeaRect)
             addChild(seaNode)
+            
+            // ADD THIS: Add to the tracking array
+            speedAffectedNodes.append(seaNode)
 
             let moveLeft = SKAction.moveBy(x: -seaWidth, y: 0, duration: duration)
             let resetPosition = SKAction.moveBy(x: seaWidth, y: 0, duration: 0)
@@ -117,6 +137,8 @@ class GameScene: SKScene {
                     }
                     
                     emitter.targetNode = self
+                    emitter.speed = shipNode.speed
+                    speedAffectedNodes.append(emitter)
                     addChild(emitter)
                 }
             }
@@ -139,6 +161,10 @@ class GameScene: SKScene {
         let startY = CGFloat.random(in: fishMinY...fishMaxY)
         fishNode.position  = CGPoint(x: size.width + 60, y: startY)
         addChild(fishNode)
+        
+        // ADD THIS: New objects should inherit the current speed of the scene
+        // We use the shipNode's current speed as a reference
+        fishNode.speed = shipNode.speed
      
         let duration   = Double.random(in: 5...9)
      
@@ -286,6 +312,7 @@ class GameScene: SKScene {
         bird.setScale(0.2)
         bird.zPosition = 12
         bird.position = CGPoint(x: size.width + 50, y: skyMaxY)
+        bird.speed = shipNode.speed
         addChild(bird)
         
         // 3. Flapping Animation (Time per frame set to 0.15 for smoother look)
@@ -311,6 +338,7 @@ class GameScene: SKScene {
                 scarecrow.setScale(0.1) // Start small for the "pop"
                 scarecrow.alpha = 0
                 scarecrow.zPosition = 11
+                scarecrow.speed = self.shipNode.speed
                 self.addChild(scarecrow)
                 
                 let popIn = SKAction.group([
@@ -356,6 +384,7 @@ class GameScene: SKScene {
         lightningNode.position = shipNode.position
         lightningNode.zPosition = 15
         lightningNode.setScale(0.8) // Made it a bit bigger
+        lightningNode.speed = shipNode.speed
         addChild(lightningNode)
         
         // Create a more violent flicker
@@ -382,6 +411,7 @@ class GameScene: SKScene {
         tornado.setScale(0.5)
         tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
         tornado.zPosition = 8
+        tornado.speed = shipNode.speed
         addChild(tornado)
         
         let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
@@ -396,6 +426,7 @@ class GameScene: SKScene {
         iceberg.setScale(0.3)
         iceberg.position = CGPoint(x: size.width + 100, y: seaY - 20)
         iceberg.zPosition = 1 // Behind the ship/sea
+        //iceberg.speed = shipNode.speed
         addChild(iceberg)
         
         // Icebergs move slow and heavy
@@ -429,6 +460,9 @@ class GameScene: SKScene {
         let leftTentacle = createTentacle(isLeft: true)
         let rightTentacle = createTentacle(isLeft: false)
         
+        krakenHead.speed = shipNode.speed
+        leftTentacle.speed = shipNode.speed
+        rightTentacle.speed = shipNode.speed
         addChild(krakenHead)
         addChild(leftTentacle)
         addChild(rightTentacle)
@@ -492,6 +526,7 @@ class GameScene: SKScene {
             bait.position = CGPoint(x: shipPos.x, y: seaY - 20)
             bait.alpha = 0
             bait.zPosition = 1
+            bait.speed = shipNode.speed
             addChild(bait)
 
             func runBaited(node: SKSpriteNode, isLeft: Bool) {
