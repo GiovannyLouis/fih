@@ -47,6 +47,9 @@ struct InGamePage: View {
                 .padding(.top, 12)
                 Spacer()
             }
+            .padding(12)
+            .ignoresSafeArea()
+            
             
             // MARK: - EVENT POPUP
             VStack(spacing: 20) {
