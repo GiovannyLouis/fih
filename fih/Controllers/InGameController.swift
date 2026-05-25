@@ -33,7 +33,7 @@ class InGameController {
     let timer = GameTimerServices()
     
     var currentHealth : Double
-    var currentSpeed : Double
+    //var currentSpeed : Double
     var isEngineFailing: Bool = false
     var guardianAngelHitsRemaining: Int = 3
     
@@ -104,6 +104,16 @@ class InGameController {
 
     var hasGuardianAngel: Bool {
         equippedItems.contains { $0.type == .guardianAngel } && guardianAngelHitsRemaining > 0
+    }
+    
+    var currentSpeed : Double {
+        didSet {
+            // Whenever currentSpeed changes, update the scene's visual speed
+            gameScene?.updateVisualSpeed(
+                currentSpeed: currentSpeed,
+                maxSpeed: Double(selectedShip.maxSpeed)
+            )
+        }
     }
     
     init (ship : Ship, equippedItems : [Equipment], actualWeather: WeatherType) {
