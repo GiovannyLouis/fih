@@ -123,7 +123,7 @@ class InGameController {
         self.currentHealth = Double(ship.maxDurability)
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
-        self.currentSpeed = Double (ship.maxSpeed) * (hasThrusters ? 1.25 : 1.0)
+        self.currentSpeed = Double (ship.maxSpeed) + (hasThrusters ? 20 : 0)
         
         print("In Game Ship: \(self.selectedShip.name)")
         print("In Game Equipped items:")
@@ -202,7 +202,7 @@ class InGameController {
         hapticStyle?(.medium)
         
         if hasSoulEater {
-            let heal = Double(selectedShip.maxDurability) * 0.03
+            let heal = 3.0
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
         }
         triggerFishPopUp(
