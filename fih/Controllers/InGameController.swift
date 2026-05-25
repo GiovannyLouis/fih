@@ -236,26 +236,6 @@ class InGameController {
         }
     }
     
-//    func applyDamage(_ amount: Double) {
-//        if hasGuardianAngel {
-//            guardianAngelHitsRemaining -= 1
-//
-//            if guardianAngelHitsRemaining == 0 {
-//                showEvent("Guardian Angel destroyed!")
-//            } else {
-//                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
-//            }
-//            return
-//        }
-//
-//        let finalDamage = amount * damageMultiplier
-//        currentHealth = max(0, currentHealth - finalDamage)
-//        if currentHealth <= 0 {
-//            endExpedition(result: .shipDestroyed)
-//        }
-//    }
-    
-    
     func triggerFishPopUp(_ message: String, iconName: String?) {
         self.latestFishMessage = message
         self.latestCatchedFishIcon = iconName
