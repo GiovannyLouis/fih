@@ -229,7 +229,42 @@ class GameScene: SKScene {
         case .guardianAngel:
             break
         case .luckyHat:
-            break
+            // 1. Cek dulu supaya nggak spawn dua kali
+            if shipNode.childNode(withName: "hat_node") != nil { return }
+            
+            let hat = SKSpriteNode(imageNamed: "icon_lucky_hat")
+            hat.name = "hat_node"
+            
+            // 2. Tentukan posisi koordinat lokal (dalam sistem koordinat asli gambar kapal)
+            // Karena shipNode skalanya 0.1, angka koordinat di sini akan besar-besar
+            var hatPosition: CGPoint
+            
+            switch shipImageName {
+            case "ship_fishingboat":
+                hatPosition = CGPoint(x: 160, y: 750)  // Di atas kabin boat
+            case "ship_speedboat":
+                hatPosition = CGPoint(x: 200, y: 450) // Di atas kursi pengemudi
+            case "ship_cargoboat":
+                hatPosition = CGPoint(x: -850, y: 600) // Di atas tower belakang
+            default:
+                hatPosition = CGPoint(x: 0, y: 500)
+            }
+            
+            hat.position = hatPosition
+            hat.zPosition = 10 // Pastikan di depan badan kapal
+            
+            /* Skala topi: Karena dia jadi child dari shipNode (0.1),
+               maka scale 1.0 di sini artinya topi akan sekecil 10% ukuran aslinya.
+               Kalau topinya masih kegedean, kecilin ke 0.5 atau 0.8.
+            */
+            hat.setScale(1.2)
+            
+            // 3. Tambahkan ke shipNode agar "nempel" permanen
+            shipNode.addChild(hat)
+            
+            // Efek pop-in kecil biar manis
+            hat.alpha = 0
+            hat.run(SKAction.fadeIn(withDuration: 0.1))
         case .predatorBait:
             let bait = SKSpriteNode(imageNamed: "icon_predator_bait")
             bait.setScale(0.3)
@@ -247,7 +282,48 @@ class GameScene: SKScene {
                 .removeFromParent()
             ]))
         case .rocketThrusters:
-            break
+            if shipNode.childNode(withName: "rocket_effect") != nil { return }
+                    
+            // 2. Tentukan koordinat anchor berdasarkan image kapal
+            // Angka ini adalah koordinat "asli" gambar sebelum kena scale 0.1
+            var anchorPoint: CGPoint
+            
+            switch shipImageName {
+            case "ship_fishingboat":
+                anchorPoint = CGPoint(x: -1200, y: -500)
+            case "ship_speedboat":
+                anchorPoint = CGPoint(x: -1200, y: 80)
+            case "ship_cargoboat":
+                anchorPoint = CGPoint(x: -1600, y: 200)
+            default:
+                anchorPoint = CGPoint(x: -1000, y: 0)
+            }
+            
+            // 3. Setup Texture & Node
+            let textures = [
+                SKTexture(imageNamed: "icon_flame_1"),
+                SKTexture(imageNamed: "icon_flame_2"),
+                SKTexture(imageNamed: "icon_flame_3")
+            ]
+            
+            let rocket = SKSpriteNode(texture: textures[0])
+            rocket.name = "rocket_effect"
+            rocket.zPosition = -1 // Di belakang kapal
+            rocket.position = anchorPoint
+            
+            /* TIPS SKALA:
+               Karena shipNode skalanya 0.1, maka rocket yang jadi child
+               secara otomatis akan ikut mengecil 10x lipat.
+               Jika api roket terlihat kekecilan, naikkan setScale-nya di sini.
+            */
+            rocket.setScale(1.8)
+            
+            // 4. Jalankan Animasi
+            let animation = SKAction.animate(with: textures, timePerFrame: 0.1)
+            rocket.run(SKAction.repeatForever(animation))
+            
+            // 5. Tempel ke kapal
+            shipNode.addChild(rocket)
         case .scarecrow:
             let scarecrow = SKSpriteNode(imageNamed: "icon_scarecrow")
             scarecrow.position = CGPoint(x: shipPos.x, y: shipPos.y + 40)
@@ -278,7 +354,24 @@ class GameScene: SKScene {
         case .shield:
             break
         case .soulEater:
-            break
+            let healColor = UIColor(red: 0.0, green: 1.0, blue: 0.2, alpha: 1.0)
+                
+            // 1. Set warna target pada node kapal
+            shipNode.color = healColor
+            
+            // 2. Buat action untuk blending
+            // Blend ke 0.7 (70% hijau) dalam sekejap, lalu balik ke 0.0 (warna asli)
+            let flashIn = SKAction.colorize(withColorBlendFactor: 0.7, duration: 0.1)
+            let flashOut = SKAction.colorize(withColorBlendFactor: 0.0, duration: 0.5)
+            
+            // 3. Tambahkan sedikit efek "pulsing" pada skala agar lebih terasa seperti 'heal'
+            let scaleUp = SKAction.scale(to: 0.11, duration: 0.1) // 0.1 adalah skala aslimu
+            let scaleDown = SKAction.scale(to: 0.1, duration: 0.4)
+            
+            let colorSequence = SKAction.sequence([flashIn, flashOut])
+            let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+            
+            shipNode.run(SKAction.group([colorSequence, scaleSequence]))
         }
     }
     
