@@ -13,10 +13,10 @@ struct DistanceAndZoneView: View {
     
     private func getVisualProgressRatio(currentDistKm: Double) -> Double {
         let zoneMappings: [(distStartKm: Double, distEndKm: Double, visStart: Double, visEnd: Double)] = [
-            (distStartKm: 0.0, distEndKm: 30.0, visStart: 0.1, visEnd: 0.20),
-            (distStartKm: 30.0, distEndKm: 80.0, visStart: 0.20, visEnd: 0.43),
-            (distStartKm: 80.0, distEndKm: 150.0, visStart: 0.43, visEnd: 0.679),
-            (distStartKm: 150.0, distEndKm: 1000.0, visStart: 0.679, visEnd: 1.0)
+            (distStartKm: controller.zones[0].startKm, distEndKm: controller.zones[0].endKm, visStart: 0.1, visEnd: 0.20),
+            (distStartKm: controller.zones[1].startKm, distEndKm: controller.zones[1].endKm, visStart: 0.20, visEnd: 0.43),
+            (distStartKm: controller.zones[2].startKm, distEndKm: controller.zones[2].endKm, visStart: 0.43, visEnd: 0.679),
+            (distStartKm: controller.zones[3].startKm, distEndKm: controller.zones[3].endKm, visStart: 0.679, visEnd: 1.0)
         ]
         
         let safeDist = max(0.0, currentDistKm)

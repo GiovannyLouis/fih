@@ -174,8 +174,8 @@ struct InGamePage: View {
     InGamePage(
         controller: InGameController(
             ship: Ship.allShips[0],
-            equippedItems: [],
-            actualWeather: .windy
+            equippedItems: [.allEquipment[2]],
+            actualWeather: .rainy
         )
     )
     .environment(AppStateManager())

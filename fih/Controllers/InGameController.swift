@@ -60,25 +60,25 @@ class InGameController {
         FishZoneInfo(
             name: "Zone 1",
             startKm: 0,
-            endKm: 30,
+            endKm: 80,
             // Menyaring allFish: "Ambil semua ikan yang properti zone-nya bernilai 1"
             fishes: Fish.allFish.filter { $0.zone == 1 }
         ),
         FishZoneInfo(
             name: "Zone 2",
-            startKm: 30,
-            endKm: 80,
+            startKm: 80,
+            endKm: 200,
             fishes: Fish.allFish.filter { $0.zone == 2 }
         ),
         FishZoneInfo(
             name: "Zone 3",
-            startKm: 80,
-            endKm: 150,
+            startKm: 200,
+            endKm: 400,
             fishes: Fish.allFish.filter { $0.zone == 3 }
         ),
         FishZoneInfo(
             name: "Zone 4",
-            startKm: 150,
+            startKm: 400,
             endKm: 1000,
             fishes: Fish.allFish.filter { $0.zone == 4 }
         )
