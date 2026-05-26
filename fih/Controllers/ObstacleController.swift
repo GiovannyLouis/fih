@@ -111,12 +111,13 @@ class ObstacleController {
                 damage = 0
                 gameController.guardianAngelHitsRemaining -= 1
                 gameController.triggerObstaclePopUp("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
-                
+                gameController.gameScene?.equipmentVisual(.guardianAngel)
                 if gameController.guardianAngelHitsRemaining == 0 {
                     gameController.triggerObstaclePopUp("Your Guardian Angel has broken!")
                 }
             } else if equipment.contains(where: { $0.type == .shield }) {
                 damage *= 0.7
+                gameController.gameScene?.equipmentVisual(.shield)
                 shieldtext = " Shield reduced the damage!"
             }
             

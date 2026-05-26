@@ -192,7 +192,7 @@ class InGameController {
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.1 {
+        if roll < 0.7 {
             spawnfish()
         } else {
             triggerObstacle()
@@ -226,7 +226,7 @@ class InGameController {
         guard !isExpeditionOver else { return }
                 
         // 80/20 Roll for Weather vs General Obstacle
-        let isWeatherSpecific = Double.random(in: 0...1) <= 0.10
+        let isWeatherSpecific = Double.random(in: 0...1) <= 0.80
         var chosenObstacleType: ObstacleType
         
         if isWeatherSpecific {
@@ -237,8 +237,11 @@ class InGameController {
             case .windy: chosenObstacleType = .tornado
             }
         } else {
-            // General obstacle: 50% Predator, 50% Engine Failure
-            chosenObstacleType = Bool.random() ? .predator : .shipFailure
+            if Double.random(in: 0...1) <= 0.6 {
+                chosenObstacleType = .predator
+            } else {
+                chosenObstacleType = .shipFailure
+            }
         }
         
         // Let ObstacleController handle the effects

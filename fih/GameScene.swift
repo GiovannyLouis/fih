@@ -227,7 +227,52 @@ class GameScene: SKScene {
         let shipPos = shipNode.position
         switch type {
         case .guardianAngel:
-            break
+            let angel = SKSpriteNode(imageNamed: "icon_guardian_angel")
+                
+            // Set posisi awal: Di tengah kapal, tapi agak bawah (untuk efek naik)
+            // Kita gunakan koordinat scene karena angel biasanya melayang bebas, bukan nempel di tiang
+            let startPos = CGPoint(x: shipNode.position.x, y: shipNode.position.y - 20)
+            angel.position = startPos
+            angel.alpha = 0
+            angel.zPosition = 15 // Paling depan
+            angel.setScale(0.4)  // Sesuaikan ukuran iconmu
+            
+            addChild(angel)
+            
+            // --- SEQUENCE ANIMASI ---
+            
+            // 1. Fade in sambil naik sedikit
+            let appear = SKAction.group([
+                SKAction.fadeIn(withDuration: 0.4),
+                SKAction.moveBy(x: 0, y: 50, duration: 0.4)
+            ])
+            appear.timingMode = .easeOut
+            
+            // 2. Wait (durasi saat shield aktif menahan serangan)
+            let wait = SKAction.wait(forDuration: 1.0)
+            
+            // 3. Fade out sambil naik lagi (seolah terbang ke langit)
+            let disappear = SKAction.group([
+                SKAction.fadeOut(withDuration: 0.5),
+                SKAction.moveBy(x: 0, y: 40, duration: 0.5)
+            ])
+            disappear.timingMode = .easeIn
+            
+            // Jalankan semua
+            angel.run(.sequence([
+                appear,
+                wait,
+                disappear,
+                .removeFromParent() // Hapus dari memory setelah selesai
+            ]))
+            let goldColor = UIColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0)
+                
+            // Blend ke warna emas 70%, lalu kembali ke warna asli kapal
+            let flashIn = SKAction.colorize(with: goldColor, colorBlendFactor: 0.7, duration: 0.15)
+            let flashOut = SKAction.colorize(withColorBlendFactor: 0.0, duration: 0.6)
+            
+            // Jalankan sekuens warna pada shipNode (Tanpa scaleUp/scaleDown)
+            shipNode.run(.sequence([flashIn, flashOut]))
         case .luckyHat:
             // 1. Cek dulu supaya nggak spawn dua kali
             if shipNode.childNode(withName: "hat_node") != nil { return }
@@ -352,7 +397,76 @@ class GameScene: SKScene {
                 .removeFromParent()
             ]))
         case .shield:
-            break
+            // 1. Cek apakah shield sudah ada, kalau belum, kita buat tapi sembunyikan (alpha 0)
+            var shield: SKSpriteNode
+            if let existingShield = shipNode.childNode(withName: "shield_node") as? SKSpriteNode {
+                shield = existingShield
+            } else {
+                shield = SKSpriteNode(imageNamed: "icon_shield")
+                shield.name = "shield_node"
+                shield.zPosition = 1
+                shield.alpha = 0 // Standby mode
+                
+                let shieldPos: CGPoint
+                switch shipImageName {
+                    case "ship_fishingboat": shieldPos = CGPoint(x: 0, y: shipPos.y - 200)
+                    case "ship_speedboat":   shieldPos = CGPoint(x: 0, y: shipPos.y)
+                    case "ship_cargoboat":   shieldPos = CGPoint(x: 0, y: shipPos.y)
+                    default:                 shieldPos = CGPoint(x: 0, y: 0)
+                }
+                
+                // Atur posisi moncong sesuai tipe kapal
+                shield.position = shieldPos
+                shipNode.addChild(shield)
+            }
+
+            // --- ANIMASI REAKTIF (SAAT KENA DAMAGE) ---
+            
+            // Hentikan animasi shield yang sedang berjalan (jika ada) agar tidak tumpang tindih
+            shield.removeAllActions()
+            
+            // 1. Reset state: Kecil dan transparan
+            shield.setScale(3)
+            shield.alpha = 0
+            
+            // 2. Efek "Hard Impact" Show Up
+            let appear = SKAction.group([
+                SKAction.fadeIn(withDuration: 0.05), // Sangat cepat munculnya
+                SKAction.scale(to: 7, duration: 0.05), // Meledak jadi besar (overshoot)
+            ])
+            
+            // 3. Efek "Locking" (Kembali ke ukuran normal dengan kaku)
+            let lockIn = SKAction.group([
+                SKAction.scale(to: 5, duration: 0.1), // Ukuran solid-nya
+            ])
+            
+            // 4. Durasi diam (menahan serangan) + Getaran mesin
+            let vibrate = SKAction.repeat(SKAction.sequence([
+                SKAction.moveBy(x: 2, y: 0, duration: 0.02),
+                SKAction.moveBy(x: -2, y: 0, duration: 0.02)
+            ]), count: 10)
+            
+            // 5. Dissolve (Menghilang pelan setelah tugas selesai)
+            let dissolve = SKAction.group([
+                SKAction.fadeOut(withDuration: 0.4),
+                SKAction.scale(to: 3, duration: 0.4)
+            ])
+            
+            // Jalankan Sequence
+            shield.run(.sequence([
+                appear,
+                lockIn,
+                vibrate,
+                .wait(forDuration: 0.5),
+                dissolve
+            ]))
+            
+            // Tambahan: Kapal ikut bergetar sedikit (Bukan scaling) sebagai reaksi shield menahan beban
+            let shipRecoil = SKAction.sequence([
+                SKAction.moveBy(x: -10, y: 0, duration: 0.05),
+                SKAction.moveBy(x: 10, y: 0, duration: 0.1)
+            ])
+            shipNode.run(shipRecoil)
         case .soulEater:
             let healColor = UIColor(red: 0.0, green: 1.0, blue: 0.2, alpha: 1.0)
                 
