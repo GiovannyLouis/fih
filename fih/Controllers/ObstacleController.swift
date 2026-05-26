@@ -28,7 +28,7 @@ class ObstacleController {
             shouldStealFish = true
             
         case .iceberg:
-            gameController.gameScene?.spawnObstacleVisual(.iceberg)
+            gameController.gameScene?.handleIcebergAnimation()
             
             try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
             gameController.onPlaySFX?("glacier")
@@ -43,14 +43,14 @@ class ObstacleController {
         case .lightning:
             gameController.onPlaySFX?("thunder")
             gameController.hapticStyle?(.heavy)
-            gameController.gameScene?.spawnObstacleVisual(.lightning)
+            gameController.gameScene?.handleLightningAnimation()
             damage = 40
             
         case .tornado:
             gameController.onPlaySFX?("tornado")
             gameController.hapticStyle?(.heavy)
             var distance = 0.0
-            gameController.gameScene?.spawnObstacleVisual(.tornado)
+            gameController.gameScene?.handleTornadoAnimation()
             switch ship.shipType {
             case .speedBoat:    distance = 10.0
             case .fishingBoat:  distance = 7.0
@@ -74,6 +74,7 @@ class ObstacleController {
                 gameController.onPlaySFX?("engine_fail")
                 gameController.hapticStyle?(.heavy)
                 gameController.isEngineFailing = true
+                gameController.gameScene?.handleEngineFailureAnimation()
                 gameController.triggerObstaclePopUp("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
@@ -82,14 +83,14 @@ class ObstacleController {
         if shouldKrakenAttack {
             if equipment.contains(where: { $0.type == .predatorBait}) {
                 damage = 0
-                gameController.gameScene?.spawnObstacleVisual(.predatorBaited)
+                gameController.gameScene?.handlePredatorAnimation(isAttacking: false)
                 
                 try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
 
                 gameController.hapticStyle?(.light)
                 gameController.triggerObstaclePopUp("Predator took the bait and left!")
             } else {
-                gameController.gameScene?.spawnObstacleVisual(.predator)
+                gameController.gameScene?.handlePredatorAnimation(isAttacking: true)
                 
                 try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
                 
@@ -132,23 +133,23 @@ class ObstacleController {
         if shouldStealFish {
             if let randomIndex = gameController.catchLog.indices.randomElement() {
                 if equipment.contains(where: { $0.type == .scarecrow }) {
-                    gameController.gameScene?.spawnObstacleVisual(.albatros)
+                    gameController.gameScene?.handleAlbatrosAnimation(isStealing: false, isScarecrow: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.triggerObstaclePopUp("Scarecrow protected your fish!")
+                        gameController.triggerObstaclePopUp("Scarecrow scared the albatros away!")
                     }
                 } else {
                     let stolenFish = gameController.catchLog.remove(at: randomIndex)
-                    gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
+                    gameController.gameScene?.handleAlbatrosAnimation(isStealing: true, isScarecrow: false)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.triggerObstaclePopUp("Albatross stole your \(stolenFish.name)!")
+                        gameController.triggerObstaclePopUp("Albatros stole your \(stolenFish.name)!")
                     }
                 }
             } else {
-                gameController.gameScene?.spawnObstacleVisual(.albatros)
+                gameController.gameScene?.handleAlbatrosAnimation(isStealing: false, isScarecrow: false)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    gameController.triggerObstaclePopUp("Albatross circled, but you have no fish!")
+                    gameController.triggerObstaclePopUp("Albatros circled, but you have no fish!")
                 }
             }
         }

@@ -99,6 +99,7 @@ class InGameController {
 //    var hasShield: Bool       { equippedItems.contains { $0.type == .shield } }
 //    var hasScarecrow: Bool    { equippedItems.contains { $0.type == .scarecrow } }
 //    var hasPredatorBait: Bool { equippedItems.contains { $0.type == .predatorBait } }
+    var hasThrusters: Bool    { equippedItems.contains { $0.type == .rocketThrusters } }
     var hasSoulEater: Bool    { equippedItems.contains { $0.type == .soulEater } }
     var hasLuckyHat: Bool     { equippedItems.contains { $0.type == .luckyHat } }   // does nothing :)
 
@@ -108,10 +109,11 @@ class InGameController {
     
     var currentSpeed : Double {
         didSet {
+            let effectiveMaxSpeed = Double(selectedShip.maxSpeed) + (hasThrusters ? 20 : 0)
             // Whenever currentSpeed changes, update the scene's visual speed
             gameScene?.updateVisualSpeed(
                 currentSpeed: currentSpeed,
-                maxSpeed: Double(selectedShip.maxSpeed)
+                maxSpeed: effectiveMaxSpeed
             )
         }
     }
@@ -175,6 +177,14 @@ class InGameController {
             currentSpeed = max(Double(selectedShip.minSpeed), currentSpeed - Double(selectedShip.maxSpeed) * 0.02)
         }
         
+        if hasLuckyHat {
+            gameScene?.equipmentVisual(.luckyHat)
+        }
+        
+        if hasThrusters {
+            gameScene?.equipmentVisual(.rocketThrusters)
+        }
+        
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
         distanceTravelledKm += kmPerSecond
 
@@ -182,7 +192,7 @@ class InGameController {
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.7 {
+        if roll < 0.1 {
             spawnfish()
         } else {
             triggerObstacle()
@@ -204,6 +214,7 @@ class InGameController {
         if hasSoulEater {
             let heal = 3.0
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
+            gameScene?.equipmentVisual(.soulEater)
         }
         triggerFishPopUp(
             "+1 \(catchedFish.name)!",
@@ -215,7 +226,7 @@ class InGameController {
         guard !isExpeditionOver else { return }
                 
         // 80/20 Roll for Weather vs General Obstacle
-        let isWeatherSpecific = Double.random(in: 0...1) <= 0.80
+        let isWeatherSpecific = Double.random(in: 0...1) <= 0.10
         var chosenObstacleType: ObstacleType
         
         if isWeatherSpecific {
@@ -235,26 +246,6 @@ class InGameController {
             await ObstacleController.applyEffects(obstacleType: chosenObstacleType, to: self)
         }
     }
-    
-//    func applyDamage(_ amount: Double) {
-//        if hasGuardianAngel {
-//            guardianAngelHitsRemaining -= 1
-//
-//            if guardianAngelHitsRemaining == 0 {
-//                showEvent("Guardian Angel destroyed!")
-//            } else {
-//                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
-//            }
-//            return
-//        }
-//
-//        let finalDamage = amount * damageMultiplier
-//        currentHealth = max(0, currentHealth - finalDamage)
-//        if currentHealth <= 0 {
-//            endExpedition(result: .shipDestroyed)
-//        }
-//    }
-    
     
     func triggerFishPopUp(_ message: String, iconName: String?) {
         self.latestFishMessage = message
