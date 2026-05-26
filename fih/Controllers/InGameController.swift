@@ -60,25 +60,25 @@ class InGameController {
         FishZoneInfo(
             name: "Zone 1",
             startKm: 0,
-            endKm: 30,
+            endKm: 80,
             // Menyaring allFish: "Ambil semua ikan yang properti zone-nya bernilai 1"
             fishes: Fish.allFish.filter { $0.zone == 1 }
         ),
         FishZoneInfo(
             name: "Zone 2",
-            startKm: 30,
-            endKm: 80,
+            startKm: 80,
+            endKm: 200,
             fishes: Fish.allFish.filter { $0.zone == 2 }
         ),
         FishZoneInfo(
             name: "Zone 3",
-            startKm: 80,
-            endKm: 150,
+            startKm: 200,
+            endKm: 400,
             fishes: Fish.allFish.filter { $0.zone == 3 }
         ),
         FishZoneInfo(
             name: "Zone 4",
-            startKm: 150,
+            startKm: 400,
             endKm: 1000,
             fishes: Fish.allFish.filter { $0.zone == 4 }
         )
@@ -126,6 +126,9 @@ class InGameController {
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
         self.currentSpeed = Double (ship.maxSpeed) + (hasThrusters ? 20 : 0)
+//        self.currentSpeed = 0
+        gameScene?.updateVisualSpeed(currentSpeed: Double(ship.maxSpeed), maxSpeed: Double(ship.maxSpeed))
+        print("Init In Game Visual Speed: \(currentSpeed)")
         
         print("In Game Ship: \(self.selectedShip.name)")
         print("In Game Equipped items:")
@@ -138,7 +141,8 @@ class InGameController {
     
     func startExpedition() {
         guard !isExpeditionOver else { return }
-        
+        //gameScene?.updateVisualSpeed(currentSpeed: Double(selectedShip.maxSpeed), maxSpeed: Double(selectedShip.maxSpeed))
+
         timer.onTimeup = { [weak self] in
             self?.endExpedition(result: .timeUp)
         }
@@ -192,7 +196,7 @@ class InGameController {
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.7 {
+        if roll < 0.65 {
             spawnfish()
         } else {
             triggerObstacle()

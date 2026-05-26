@@ -117,7 +117,14 @@ struct InGamePage: View {
             }
             
             setupScene()
-            controller.startExpedition()
+            // Defer to next runloop so SKScene finishes didMove(to:)
+            DispatchQueue.main.async {
+                let baseMax = Double(controller.selectedShip.maxSpeed)
+                let effectiveMaxSpeed = max(1.0, baseMax + (controller.hasThrusters ? 20 : 0))
+                let current = max(0.0, Double(controller.selectedShip.maxSpeed))
+                scene?.updateVisualSpeed(currentSpeed: current, maxSpeed: effectiveMaxSpeed)
+                controller.startExpedition()
+            }
         }
         .onDisappear {
             audio.stopBGM_Wave()
@@ -127,6 +134,11 @@ struct InGamePage: View {
             if isOver {
                 controller.gameScene?.pauseGame()
             }
+        }
+        .onChange(of: controller.currentSpeed) { _, newSpeed in
+            let baseMax = Double(controller.selectedShip.maxSpeed)
+            let effectiveMaxSpeed = max(1.0, baseMax + (controller.hasThrusters ? 20 : 0))
+            scene?.updateVisualSpeed(currentSpeed: max(0.0, newSpeed), maxSpeed: effectiveMaxSpeed)
         }
         .statusBar(hidden: true)
     }
@@ -174,10 +186,11 @@ struct InGamePage: View {
     InGamePage(
         controller: InGameController(
             ship: Ship.allShips[0],
-            equippedItems: [],
+            equippedItems: [.allEquipment[2]],
             actualWeather: .windy
         )
     )
     .environment(AppStateManager())
     .environment(AudioManager())
 }
+
