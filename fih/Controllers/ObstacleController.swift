@@ -112,6 +112,7 @@ class ObstacleController {
                 gameController.guardianAngelHitsRemaining -= 1
                 gameController.triggerObstaclePopUp("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
                 gameController.gameScene?.equipmentVisual(.guardianAngel)
+                gameController.onPlaySFX?("angel")
                 if gameController.guardianAngelHitsRemaining == 0 {
                     gameController.triggerObstaclePopUp("Your Guardian Angel has broken!")
                 }
