@@ -88,7 +88,7 @@ struct ResultOverlayView: View {
                             .foregroundColor(Color("color_dark_blue").opacity(0.6))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 28)
-                            .frame(height: 100)
+                            .frame(height: 160)
                             .frame(maxWidth: .infinity)
                     } else {
                         Text("No fish collected.")

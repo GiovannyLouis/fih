@@ -126,6 +126,9 @@ class InGameController {
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
         self.currentSpeed = Double (ship.maxSpeed) + (hasThrusters ? 20 : 0)
+//        self.currentSpeed = 0
+        gameScene?.updateVisualSpeed(currentSpeed: Double(ship.maxSpeed), maxSpeed: Double(ship.maxSpeed))
+        print("Init In Game Visual Speed: \(currentSpeed)")
         
         print("In Game Ship: \(self.selectedShip.name)")
         print("In Game Equipped items:")
@@ -138,7 +141,8 @@ class InGameController {
     
     func startExpedition() {
         guard !isExpeditionOver else { return }
-        
+        //gameScene?.updateVisualSpeed(currentSpeed: Double(selectedShip.maxSpeed), maxSpeed: Double(selectedShip.maxSpeed))
+
         timer.onTimeup = { [weak self] in
             self?.endExpedition(result: .timeUp)
         }
@@ -192,7 +196,7 @@ class InGameController {
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.7 {
+        if roll < 0.65 {
             spawnfish()
         } else {
             triggerObstacle()
