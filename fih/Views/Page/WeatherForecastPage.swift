@@ -6,13 +6,17 @@
 //
 
 import SpriteKit
+import SwiftData
 import SwiftUI
 
 struct WeatherForecastPage: View {
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
+
     @State private var controller: WeatherController = WeatherController()
     @State private var showGuide: Bool = false
+    @State private var playerController = PlayerController()
 
     
     var fishBackgroundScene: SKScene {
@@ -56,23 +60,11 @@ struct WeatherForecastPage: View {
                     
                     Spacer()
                     
-                    Button(action: {
-                        var t = Transaction()
-                        t.disablesAnimations = true
-                        withTransaction(t) {
-                            showGuide = true
-                        }
-                        audio.playSFX(filename: "tap")
-                    }) {
-                        Image("icon_guide")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                    }
-                    .opacity(showGuide ? 0 : 1)
-//                    .padding(.trailing, 64)
-//                    Spacer()
+                    ObstacleInfoButton(showGuide: $showGuide, currentDay: playerController.currentDays, audioController: audio, description: "View your weather's obstacle here")
+                    
                     
                 }
+//                .border(.black)
                 .padding(.top, 32)
                 
                 Spacer()
@@ -167,6 +159,9 @@ struct WeatherForecastPage: View {
 //                .transition(.identity)
 //                .ignoresSafeArea()
 //            }
+        }
+        .onAppear {
+            playerController.getDays(context: context)
         }
         .fullScreenCover(isPresented: $showGuide.animation(.none)) {
             ObstacleInfoView {
