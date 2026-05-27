@@ -6,14 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 import SpriteKit
 
 struct SelectEquipmentPage: View {
 
     @State private var controller: EquipmentController = EquipmentController()
+    @State private var playerController = PlayerController()
     @State private var showGuide: Bool = false
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
             
     var fishBackgroundScene: SKScene {
         if let scene = SKScene(fileNamed: "FishBackground") {
@@ -177,19 +180,8 @@ struct SelectEquipmentPage: View {
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
                     Spacer()
-                    Button(action: {
-                        var t = Transaction()
-                        t.disablesAnimations = true
-                        withTransaction(t) {
-                            showGuide = true
-                        }
-                        audio.playSFX(filename: "tap")
-                    }) {
-                        Image("icon_guide")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                    }
-                    .opacity(showGuide ? 0 : 1)
+                    ObstacleInfoButton(showGuide: $showGuide, currentDay: playerController.currentDays, audioController: audio, description: "Pick an equipment based on the obstacle")
+                        .offset(x: 32)
                 }
                 Spacer()
             }
@@ -204,6 +196,9 @@ struct SelectEquipmentPage: View {
 //                .transition(.identity)
 //                .ignoresSafeArea()
 //            }
+        }
+        .onAppear{
+            playerController.getDays(context: context)
         }
         .fullScreenCover(isPresented: $showGuide.animation(.none)) {
             ObstacleInfoView {

@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 import SpriteKit
 
 // MARK: - VIEW (Main Screen Updated)
 struct SelectShipPage: View {
     
     @State private var shipController = ShipController()
+    @State private var playerController = PlayerController()
     @State private var showGuide: Bool = false
     
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
     
     var fishBackgroundScene: SKScene {
         // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
@@ -59,19 +62,8 @@ struct SelectShipPage: View {
                     
                     Spacer() // Pushes the next button to the far right
                     
-                    Button(action: {
-                        var t = Transaction()
-                        t.disablesAnimations = true
-                        withTransaction(t) {
-                            showGuide = true
-                        }
-                        audio.playSFX(filename: "tap")
-                    }) {
-                        Image("icon_guide")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                    }
-                    .opacity(showGuide ? 0 : 1)
+                    ObstacleInfoButton(showGuide: $showGuide, currentDay: playerController.currentDays, audioController: audio, description: "Pick a ship based on the obstacle")
+                        .offset(x:20)
                     
                     
                 }
@@ -134,6 +126,9 @@ struct SelectShipPage: View {
             //                .ignoresSafeArea()
             //            }
             
+        }
+        .onAppear {
+            playerController.getDays(context: context)
         }
         .fullScreenCover(isPresented: $showGuide.animation(.none)) {
             ObstacleInfoView {
