@@ -11,6 +11,7 @@ import SpriteKit
 struct SelectEquipmentPage: View {
 
     @State private var controller: EquipmentController = EquipmentController()
+    @State private var showGuide: Bool = false
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
             
@@ -172,6 +173,48 @@ struct SelectEquipmentPage: View {
                     Spacer().frame(maxWidth: .infinity)
                 }
             }
+            
+            VStack(alignment: .leading) {
+                HStack(alignment: .top) {
+                    Spacer()
+                    Button(action: {
+                        var t = Transaction()
+                        t.disablesAnimations = true
+                        withTransaction(t) {
+                            showGuide = true
+                        }
+                        audio.playSFX(filename: "tap")
+                    }) {
+                        Image("icon_guide")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                    }
+                    .opacity(showGuide ? 0 : 1)
+                }
+                Spacer()
+            }
+            .padding(.top, 32)
+            
+//            if showGuide {
+//                ObstacleInfoView {
+//                    showGuide = false
+//                    print("Close guide")
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .transition(.identity)
+//                .ignoresSafeArea()
+//            }
+        }
+        .fullScreenCover(isPresented: $showGuide.animation(.none)) {
+            ObstacleInfoView {
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    showGuide = false
+                }
+            }
+            .presentationBackground(.clear)
+            .ignoresSafeArea()
         }
     }
 }
