@@ -6,15 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 import SpriteKit
 
 // MARK: - VIEW (Main Screen Updated)
 struct SelectShipPage: View {
     
     @State private var shipController = ShipController()
+    @State private var playerController = PlayerController()
+    @State private var showGuide: Bool = false
     
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
     
     var fishBackgroundScene: SKScene {
         // This looks for FishBackground.sks, sees it is linked to FishBackgroundScene,
@@ -25,7 +29,7 @@ struct SelectShipPage: View {
         }
         return SKScene()
     }
-        
+    
     var body: some View {
         ZStack {
             Color.white.ignoresSafeArea()
@@ -58,6 +62,9 @@ struct SelectShipPage: View {
                     
                     Spacer() // Pushes the next button to the far right
                     
+                    ObstacleInfoButton(showGuide: $showGuide, currentDay: playerController.currentDays, audioController: audio, description: "Pick a ship based on the obstacle")
+                        .offset(x:20)
+                    
                     
                 }
                 .padding(.top, 32)
@@ -73,6 +80,7 @@ struct SelectShipPage: View {
                             action: {
                                 // Selects the ship (triggers the animation)
                                 audio.haptic(style: .light)
+                                audio.playSFX(filename: "tap", volume: 0.15)
                                 appState.selectedShip = ship
                                 //shipController.selectedShip = ship
                             }
@@ -83,13 +91,13 @@ struct SelectShipPage: View {
                 
                 Spacer() // Pushes the cards up to center them perfectly
                 
-              
+                
                 // 3. Button next
                 // Right Arrow (Next Step: Select Equipment)
                 Button(action: {
                     appState.isMovingForward = true
                     audio.haptic(style: .medium)
-                    audio.playSFX(filename: "play")
+                    audio.playSFX(filename: "play", volume: 0.5)
                     appState.currentScreen = .selectEquipmentPage
                 }) {
                     ZStack {
@@ -101,12 +109,37 @@ struct SelectShipPage: View {
                             .font(.custom("Cause-Bold", size: 32))
                             .foregroundColor(Color("color_dark_blue"))
                     }
-                   
+                    
                 }
                 .padding(.bottom, 16)
                 .disabled(appState.selectedShip == nil)
                 .buttonStyle(PlainButtonStyle())
             }
+            
+            //            if showGuide {
+            //                ObstacleInfoView {
+            //                    showGuide = false
+            //                    print("Close guide")
+            //                }
+            //                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //                .transition(.identity)
+            //                .ignoresSafeArea()
+            //            }
+            
+        }
+        .onAppear {
+            playerController.getDays(context: context)
+        }
+        .fullScreenCover(isPresented: $showGuide.animation(.none)) {
+            ObstacleInfoView {
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    showGuide = false
+                }
+            }
+            .presentationBackground(.clear)
+            .ignoresSafeArea()
         }
     }
 }

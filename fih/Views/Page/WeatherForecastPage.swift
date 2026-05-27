@@ -6,12 +6,18 @@
 //
 
 import SpriteKit
+import SwiftData
 import SwiftUI
 
 struct WeatherForecastPage: View {
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
+    @Environment(\.modelContext) private var context
+
     @State private var controller: WeatherController = WeatherController()
+    @State private var showGuide: Bool = false
+    @State private var playerController = PlayerController()
+
     
     var fishBackgroundScene: SKScene {
         if let scene = SKScene(fileNamed: "FishBackground") {
@@ -32,7 +38,8 @@ struct WeatherForecastPage: View {
             .opacity(0.075)
             
             VStack {
-                HStack {
+                HStack(spacing: 8) {
+//                    Spacer()
                     Button(action: {
                         appState.isMovingForward = false
                         appState.currentScreen = .mainMenuPage
@@ -42,6 +49,8 @@ struct WeatherForecastPage: View {
                             .resizable()
                             .frame(width: 40, height: 40)
                     }
+//                    .padding(.leading, 64)
+                    
                     
                     Spacer()
                     
@@ -51,19 +60,25 @@ struct WeatherForecastPage: View {
                     
                     Spacer()
                     
+                    ObstacleInfoButton(showGuide: $showGuide, currentDay: playerController.currentDays, audioController: audio, description: "View your weather's obstacle here")
+                    
                     
                 }
+//                .border(.black)
                 .padding(.top, 32)
                 
                 Spacer()
                 
                 // MARK: Weather Card
-                SpriteView(scene: WeatherCardScene(
-                    size: CGSize(width: 320, height: 140),
-                    textureName: "frame_normal.png",
-                    cornerInset: 12),
-                           options: [.allowsTransparency])
-                .frame(width: 400, height: 128)
+                Image("frame_weather")
+                    .resizable(
+                            capInsets: EdgeInsets(top: 71, leading: 71, bottom: 71, trailing: 71),
+                            resizingMode: .stretch
+                    )
+                    .frame(width: 800, height: 256)
+                    .scaleEffect(0.5)
+                    .frame(width: 400, height: 128)
+                
                 .overlay(
                     ZStack(alignment: .leading) {
                         if let forecast = appState.currentForecast {
@@ -135,7 +150,34 @@ struct WeatherForecastPage: View {
             .onDisappear {
                 audio.stopBGM_Game()
             }
+//            if showGuide {
+//                ObstacleInfoView {
+//                    showGuide = false
+//                    print("Close guide")
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .transition(.identity)
+//                .ignoresSafeArea()
+//            }
         }
+        .onAppear {
+            playerController.getDays(context: context)
+        }
+        .fullScreenCover(isPresented: $showGuide.animation(.none)) {
+            ObstacleInfoView {
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    showGuide = false
+                }
+            }
+            .presentationBackground(.clear)
+            .ignoresSafeArea()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .border(.black)
+//        .frame(width: .infinity, height: .infinity)
+//        .ignoresSafeArea()
     }
 }
 

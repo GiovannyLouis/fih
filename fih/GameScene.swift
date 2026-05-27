@@ -19,6 +19,9 @@ class GameScene: SKScene {
     private var seaNode: SKSpriteNode!
     private var mainCamera: SKCameraNode!
     
+    // ADD THIS: Keep track of nodes that should be affected by ship speed
+    private var speedAffectedNodes: [SKNode] = []
+    
     private var seaY: CGFloat {size.height * 0.42}
     private var shipY: CGFloat {seaY}
     private var fishMinY: CGFloat {size.height * 0.05}
@@ -43,11 +46,31 @@ class GameScene: SKScene {
         addChild(mainCamera)
     }
     
+    // ADD THIS: Method to synchronize visual speed
+    func updateVisualSpeed(currentSpeed: Double, maxSpeed: Double) {
+        // Avoid invalid ratios (and divide-by-zero)
+        guard maxSpeed > 0 else { return }
+
+        let raw = currentSpeed / maxSpeed
+        // Clamp ratio into [0, 1]
+        let ratio = CGFloat(min(max(raw, 0.0), 1.0))
+        let multiplier = ratio
+
+        // Update all registered nodes (waves, particles, etc.)
+        for node in speedAffectedNodes {
+            node.speed = multiplier
+        }
+
+        // Optionally slow down the ship's bobbing animation too (safely if ship is not yet created)
+        shipNode?.speed = max(multiplier, 0.7)
+        print("Visual speed updated, multiplier: \(multiplier), ratio: \(ratio), currentSpeed: \(currentSpeed), maxSpeed: \(maxSpeed)")
+    }
+    
     private func setupSea() {
         let seaTexture = SKTexture(imageNamed: "ocean")
         let seaNode = SKSpriteNode(texture: seaTexture)
         seaNode.setScale(0.5)
-        let seaWidth = seaNode.size.width - 3
+        let seaWidth = SKSpriteNode(texture: seaTexture).size.width * 0.5 - 3 // Corrected for scale 0.5
         let duration: TimeInterval = 4.0
 
         for i in 0..<8 {
@@ -65,6 +88,9 @@ class GameScene: SKScene {
             underSeaRect.position = CGPoint(x: seaWidth / 2, y: -100)
             seaNode.addChild(underSeaRect)
             addChild(seaNode)
+            
+            // ADD THIS: Add to the tracking array
+            speedAffectedNodes.append(seaNode)
 
             let moveLeft = SKAction.moveBy(x: -seaWidth, y: 0, duration: duration)
             let resetPosition = SKAction.moveBy(x: seaWidth, y: 0, duration: 0)
@@ -108,7 +134,7 @@ class GameScene: SKScene {
                     
                     switch data.spawn {
                     case .rightEdge:
-                        emitter.position = CGPoint(x: frame.width + 20, y: frame.height - 100)
+                        emitter.position = CGPoint(x: frame.width + 70, y: frame.height - 100)
                         
                     case .top:
                         emitter.position = CGPoint(x: (frame.width / 2)+30, y: frame.height + 20)
@@ -117,6 +143,8 @@ class GameScene: SKScene {
                     }
                     
                     emitter.targetNode = self
+                    emitter.speed = shipNode.speed
+                    speedAffectedNodes.append(emitter)
                     addChild(emitter)
                 }
             }
@@ -139,6 +167,10 @@ class GameScene: SKScene {
         let startY = CGFloat.random(in: fishMinY...fishMaxY)
         fishNode.position  = CGPoint(x: size.width + 60, y: startY)
         addChild(fishNode)
+        
+        // ADD THIS: New objects should inherit the current speed of the scene
+        // We use the shipNode's current speed as a reference
+        fishNode.speed = shipNode.speed
      
         let duration   = Double.random(in: 5...9)
      
@@ -176,50 +208,6 @@ class GameScene: SKScene {
         ]), withKey: "catchCheck")
     }
     
-//    func spawnFishVisual(iconName: String, fishName: String) {
-//        let fish = SKSpriteNode(imageNamed: iconName)
-//        fish.size      = CGSize(width: 50, height: 25)
-//        fish.name      = fishName
-//        fish.zPosition = 3
-//     
-//        // Spawn dari kanan layar
-//        let startY = CGFloat.random(in: fishMinY...fishMaxY)
-//        fish.position  = CGPoint(x: size.width + 60, y: startY)
-//        addChild(fish)
-//     
-//        let duration   = Double.random(in: 5...9)
-//     
-//        // FIX: posisi X kapal = size.width * 0.28 dari kiri
-//        // distToShip = jarak dari spawn point ke kapal
-//        let shipX      = size.width * 0.28
-//        let spawnX     = size.width + 60.0
-//        let distToShip = spawnX - shipX                    // selisih dari spawn ke kapal
-//        let totalDist  = spawnX + 80.0                     // total jarak sampai keluar layar kiri
-//        let timeToShip = (distToShip / totalDist) * duration
-//     
-//        // Action gerak ke kiri sampai keluar layar
-//        fish.run(.sequence([
-//            SKAction.moveTo(x: -80, duration: duration),
-//            SKAction.removeFromParent()
-//        ]))
-//     
-//        // Saat sampai di posisi kapal → tangkap
-//        let catchTrigger = SKAction.run { [weak self, weak fish] in
-//            guard let self = self,
-//                  let fish = fish,
-//                  fish.parent != nil else { return }
-//     
-//            self.onFishCaught?(fish.name ?? fishName)
-//            self.showCatchEffect(at: fish.position)
-//            fish.removeFromParent()
-//        }
-//     
-//        fish.run(.sequence([
-//            .wait(forDuration: timeToShip),
-//            catchTrigger
-//        ]), withKey: "catchCheck")
-//    }
-    
     private func showCatchEffect(at position: CGPoint) {
         for _ in 0..<5 {
             let star        = SKShapeNode(circleOfRadius: 4)
@@ -241,29 +229,271 @@ class GameScene: SKScene {
         }
     }
     
-    func spawnObstacleVisual(_ type: ObstacleType) {
+    func equipmentVisual(_ type: EquipmentType) {
+        let shipPos = shipNode.position
         switch type {
-        case .albatros, .albatrosSteal:
-            handleAlbatrosAnimation(isStealing: type == .albatrosSteal)
-
-        case .lightning:
-            handleLightningAnimation()
-
-        case .tornado:
-            handleTornadoAnimation()
-
-        case .iceberg:
-            handleIcebergAnimation()
+        case .guardianAngel:
+            let angel = SKSpriteNode(imageNamed: "icon_guardian_angel")
+                
+            // Set posisi awal: Di tengah kapal, tapi agak bawah (untuk efek naik)
+            // Kita gunakan koordinat scene karena angel biasanya melayang bebas, bukan nempel di tiang
+            let startPos = CGPoint(x: shipNode.position.x, y: shipNode.position.y - 20)
+            angel.position = startPos
+            angel.alpha = 0
+            angel.zPosition = 15 // Paling depan
+            angel.setScale(0.4)  // Sesuaikan ukuran iconmu
             
-        case .predator:
-            handlePredatorAnimation()
+            addChild(angel)
+            
+            // --- SEQUENCE ANIMASI ---
+            
+            // 1. Fade in sambil naik sedikit
+            let appear = SKAction.group([
+                SKAction.fadeIn(withDuration: 0.4),
+                SKAction.moveBy(x: 0, y: 50, duration: 0.4)
+            ])
+            appear.timingMode = .easeOut
+            
+            // 2. Wait (durasi saat shield aktif menahan serangan)
+            let wait = SKAction.wait(forDuration: 1.0)
+            
+            // 3. Fade out sambil naik lagi (seolah terbang ke langit)
+            let disappear = SKAction.group([
+                SKAction.fadeOut(withDuration: 0.5),
+                SKAction.moveBy(x: 0, y: 40, duration: 0.5)
+            ])
+            disappear.timingMode = .easeIn
+            
+            // Jalankan semua
+            angel.run(.sequence([
+                appear,
+                wait,
+                disappear,
+                .removeFromParent() // Hapus dari memory setelah selesai
+            ]))
+            let goldColor = UIColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0)
+                
+            // Blend ke warna emas 70%, lalu kembali ke warna asli kapal
+            let flashIn = SKAction.colorize(with: goldColor, colorBlendFactor: 0.7, duration: 0.15)
+            let flashOut = SKAction.colorize(withColorBlendFactor: 0.0, duration: 0.6)
+            
+            // Jalankan sekuens warna pada shipNode (Tanpa scaleUp/scaleDown)
+            shipNode.run(.sequence([flashIn, flashOut]))
+        case .luckyHat:
+            // 1. Cek dulu supaya nggak spawn dua kali
+            if shipNode.childNode(withName: "hat_node") != nil { return }
+            
+            let hat = SKSpriteNode(imageNamed: "icon_lucky_hat")
+            hat.name = "hat_node"
+            
+            // 2. Tentukan posisi koordinat lokal (dalam sistem koordinat asli gambar kapal)
+            // Karena shipNode skalanya 0.1, angka koordinat di sini akan besar-besar
+            var hatPosition: CGPoint
+            
+            switch shipImageName {
+            case "ship_fishingboat":
+                hatPosition = CGPoint(x: 160, y: 750)  // Di atas kabin boat
+            case "ship_speedboat":
+                hatPosition = CGPoint(x: 200, y: 450) // Di atas kursi pengemudi
+            case "ship_cargoboat":
+                hatPosition = CGPoint(x: -850, y: 600) // Di atas tower belakang
+            default:
+                hatPosition = CGPoint(x: 0, y: 500)
+            }
+            
+            hat.position = hatPosition
+            hat.zPosition = 10 // Pastikan di depan badan kapal
+            
+            /* Skala topi: Karena dia jadi child dari shipNode (0.1),
+               maka scale 1.0 di sini artinya topi akan sekecil 10% ukuran aslinya.
+               Kalau topinya masih kegedean, kecilin ke 0.5 atau 0.8.
+            */
+            hat.setScale(1.2)
+            
+            // 3. Tambahkan ke shipNode agar "nempel" permanen
+            shipNode.addChild(hat)
+            
+            // Efek pop-in kecil biar manis
+            hat.alpha = 0
+            hat.run(SKAction.fadeIn(withDuration: 0.1))
+        case .predatorBait:
+            let bait = SKSpriteNode(imageNamed: "icon_predator_bait")
+            bait.setScale(0.3)
+            bait.position = CGPoint(x: shipPos.x, y: seaY - 20)
+            bait.alpha = 0
+            bait.zPosition = 1
+            addChild(bait)
+            
+            bait.run(.sequence([
+                .wait(forDuration: 0.3),
+                .group([.moveBy(x: 0, y: 10, duration: 0.3), .fadeIn(withDuration: 0.3)]),
+                .wait(forDuration: 0.3),
+                .group([.moveBy(x: 0, y: -120, duration: 0.3), .fadeOut(withDuration: 0.3)]),
+                .removeFromParent()
+            ]))
+        case .rocketThrusters:
+            if shipNode.childNode(withName: "rocket_effect") != nil { return }
+                    
+            // 2. Tentukan koordinat anchor berdasarkan image kapal
+            // Angka ini adalah koordinat "asli" gambar sebelum kena scale 0.1
+            var anchorPoint: CGPoint
+            
+            switch shipImageName {
+            case "ship_fishingboat":
+                anchorPoint = CGPoint(x: -1200, y: -500)
+            case "ship_speedboat":
+                anchorPoint = CGPoint(x: -1200, y: 80)
+            case "ship_cargoboat":
+                anchorPoint = CGPoint(x: -1600, y: 200)
+            default:
+                anchorPoint = CGPoint(x: -1000, y: 0)
+            }
+            
+            // 3. Setup Texture & Node
+            let textures = [
+                SKTexture(imageNamed: "icon_flame_1"),
+                SKTexture(imageNamed: "icon_flame_2"),
+                SKTexture(imageNamed: "icon_flame_3")
+            ]
+            
+            let rocket = SKSpriteNode(texture: textures[0])
+            rocket.name = "rocket_effect"
+            rocket.zPosition = -1 // Di belakang kapal
+            rocket.position = anchorPoint
+            
+            /* TIPS SKALA:
+               Karena shipNode skalanya 0.1, maka rocket yang jadi child
+               secara otomatis akan ikut mengecil 10x lipat.
+               Jika api roket terlihat kekecilan, naikkan setScale-nya di sini.
+            */
+            rocket.setScale(1.8)
+            
+            // 4. Jalankan Animasi
+            let animation = SKAction.animate(with: textures, timePerFrame: 0.1)
+            rocket.run(SKAction.repeatForever(animation))
+            
+            // 5. Tempel ke kapal
+            shipNode.addChild(rocket)
+        case .scarecrow:
+            let scarecrow = SKSpriteNode(imageNamed: "icon_scarecrow")
+            scarecrow.position = CGPoint(x: shipPos.x, y: shipPos.y + 40)
+            scarecrow.setScale(0.1) // Start small for the "pop"
+            scarecrow.alpha = 0
+            scarecrow.zPosition = 11
+            self.addChild(scarecrow)
+            
+            let popIn = SKAction.group([
+                SKAction.scale(to: 0.4, duration: 0.3),
+                SKAction.fadeIn(withDuration: 0.2),
+                SKAction.moveBy(x: 0, y: 20, duration: 0.3)
+            ])
+            popIn.timingMode = .easeOut
+            
+            let fadeOut = SKAction.group([
+                SKAction.fadeOut(withDuration: 0.5),
+                SKAction.moveBy(x: 0, y: 10, duration: 0.5)
+            ])
+            
+            scarecrow.run(.sequence([
+                popIn,
+                .wait(forDuration: 0.8),
+                fadeOut,
+                .removeFromParent()
+            ]))
+        case .shield:
+            // 1. Cek apakah shield sudah ada, kalau belum, kita buat tapi sembunyikan (alpha 0)
+            var shield: SKSpriteNode
+            if let existingShield = shipNode.childNode(withName: "shield_node") as? SKSpriteNode {
+                shield = existingShield
+            } else {
+                shield = SKSpriteNode(imageNamed: "icon_shield")
+                shield.name = "shield_node"
+                shield.zPosition = 1
+                shield.alpha = 0 // Standby mode
+                
+                let shieldPos: CGPoint
+                switch shipImageName {
+                    case "ship_fishingboat": shieldPos = CGPoint(x: 0, y: shipPos.y - 200)
+                    case "ship_speedboat":   shieldPos = CGPoint(x: 0, y: shipPos.y)
+                    case "ship_cargoboat":   shieldPos = CGPoint(x: 0, y: shipPos.y)
+                    default:                 shieldPos = CGPoint(x: 0, y: 0)
+                }
+                
+                // Atur posisi moncong sesuai tipe kapal
+                shield.position = shieldPos
+                shipNode.addChild(shield)
+            }
 
-        default:
-            break
+            // --- ANIMASI REAKTIF (SAAT KENA DAMAGE) ---
+            
+            // Hentikan animasi shield yang sedang berjalan (jika ada) agar tidak tumpang tindih
+            shield.removeAllActions()
+            
+            // 1. Reset state: Kecil dan transparan
+            shield.setScale(3)
+            shield.alpha = 0
+            
+            // 2. Efek "Hard Impact" Show Up
+            let appear = SKAction.group([
+                SKAction.fadeIn(withDuration: 0.05), // Sangat cepat munculnya
+                SKAction.scale(to: 7, duration: 0.05), // Meledak jadi besar (overshoot)
+            ])
+            
+            // 3. Efek "Locking" (Kembali ke ukuran normal dengan kaku)
+            let lockIn = SKAction.group([
+                SKAction.scale(to: 5, duration: 0.1), // Ukuran solid-nya
+            ])
+            
+            // 4. Durasi diam (menahan serangan) + Getaran mesin
+            let vibrate = SKAction.repeat(SKAction.sequence([
+                SKAction.moveBy(x: 2, y: 0, duration: 0.02),
+                SKAction.moveBy(x: -2, y: 0, duration: 0.02)
+            ]), count: 10)
+            
+            // 5. Dissolve (Menghilang pelan setelah tugas selesai)
+            let dissolve = SKAction.group([
+                SKAction.fadeOut(withDuration: 0.4),
+                SKAction.scale(to: 3, duration: 0.4)
+            ])
+            
+            // Jalankan Sequence
+            shield.run(.sequence([
+                appear,
+                lockIn,
+                vibrate,
+                .wait(forDuration: 0.5),
+                dissolve
+            ]))
+            
+            // Tambahan: Kapal ikut bergetar sedikit (Bukan scaling) sebagai reaksi shield menahan beban
+            let shipRecoil = SKAction.sequence([
+                SKAction.moveBy(x: -10, y: 0, duration: 0.05),
+                SKAction.moveBy(x: 10, y: 0, duration: 0.1)
+            ])
+            shipNode.run(shipRecoil)
+        case .soulEater:
+            let healColor = UIColor(red: 0.0, green: 1.0, blue: 0.2, alpha: 1.0)
+                
+            // 1. Set warna target pada node kapal
+            shipNode.color = healColor
+            
+            // 2. Buat action untuk blending
+            // Blend ke 0.7 (70% hijau) dalam sekejap, lalu balik ke 0.0 (warna asli)
+            let flashIn = SKAction.colorize(withColorBlendFactor: 0.7, duration: 0.1)
+            let flashOut = SKAction.colorize(withColorBlendFactor: 0.0, duration: 0.5)
+            
+            // 3. Tambahkan sedikit efek "pulsing" pada skala agar lebih terasa seperti 'heal'
+            let scaleUp = SKAction.scale(to: 0.11, duration: 0.1) // 0.1 adalah skala aslimu
+            let scaleDown = SKAction.scale(to: 0.1, duration: 0.4)
+            
+            let colorSequence = SKAction.sequence([flashIn, flashOut])
+            let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+            
+            shipNode.run(SKAction.group([colorSequence, scaleSequence]))
         }
     }
     
-    private func handleAlbatrosAnimation(isStealing: Bool) {
+    func handleAlbatrosAnimation(isStealing: Bool, isScarecrow: Bool) {
         // 1. Prepare Textures (The Ping-Pong Pattern: 1 -> 2 -> 3 -> 2)
         let emptyBase = [
             SKTexture(imageNamed: "obs_albatros_empty_1"),
@@ -305,6 +535,10 @@ class GameScene: SKScene {
             if isStealing {
                 bird?.removeAction(forKey: "flapAction")
                 bird?.run(flapFish, withKey: "flapAction")
+            } else {
+                if isScarecrow {
+                    self.equipmentVisual(.scarecrow)
+                }
             }
         }
         
@@ -319,7 +553,7 @@ class GameScene: SKScene {
         ]))
     }
     
-    private func handleLightningAnimation() {
+    func handleLightningAnimation() {
         let bolt1 = SKTexture(imageNamed: "obs_lightning_1")
         let bolt2 = SKTexture(imageNamed: "obs_lightning_2")
         let bolt3 = SKTexture(imageNamed: "obs_lightning_3")
@@ -351,11 +585,12 @@ class GameScene: SKScene {
         shakeScreen(intensity: "light")
     }
     
-    private func handleTornadoAnimation() {
+    func handleTornadoAnimation() {
         let tornado = SKSpriteNode(imageNamed: "obs_tornado")
         tornado.setScale(0.5)
         tornado.position = CGPoint(x: size.width + 100, y: seaY + 50)
         tornado.zPosition = 8
+        tornado.speed = shipNode.speed
         addChild(tornado)
         
         let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 0.2))
@@ -365,11 +600,12 @@ class GameScene: SKScene {
         tornado.run(.sequence([move, .removeFromParent()]))
     }
     
-    private func handleIcebergAnimation() {
+    func handleIcebergAnimation() {
         let iceberg = SKSpriteNode(imageNamed: "obs_iceberg")
         iceberg.setScale(0.3)
         iceberg.position = CGPoint(x: size.width + 100, y: seaY - 20)
         iceberg.zPosition = 1 // Behind the ship/sea
+        iceberg.speed = shipNode.speed
         addChild(iceberg)
         
         // Icebergs move slow and heavy
@@ -377,78 +613,155 @@ class GameScene: SKScene {
         iceberg.run(.sequence([move, .removeFromParent()]))
     }
     
-    private func handlePredatorAnimation() {
+    func handlePredatorAnimation(isAttacking: Bool) {
         let shipPos = shipNode.position
         
         // Helper to create a tentacle
-        func createTentacle(name: String, isLeft: Bool) -> SKSpriteNode {
-            let tentacle = SKSpriteNode(imageNamed: name)
+        func createTentacle(isLeft: Bool) -> SKSpriteNode {
+            let sideStr = isLeft ? "left" : "right"
+            // Start with the 'Lean' asset
+            let tentacle = SKSpriteNode(imageNamed: "obs_kraken_\(sideStr)_1")
             tentacle.setScale(0.6)
-            tentacle.zPosition = 1 // Just in front of the ship
-            
-            // CRITICAL: Set anchor point to bottom middle so it rotates from the base
+            tentacle.zPosition = 1
             tentacle.anchorPoint = CGPoint(x: 0.5, y: 0)
             
-            // Start position: Under the sea level (seaY)
-            let sideOffset: CGFloat = isLeft ? -120 : 120
-            tentacle.position = CGPoint(x: shipPos.x + sideOffset, y: seaY-300)
+            let sideOffset: CGFloat = isAttacking ? (isLeft ? -120 : 120) : (isLeft ? -180 : 180)
+            tentacle.position = CGPoint(x: shipPos.x + sideOffset, y: seaY - 300)
             
             return tentacle
         }
-
-        let leftTentacle = createTentacle(name: "obs_kraken_1", isLeft: true)
-        let rightTentacle = createTentacle(name: "obs_kraken_2", isLeft: false)
         
+        let krakenHead = SKSpriteNode(imageNamed: isAttacking ? "obs_kraken_head_grumpy" : "obs_kraken_head_smile")
+        krakenHead.setScale(0.4)
+        krakenHead.zPosition = 1 // Slightly behind the tentacles
+        krakenHead.position = CGPoint(x: isAttacking ? shipPos.x + 240 : shipPos.x + 200, y: seaY - 140)
+
+        let leftTentacle = createTentacle(isLeft: true)
+        let rightTentacle = createTentacle(isLeft: false)
+        
+        addChild(krakenHead)
         addChild(leftTentacle)
         addChild(rightTentacle)
+        
+        let headRise = SKAction.moveBy(x: 0, y: 120, duration: 0.6)
+        headRise.timingMode = .easeOut
 
-        // --- ANIMATION SEQUENCE ---
-        
-        // 1. Rise from the depths
-        let rise = SKAction.moveBy(x: 0, y: 160, duration: 0.8)
-        rise.timingMode = .easeOut
-        
-        // 2. Anticipation (tilt slightly back before the slap)
-        let tiltBackLeft = SKAction.rotate(toAngle: .pi/6, duration: 0.4)
-        let tiltBackRight = SKAction.rotate(toAngle: -.pi/6, duration: 0.4)
-        
-        // 3. THE SLAP (Aggressive rotation + hard ease out)
-        // Left rotates clockwise (negative), Right rotates counter-clockwise (positive)
-        let slapLeft = SKAction.rotate(toAngle: -.pi/6, duration: 0.2)
-        let slapRight = SKAction.rotate(toAngle: .pi/6, duration: 0.2)
-        let scaleDown = SKAction.scale(to: 0.4, duration: 0.2)
-        slapLeft.timingMode = .easeIn
-        slapRight.timingMode = .easeIn
-        
-        let impactLeft = SKAction.group([slapLeft, scaleDown])
-        let impactRight = SKAction.group([slapRight, scaleDown])
-        
-        // 4. Retreat
-        let wait = SKAction.wait(forDuration: 0.5)
-        let sink = SKAction.moveBy(x: 0, y: -200, duration: 0.6)
-        sink.timingMode = .easeIn
+        let headWait = SKAction.wait(forDuration: isAttacking ? 1.2 : 0.4)
 
-        // Run Left Sequence
-        leftTentacle.run(.sequence([
-            rise,
-            tiltBackLeft,
-            impactLeft,
-            slapLeft,
-            wait,
-            sink,
+        let headSink = SKAction.moveBy(x: 0, y: -250, duration: 0.6)
+        headSink.timingMode = .easeIn
+        
+        krakenHead.run(.sequence([
+            headRise,
+            headWait,
+            headSink,
             .removeFromParent()
         ]))
+
+        if isAttacking {
+            // --- ATTACK: Rise -> Lean Back -> Slap -> Sink ---
+            func runAttack(node: SKSpriteNode, isLeft: Bool) {
+                let s = isLeft ? "left" : "right"
+                let leanAngle: CGFloat = isLeft ? .pi/20 : -.pi/20
+                
+                let riseAndLean = SKAction.group([
+                    SKAction.moveBy(x: 0, y: 160, duration: 0.8),
+                    SKAction.rotate(toAngle: leanAngle, duration: 0.8)
+                ])
+                riseAndLean.timingMode = .easeOut
+                
+                let switchToSlap = SKAction.setTexture(SKTexture(imageNamed: "obs_kraken_\(s)_2"))
+                
+                let slap = SKAction.group([
+                    SKAction.rotate(toAngle: -leanAngle, duration: 0.2),
+                    SKAction.scale(to: 0.5, duration: 0.2)
+                ])
+                slap.timingMode = .easeIn
+                
+                let sink = SKAction.moveBy(x: 0, y: -250, duration: 0.5)
+                sink.timingMode = .easeIn
+
+                node.run(.sequence([
+                    riseAndLean,
+                    .wait(forDuration: 0.1), // Moment of tension
+                    switchToSlap,
+                    slap,
+                    .wait(forDuration: 0.4),
+                    sink,
+                    .removeFromParent()
+                ]))
+            }
+            
+            runAttack(node: leftTentacle, isLeft: true)
+            runAttack(node: rightTentacle, isLeft: false)
+
+        } else {
+            // --- BAITED: Rise & Grab centrally in one fluid motion ---
+            
+
+            func runBaited(node: SKSpriteNode, isLeft: Bool) {
+                let s = isLeft ? "left" : "right"
+                let grabAngle: CGFloat = isLeft ? -.pi/5 : .pi/5
+                let moveInX: CGFloat = isLeft ? 60 : -60
+                
+                // Switch to Asset 2 almost immediately for a reaching look
+                let switchToReach = SKAction.setTexture(SKTexture(imageNamed: "obs_kraken_\(s)_1"))
+                
+                let grabMotion = SKAction.group([
+                    SKAction.moveBy(x: moveInX, y: 140, duration: 0.8),
+                    SKAction.rotate(toAngle: grabAngle, duration: 0.8)
+                ])
+                grabMotion.timingMode = .easeInEaseOut
+                
+                let sink = SKAction.moveBy(x: 0, y: -300, duration: 0.6)
+                
+                node.run(.sequence([
+                    switchToReach,
+                    grabMotion,
+                    .wait(forDuration: 0.1),
+                    sink,
+                    .removeFromParent()
+                ]))
+            }
+            
+            equipmentVisual(.predatorBait)
+            runBaited(node: leftTentacle, isLeft: true)
+            runBaited(node: rightTentacle, isLeft: false)
+        }
+    }
+    
+    func handleEngineFailureAnimation() {
+        // Cari apakah sudah ada asap (agar tidak double/stack saat engine failure aktif)
+        if childNode(withName: "engine_smoke") != nil { return }
         
-        // Run Right Sequence
-        rightTentacle.run(.sequence([
-            rise,
-            tiltBackRight,
-            impactRight,
-            slapRight,
-            wait,
-            sink,
-            .removeFromParent()
-        ]))
+        // Buat node induk untuk asap agar mudah dihapus nanti jika diperbaiki
+        let smokeEmitter = SKNode()
+        smokeEmitter.name = "engine_smoke"
+        smokeEmitter.position = CGPoint(x: shipNode.position.x - 20, y: shipNode.position.y + 20)
+        addChild(smokeEmitter)
+        
+        let spawnSmoke = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            let smoke = SKSpriteNode(imageNamed: "obs_enginefailure")
+            smoke.setScale(0.1)
+            smoke.alpha = 0.6
+            smoke.zPosition = 10
+            smoke.position = CGPoint.zero // Relatif terhadap smokeEmitter
+            smokeEmitter.addChild(smoke)
+            
+            // Gerakan asap: Naik, membesar sedikit, lalu hilang
+            let moveUp = SKAction.moveBy(x: CGFloat.random(in: -20...20), y: 100, duration: 1.5)
+            let scaleUp = SKAction.scale(to: 0.3, duration: 1.5)
+            let fadeOut = SKAction.fadeOut(withDuration: 1.5)
+            
+            smoke.run(.sequence([
+                .group([moveUp, scaleUp, fadeOut]),
+                .removeFromParent()
+            ]))
+        }
+        
+        let wait = SKAction.wait(forDuration: 0.2) // Interval antar asap
+        smokeEmitter.run(SKAction.repeatForever(.sequence([spawnSmoke, wait])))
     }
     
     func shakeScreen(intensity: String) {
@@ -501,3 +814,4 @@ class GameScene: SKScene {
         }
     }
 }
+

@@ -18,6 +18,7 @@ class ObstacleController {
         var speedPenalty: Double = 0
         var teleportDistance: Double = 0
         var shouldStealFish = false
+        var shouldKrakenAttack = false
         var speedText = ""
         var shieldtext = ""
         
@@ -27,10 +28,11 @@ class ObstacleController {
             shouldStealFish = true
             
         case .iceberg:
-            gameController.onPlaySFX?("glacier")
-            gameController.gameScene?.spawnObstacleVisual(.iceberg)
+            gameController.gameScene?.handleIcebergAnimation()
             
             try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+            gameController.onPlaySFX?("glacier")
+            gameController.hapticStyle?(.heavy)
             switch ship.shipType {
             case .speedBoat:    damage = 30; speedPenalty = 30
             case .fishingBoat:  damage = 20; speedPenalty = 20
@@ -41,14 +43,14 @@ class ObstacleController {
         case .lightning:
             gameController.onPlaySFX?("thunder")
             gameController.hapticStyle?(.heavy)
-            gameController.gameScene?.spawnObstacleVisual(.lightning)
+            gameController.gameScene?.handleLightningAnimation()
             damage = 40
             
         case .tornado:
             gameController.onPlaySFX?("tornado")
             gameController.hapticStyle?(.heavy)
             var distance = 0.0
-            gameController.gameScene?.spawnObstacleVisual(.tornado)
+            gameController.gameScene?.handleTornadoAnimation()
             switch ship.shipType {
             case .speedBoat:    distance = 10.0
             case .fishingBoat:  distance = 7.0
@@ -59,18 +61,12 @@ class ObstacleController {
                 gameController.distanceTravelledKm = max(0, gameController.distanceTravelledKm + teleportDistance)
                 gameController.gameScene?.shakeScreen(intensity: "heavy")
                 let dir = teleportDistance > 0 ? "forward" : "backward"
-                gameController.showEvent("Tornado threw you \(Int(distance))km \(dir)!")
+                gameController.triggerObstaclePopUp("Tornado threw you \(Int(distance))km \(dir)!")
             }
             
-        case .predator:
+        case .predator, .predatorBaited:
             gameController.onPlaySFX?("kraken")
-            gameController.hapticStyle?(.heavy)
-            gameController.gameScene?.spawnObstacleVisual(.predator)
-            
-            try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
-            
-            damage = Double(ship.maxDurability) * 0.2
-            gameController.gameScene?.shakeScreen(intensity: "heavy")
+            shouldKrakenAttack = true
             
         case .shipFailure:
             // Simply trigger the boolean. moveShip() will handle the continuous decay.
@@ -78,16 +74,30 @@ class ObstacleController {
                 gameController.onPlaySFX?("engine_fail")
                 gameController.hapticStyle?(.heavy)
                 gameController.isEngineFailing = true
-                gameController.showEvent("\(obstacleType.displayName)! Speed is dropping...")
+                gameController.gameScene?.handleEngineFailureAnimation()
+                gameController.triggerObstaclePopUp("\(obstacleType.displayName)! Speed is dropping...")
             }
             return
         }
         
-        // PREDATOR BAIT vs Predator
-        if obstacleType == .predator && equipment.contains(where: { $0.type == .predatorBait }) {
-            damage = 0
-            gameController.hapticStyle?(.heavy)
-            gameController.showEvent("Predator took the bait and left!")
+        if shouldKrakenAttack {
+            if equipment.contains(where: { $0.type == .predatorBait}) {
+                damage = 0
+                gameController.gameScene?.handlePredatorAnimation(isAttacking: false)
+                
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+
+                gameController.hapticStyle?(.light)
+                gameController.triggerObstaclePopUp("Predator took the bait and left!")
+            } else {
+                gameController.gameScene?.handlePredatorAnimation(isAttacking: true)
+                
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+                
+                damage = Double(ship.maxDurability) * 0.2
+                gameController.gameScene?.shakeScreen(intensity: "heavy")
+                gameController.hapticStyle?(.heavy)
+            }
         }
         
         // Apply Speed Drop
@@ -100,19 +110,21 @@ class ObstacleController {
             if gameController.guardianAngelHitsRemaining > 0 && equipment.contains(where: { $0.type == .guardianAngel }) {
                 damage = 0
                 gameController.guardianAngelHitsRemaining -= 1
-                gameController.showEvent("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
-                
+                gameController.triggerObstaclePopUp("Guardian Angel blocked the hit! (\(gameController.guardianAngelHitsRemaining) left)")
+                gameController.gameScene?.equipmentVisual(.guardianAngel)
+                gameController.onPlaySFX?("angel")
                 if gameController.guardianAngelHitsRemaining == 0 {
-                    gameController.showEvent("Your Guardian Angel has broken!")
+                    gameController.triggerObstaclePopUp("Your Guardian Angel has broken!")
                 }
             } else if equipment.contains(where: { $0.type == .shield }) {
                 damage *= 0.7
+                gameController.gameScene?.equipmentVisual(.shield)
                 shieldtext = " Shield reduced the damage!"
             }
             
             if damage > 0 {
                 gameController.currentHealth = max(0, gameController.currentHealth - damage)
-                gameController.showEvent("\(obstacleType.displayName), -\(Int(damage.rounded())) HP!\(shieldtext)\(speedText)")
+                gameController.triggerObstaclePopUp("\(obstacleType.displayName), -\(Int(damage.rounded())) HP!\(shieldtext)\(speedText)")
                 if gameController.currentHealth <= 0 {
                     gameController.endExpedition(result: .shipDestroyed)
                 }
@@ -123,23 +135,23 @@ class ObstacleController {
         if shouldStealFish {
             if let randomIndex = gameController.catchLog.indices.randomElement() {
                 if equipment.contains(where: { $0.type == .scarecrow }) {
-                    gameController.gameScene?.spawnObstacleVisual(.albatros)
+                    gameController.gameScene?.handleAlbatrosAnimation(isStealing: false, isScarecrow: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.showEvent("Scarecrow protected your fish!")
+                        gameController.triggerObstaclePopUp("Scarecrow scared the albatros away!")
                     }
                 } else {
                     let stolenFish = gameController.catchLog.remove(at: randomIndex)
-                    gameController.gameScene?.spawnObstacleVisual(.albatrosSteal)
+                    gameController.gameScene?.handleAlbatrosAnimation(isStealing: true, isScarecrow: false)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        gameController.showEvent("Albatross stole your \(stolenFish.name)!")
+                        gameController.triggerObstaclePopUp("Albatros stole your \(stolenFish.name)!")
                     }
                 }
             } else {
-                gameController.gameScene?.spawnObstacleVisual(.albatros)
+                gameController.gameScene?.handleAlbatrosAnimation(isStealing: false, isScarecrow: false)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    gameController.showEvent("Albatross circled, but you have no fish!")
+                    gameController.triggerObstaclePopUp("Albatros circled, but you have no fish!")
                 }
             }
         }

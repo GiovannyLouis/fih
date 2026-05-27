@@ -33,7 +33,7 @@ class InGameController {
     let timer = GameTimerServices()
     
     var currentHealth : Double
-    var currentSpeed : Double
+    //var currentSpeed : Double
     var isEngineFailing: Bool = false
     var guardianAngelHitsRemaining: Int = 3
     
@@ -42,8 +42,12 @@ class InGameController {
     var isExpeditionOver : Bool = false
     var expeditionResults : ExpeditionResult = .inProgress
     
-    var latestEventMessage : String = ""
-    var showEventPopup: Bool = false
+    var showCatchFishPopup: Bool = false
+    var showObstaclePopup: Bool = false
+    var latestFishMessage: String = ""
+    var latestCatchedFishIcon: String? = nil
+    var latestObstacleMessage: String = ""
+
     var onPlaySFX: ((String) -> Void)?
     var hapticStyle: ((UIImpactFeedbackGenerator.FeedbackStyle) -> Void)?
     
@@ -56,25 +60,25 @@ class InGameController {
         FishZoneInfo(
             name: "Zone 1",
             startKm: 0,
-            endKm: 30,
+            endKm: 80,
             // Menyaring allFish: "Ambil semua ikan yang properti zone-nya bernilai 1"
             fishes: Fish.allFish.filter { $0.zone == 1 }
         ),
         FishZoneInfo(
             name: "Zone 2",
-            startKm: 30,
-            endKm: 80,
+            startKm: 80,
+            endKm: 200,
             fishes: Fish.allFish.filter { $0.zone == 2 }
         ),
         FishZoneInfo(
             name: "Zone 3",
-            startKm: 80,
-            endKm: 150,
+            startKm: 200,
+            endKm: 400,
             fishes: Fish.allFish.filter { $0.zone == 3 }
         ),
         FishZoneInfo(
             name: "Zone 4",
-            startKm: 150,
+            startKm: 400,
             endKm: 1000,
             fishes: Fish.allFish.filter { $0.zone == 4 }
         )
@@ -95,11 +99,23 @@ class InGameController {
 //    var hasShield: Bool       { equippedItems.contains { $0.type == .shield } }
 //    var hasScarecrow: Bool    { equippedItems.contains { $0.type == .scarecrow } }
 //    var hasPredatorBait: Bool { equippedItems.contains { $0.type == .predatorBait } }
+    var hasThrusters: Bool    { equippedItems.contains { $0.type == .rocketThrusters } }
     var hasSoulEater: Bool    { equippedItems.contains { $0.type == .soulEater } }
     var hasLuckyHat: Bool     { equippedItems.contains { $0.type == .luckyHat } }   // does nothing :)
 
     var hasGuardianAngel: Bool {
         equippedItems.contains { $0.type == .guardianAngel } && guardianAngelHitsRemaining > 0
+    }
+    
+    var currentSpeed : Double {
+        didSet {
+            let effectiveMaxSpeed = Double(selectedShip.maxSpeed) + (hasThrusters ? 20 : 0)
+            // Whenever currentSpeed changes, update the scene's visual speed
+            gameScene?.updateVisualSpeed(
+                currentSpeed: currentSpeed,
+                maxSpeed: effectiveMaxSpeed
+            )
+        }
     }
     
     init (ship : Ship, equippedItems : [Equipment], actualWeather: WeatherType) {
@@ -109,7 +125,10 @@ class InGameController {
         self.currentHealth = Double(ship.maxDurability)
         
         let hasThrusters = equippedItems.contains(where: { $0.type == .rocketThrusters })
-        self.currentSpeed = Double (ship.maxSpeed) * (hasThrusters ? 1.25 : 1.0)
+        self.currentSpeed = Double (ship.maxSpeed) + (hasThrusters ? 20 : 0)
+//        self.currentSpeed = 0
+        gameScene?.updateVisualSpeed(currentSpeed: Double(ship.maxSpeed), maxSpeed: Double(ship.maxSpeed))
+        print("Init In Game Visual Speed: \(currentSpeed)")
         
         print("In Game Ship: \(self.selectedShip.name)")
         print("In Game Equipped items:")
@@ -122,7 +141,8 @@ class InGameController {
     
     func startExpedition() {
         guard !isExpeditionOver else { return }
-        
+        //gameScene?.updateVisualSpeed(currentSpeed: Double(selectedShip.maxSpeed), maxSpeed: Double(selectedShip.maxSpeed))
+
         timer.onTimeup = { [weak self] in
             self?.endExpedition(result: .timeUp)
         }
@@ -161,6 +181,14 @@ class InGameController {
             currentSpeed = max(Double(selectedShip.minSpeed), currentSpeed - Double(selectedShip.maxSpeed) * 0.02)
         }
         
+        if hasLuckyHat {
+            gameScene?.equipmentVisual(.luckyHat)
+        }
+        
+        if hasThrusters {
+            gameScene?.equipmentVisual(.rocketThrusters)
+        }
+        
         let kmPerSecond = currentSpeed / GameTimerServices.realSecondPerGameHour
         distanceTravelledKm += kmPerSecond
 
@@ -168,7 +196,7 @@ class InGameController {
     
     private func spawnEvent() {
         let roll = Double.random(in: 0...1)
-        if roll < 0.7 {
+        if roll < 0.65 {
             spawnfish()
         } else {
             triggerObstacle()
@@ -188,10 +216,14 @@ class InGameController {
         hapticStyle?(.medium)
         
         if hasSoulEater {
-            let heal = Double(selectedShip.maxDurability) * 0.03
+            let heal = 3.0
             currentHealth = min(Double(selectedShip.maxDurability), currentHealth + heal)
+            gameScene?.equipmentVisual(.soulEater)
         }
-        showEvent(" Caught \(catchedFish.name)!")
+        triggerFishPopUp(
+            "+1 \(catchedFish.name)!",
+            iconName: catchedFish.iconName
+        )
     }
     
     func triggerObstacle() {
@@ -209,8 +241,11 @@ class InGameController {
             case .windy: chosenObstacleType = .tornado
             }
         } else {
-            // General obstacle: 50% Predator, 50% Engine Failure
-            chosenObstacleType = Bool.random() ? .predator : .shipFailure
+            if Double.random(in: 0...1) <= 0.6 {
+                chosenObstacleType = .predator
+            } else {
+                chosenObstacleType = .shipFailure
+            }
         }
         
         // Let ObstacleController handle the effects
@@ -219,31 +254,37 @@ class InGameController {
         }
     }
     
-//    func applyDamage(_ amount: Double) {
-//        if hasGuardianAngel {
-//            guardianAngelHitsRemaining -= 1
-//
-//            if guardianAngelHitsRemaining == 0 {
-//                showEvent("Guardian Angel destroyed!")
-//            } else {
-//                showEvent("Blocked! (\(guardianAngelHitsRemaining) left)")
-//            }
-//            return
-//        }
-//
-//        let finalDamage = amount * damageMultiplier
-//        currentHealth = max(0, currentHealth - finalDamage)
-//        if currentHealth <= 0 {
-//            endExpedition(result: .shipDestroyed)
-//        }
-//    }
-    
-    func showEvent(_ message: String) {
-        latestEventMessage = message
-        showEventPopup = true
-        // AutoHide popup 2 detik
+    func triggerFishPopUp(_ message: String, iconName: String?) {
+        self.latestFishMessage = message
+        self.latestCatchedFishIcon = iconName
+        
+        // Nyalakan popup ikan
+        withAnimation(.easeOut(duration: 0.3)) {
+            self.showCatchFishPopup = true
+        }
+        
+        // Auto-hide khusus untuk ikan (2 detik)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.showEventPopup = false
+            withAnimation(.easeIn(duration: 0.5)) {
+                self?.showCatchFishPopup = false
+            }
+        }
+    }
+        
+    // MARK: - EVENT KHUSUS OBSTACLE
+    func triggerObstaclePopUp(_ message: String) {
+        self.latestObstacleMessage = message
+        
+        // Nyalakan popup obstacle
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            self.showObstaclePopup = true
+        }
+        
+        // Auto-hide khusus untuk obstacle (2 detik)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            withAnimation(.easeIn(duration: 0.3)) {
+                self?.showObstaclePopup = false
+            }
         }
     }
     

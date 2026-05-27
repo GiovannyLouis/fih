@@ -6,51 +6,49 @@
 //
 
 import SwiftUI
-import SpriteKit
 
 struct EquipmentSlotView: View {
     let iconName: String?
-    
     var onRemove: (() -> Void)? = nil
-    
-    var bgScene: SKScene {
-        let scene = CreamBackgroundScene()
-        scene.scaleMode = .fill
-        return scene
-    }
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            
             ZStack {
-                SpriteView(scene: bgScene, options: [.allowsTransparency])
+                Image("card_background_cream")
+                    .resizable(
+                        capInsets: EdgeInsets(top: 70, leading: 70, bottom: 70, trailing: 70),
+                        resizingMode: .stretch
+                    )
+                    .frame(width: 130, height: 130)
+                    .scaleEffect(0.5)
+                    .frame(width: 65, height: 65)
                 
                 if let icon = iconName {
                     Image(icon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(Color("color_dark_blue"))
+                        .frame(width: 46, height: 46)
+                } else {
+                    Image(systemName: "square.dashed")
+                        .font(.system(size: 26))
+                        .foregroundColor(Color("color_dark_blue").opacity(0.25))
                 }
             }
-            .frame(width: 60, height: 60)
+            .frame(width: 65, height: 65)
             
-            if iconName != nil {
+            // Tombol hanya muncul jika onremove diberikan tidak nil
+            if let onRemoveAction = onRemove, iconName != nil {
                 Button(action: {
-                    onRemove?()
+                    onRemoveAction()
                 }) {
-                    Image(systemName: "xmark.circle.fill")
+                    Image("icon_close_red")
                         .resizable()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 25, height: 25)
                         .foregroundColor(.red)
-                        .background(Circle().fill(Color.white)) 
+                        .background(Circle().fill(Color.white))
                 }
                 .offset(x: 8, y: -8)
             }
         }
     }
-}
-
-#Preview {
-    // EquipmentSlotView()
 }
