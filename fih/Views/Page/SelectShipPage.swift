@@ -12,6 +12,7 @@ import SpriteKit
 struct SelectShipPage: View {
     
     @State private var shipController = ShipController()
+    @State private var showGuide: Bool = false
     
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
@@ -25,7 +26,7 @@ struct SelectShipPage: View {
         }
         return SKScene()
     }
-        
+    
     var body: some View {
         ZStack {
             Color.white.ignoresSafeArea()
@@ -58,6 +59,20 @@ struct SelectShipPage: View {
                     
                     Spacer() // Pushes the next button to the far right
                     
+                    Button(action: {
+                        var t = Transaction()
+                        t.disablesAnimations = true
+                        withTransaction(t) {
+                            showGuide = true
+                        }
+                        audio.playSFX(filename: "tap")
+                    }) {
+                        Image("icon_guide")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                    }
+                    .opacity(showGuide ? 0 : 1)
+                    
                     
                 }
                 .padding(.top, 32)
@@ -84,7 +99,7 @@ struct SelectShipPage: View {
                 
                 Spacer() // Pushes the cards up to center them perfectly
                 
-              
+                
                 // 3. Button next
                 // Right Arrow (Next Step: Select Equipment)
                 Button(action: {
@@ -102,12 +117,34 @@ struct SelectShipPage: View {
                             .font(.custom("Cause-Bold", size: 32))
                             .foregroundColor(Color("color_dark_blue"))
                     }
-                   
+                    
                 }
                 .padding(.bottom, 16)
                 .disabled(appState.selectedShip == nil)
                 .buttonStyle(PlainButtonStyle())
             }
+            
+            //            if showGuide {
+            //                ObstacleInfoView {
+            //                    showGuide = false
+            //                    print("Close guide")
+            //                }
+            //                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //                .transition(.identity)
+            //                .ignoresSafeArea()
+            //            }
+            
+        }
+        .fullScreenCover(isPresented: $showGuide.animation(.none)) {
+            ObstacleInfoView {
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    showGuide = false
+                }
+            }
+            .presentationBackground(.clear)
+            .ignoresSafeArea()
         }
     }
 }

@@ -18,7 +18,7 @@ struct StatView: View {
                 .scaledToFit()
                 .frame(width: 20, height: 20)
             Text(value)
-                .font(.custom("Patrick-Regular", size:16))
+                .font(.custom("PatrickHand-regular", size:16))
         }
     }
 }

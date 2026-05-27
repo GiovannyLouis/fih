@@ -12,6 +12,8 @@ struct WeatherForecastPage: View {
     @Environment(AppStateManager.self) private var appState
     @Environment(AudioManager.self) private var audio
     @State private var controller: WeatherController = WeatherController()
+    @State private var showGuide: Bool = false
+
     
     var fishBackgroundScene: SKScene {
         if let scene = SKScene(fileNamed: "FishBackground") {
@@ -32,7 +34,8 @@ struct WeatherForecastPage: View {
             .opacity(0.075)
             
             VStack {
-                HStack {
+                HStack(spacing: 8) {
+//                    Spacer()
                     Button(action: {
                         appState.isMovingForward = false
                         appState.currentScreen = .mainMenuPage
@@ -42,6 +45,8 @@ struct WeatherForecastPage: View {
                             .resizable()
                             .frame(width: 40, height: 40)
                     }
+//                    .padding(.leading, 64)
+                    
                     
                     Spacer()
                     
@@ -51,6 +56,21 @@ struct WeatherForecastPage: View {
                     
                     Spacer()
                     
+                    Button(action: {
+                        var t = Transaction()
+                        t.disablesAnimations = true
+                        withTransaction(t) {
+                            showGuide = true
+                        }
+                        audio.playSFX(filename: "tap")
+                    }) {
+                        Image("icon_guide")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                    }
+                    .opacity(showGuide ? 0 : 1)
+//                    .padding(.trailing, 64)
+//                    Spacer()
                     
                 }
                 .padding(.top, 32)
@@ -138,7 +158,31 @@ struct WeatherForecastPage: View {
             .onDisappear {
                 audio.stopBGM_Game()
             }
+//            if showGuide {
+//                ObstacleInfoView {
+//                    showGuide = false
+//                    print("Close guide")
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .transition(.identity)
+//                .ignoresSafeArea()
+//            }
         }
+        .fullScreenCover(isPresented: $showGuide.animation(.none)) {
+            ObstacleInfoView {
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    showGuide = false
+                }
+            }
+            .presentationBackground(.clear)
+            .ignoresSafeArea()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .border(.black)
+//        .frame(width: .infinity, height: .infinity)
+//        .ignoresSafeArea()
     }
 }
 

@@ -28,7 +28,7 @@ struct EquipmentRowView: View {
                         .font(.custom("Cause-Extrabold", size: 16))
                         .foregroundColor(Color("color_dark_blue"))
                     Text(item.description)
-                        .font(.custom("Cause-Regular", size: 14))
+                        .font(.custom("patrickhand-regular", size: 14))
                         .foregroundColor(Color("color_dark_blue"))
                         .multilineTextAlignment(.leading)
                 }
