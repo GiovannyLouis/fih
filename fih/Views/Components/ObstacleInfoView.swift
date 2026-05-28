@@ -39,7 +39,7 @@ struct ObstacleInfoView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
             }
-            .position(x: 280, y: 160)
+            .position(x: 295, y: 161)
             
             // MARK: Title
             Text("Obstacle Information")
